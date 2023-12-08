@@ -1,91 +1,57 @@
-import minecraft_launcher_lib, os, subprocess, tkinter
+#!/usr/bin/env python3
+# This example shows how to write a basic launcher with Tkinter.
+from tkinter import Tk, Label, Entry, Button, mainloop
+from tkinter.ttk import Combobox
+import minecraft_launcher_lib
+import subprocess
+import sys
 
-window = tkinter.Tk()
-window.title("TeenyLauncher")
-window.geometry("800x600")
-window.config(bg="#FFFFFF")
-window.iconbitmap("assets/icon.ico")
-window.resizable(0,0)
 
-options = tkinter.Frame(window, width=300, height=600)
-options.place(x=500, y=0)
-options.config(bg="#3D3D3D", )
-options.pack()
+def main():
+    def launch():
+        window.withdraw()
 
-nameText = tkinter.Label(options, text="Nombre de usuario")
-nameText.grid(row=2,column=0, sticky="w", padx=50, pady=10)
+        minecraft_launcher_lib.install.install_minecraft_version(version_select.get(), minecraft_directory)
 
-nameSelect = tkinter.Entry(options)
-nameSelect.grid(row=3, column=0, sticky="w", padx=50, pady=10)
+        login_data = minecraft_launcher_lib.account.login_user(username_input.get(), password_input.get())
 
-versionText = tkinter.Label(options, text="Version de minecraft")
-versionText.grid(row=0,column=0, sticky="w", padx=50, pady=10)
+        options = {
+            "username": login_data["selectedProfile"]["name"],
+            "uuid": login_data["selectedProfile"]["id"],
+            "token": login_data["accessToken"]
+        }
+        minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version_select.get(), minecraft_directory, options)
 
-versionSelect = tkinter.Entry(options)
-versionSelect.grid(row=1, column=0, sticky="w", padx=50, pady=10)
+        subprocess.run(minecraft_command)
 
-installTypeText = tkinter.Label(options, text="Tipo de instalacion")
-installTypeText.grid(row=4,column=0, sticky="w", padx=50, pady=10)
+        sys.exit(0)
 
-installTypeSelect = tkinter.Entry(options)
-installTypeSelect.grid(row=5, column=0, sticky="w", padx=50, pady=10)
+    window = Tk()
+    window.title("Minecraft Launcher")
 
-window.mainloop()
+    Label(window, text="Username:").grid(row=0, column=0)
+    username_input = Entry(window)
+    username_input.grid(row=0, column=1)
+    Label(window, text="Password:").grid(row=1, column=0)
+    password_input = Entry(window)
+    password_input.grid(row=1, column=1)
 
-user_window = os.environ["USERNAME"]
-minecraft_directori = f"C:/Users/{user_window}/AppData/Roaming/.minecraftLauncher"
+    minecraft_directory = minecraft_launcher_lib.utils.get_minecraft_directory()
+    versions = minecraft_launcher_lib.utils.get_available_versions(minecraft_directory)
+    version_list = []
 
-def instalar_minecraft(version):
-    if version:
-        minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
-        print(f'Se ha instalado la version {version}')
-    else:
-        print('No se ingreso ninguna contraseña')
+    for i in versions:
+        version_list.append(i["id"])
 
-def instalar_forge(version):
-    forge = minecraft_launcher_lib.forge.find_forge_version(version)
-    minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
-    print('Forge instalado')
+    Label(window, text="Version:").grid(row=2, column=0)
+    version_select = Combobox(window, values=version_list)
+    version_select.grid(row=2, column=1)
+    version_select.current(0)
 
-def ejecutar_minecraft(nombre,vers):
-    mine_user = nombre
-    version = vers
+    Button(window, text="Launch", command=launch).grid(row=4, column=1)
 
-    options = {
-        'username': mine_user,
-        'uuid' : '',
-        'token': '',
+    mainloop()
 
-        'jvArguments': ["-Xmx4G","-Xmx4G"], # 4G es para 4 de gigas de RAM
-        'launcherVersion': "0.0.2"
-    }
 
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version,minecraft_directori,options)
-    subprocess.run(minecraft_command)
-
-def menu():
-    while True:
-
-        versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
-        if len(versiones_instaladas) == 0:
-            print('No tienes versiones instaladas')
-        else:
-            for ver in versiones_instaladas:
-                print(ver['id'])
-
-        print('Bienvenido al launcher de Minecraft')
-        respuesta = int(input('Para instalar una version (0) \nPara instalar forge (1) \nPara ejecutar minecraft (2) \nPara para launcher (3)\n'))
-
-        match respuesta:
-            case 0:
-                version = input('Que version: ')
-                instalar_minecraft(version)
-            case 1:
-                version = input('Que version: ')
-                instalar_forge(version)
-            case 2:
-                nombre = input('Tu nombre: ')
-                version = input('Que version: ')
-                ejecutar_minecraft(nombre,version)
-            case 3:
-                break
+if __name__ == "__main__":
+    main()
