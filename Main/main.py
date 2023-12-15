@@ -1,69 +1,120 @@
 import minecraft_launcher_lib, os, subprocess
 import tkinter as tk
-from tkinter import simpledialog
 
-user_window = os.environ["USERNAME"]
-minecraft_directory = f"C:/Users/{user_window}/AppData/Roaming/.TeenyLauncher"
+window = tk.Tk()
+window.geometry('800x500')
+window.title('TeenyLauncher')
+window.resizable(0,0)
+window.iconbitmap("assets/Icon.ico")
 
-options = {'username': "User", 'uuid': '', 'token': '', 'jvArguments': ["-Xmx2G"], 'launcherVersion': "1.0.0"} #options.update({'jvArguments': '[-Xmx' + str(int(memoria)) + 'G]'})
+info = tk.Frame(window)
+info.config(bg="#FFFFFF",width=600,height=500)
+info.grid(row=0,column=0)
 
-def instalar_minecraft(ver):
-    if ver == "vanilla":
-        version = simpledialog.askstring("Instalar Minecraft", "Ingrese la versión a instalar:")
-        minecraft_launcher_lib.install.install_minecraft_version(version, minecraft_directory)
-        print(f'Se ha instalado la versión {version}')
-    elif ver == "forge":
-        version = simpledialog.askstring("Instalar Forge", "Ingrese la versión de Forge a instalar:")
-        forge = minecraft_launcher_lib.forge.find_forge_version(version)
-        minecraft_launcher_lib.forge.install_forge_version(forge, minecraft_directory)
-        print('Forge instalado')
-    elif ver == None:
-        return
+mineconf = tk.Frame(window)
+mineconf.config(bg="#3D3D3D",width=200,height=500)
+mineconf.grid(row=0,column=1)
+mineconf.grid_propagate(False)
+
+user = os.getenv('USERNAME')
+if os.name == "nt":
+    minecraft_directori = f"C:/Users/{user}/AppData/Roaming/.TeenyLauncher"
+elif os.name == "posix":
+    minecraft_directori = f"/home/{user}/.TeenyLauncher"
+
+bt_ejecutar_minecraft = tk.Button(mineconf)
+bt_instalar_versiones = tk.Button(mineconf)
+bt_instalar_forge = tk.Button(mineconf)
+
+label_nombre = tk.Label(mineconf,text='Nombre de usuario')
+laber_ram = tk.Label(mineconf,text='Uso de ram en Gb')
+
+entry_versiones = tk.Entry(mineconf)
+entry_nombre = tk.Entry(mineconf)
+entry_ram = tk.Entry(mineconf)
+
+versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
+
+lista_versiones_instaladas = []
+for versiones_instaladas in versiones_instaladas:
+    lista_versiones_instaladas.append(versiones_instaladas['id'])
+
+if len(lista_versiones_instaladas) != 0:
+    vers = tk.StringVar(mineconf)
+    vers.set(lista_versiones_instaladas[0])
+elif len(lista_versiones_instaladas) == 0:
+    vers = 'sin versiones instaladas'
+    lista_versiones_instaladas.append('sin versiones instaladas')
+
+versiones_menu_desplegable = tk.OptionMenu(mineconf, vers, *lista_versiones_instaladas)
+versiones_menu_desplegable.config()
+
+def instalar_minecraft():
+    version = entry_versiones.get()
+    if version:
+        minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
+        print(f'Se ha instalado la version {version}')
     else:
-        return
+        print('No se ingreso ninguna version')
+
+def instalar_forge():
+    version = entry_versiones.get()
+    forge = minecraft_launcher_lib.forge.find_forge_version(version)
+    minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
+    print('Forge instalado')
 
 def ejecutar_minecraft():
-    version = simpledialog.askstring("Ejecutar Minecraft", "Ingrese la versión de Minecraft a ejecutar:")
+    mine_user = entry_nombre.get()
+    version = vers.get()
+    ram = f"-Xmx{entry_ram.get()}G"
 
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directory, options)
+    options = {'username': mine_user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "0.0.2"}
+
+    window.destroy()
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version,minecraft_directori,options)
     subprocess.run(minecraft_command)
 
-    print(options)
+def instalar_versiones_normales():
+    global entry_versiones
+    ventana_versiones = tk.Toplevel(mineconf)
+    entry_versiones = tk.Entry(ventana_versiones)
+    entry_versiones.grid(row=0,column=0,pady=5,sticky=tk.W)
+
+    bt_instalar_vers = tk.Button(ventana_versiones,command=instalar_minecraft,text='Instalar')
+    bt_instalar_vers.grid(row=1,column=0,pady=5,sticky=tk.W)
+
+def instalar_versiones_forge():
+    global entry_versiones
+    ventana_versiones = tk.Toplevel(mineconf)
+    entry_versiones = tk.Entry(ventana_versiones)
+    entry_versiones.grid(row=0,column=0,pady=5,sticky=tk.W)
+    
+    bt_instalar_vers = tk.Button(ventana_versiones,command=instalar_forge,text='Instalar')
+    bt_instalar_vers.grid(row=1,column=0,pady=5,sticky=tk.W)
+
 def menu():
-    window = tk.Tk()
-    window.iconbitmap("assets/Icon.ico")
-    window.title("TeenyLauncher")
-    window.geometry("800x500")
-    window.config(bg = "#3D3D3D")
-    window.resizable(width=0,height=0)
+    label_nombre.config(fg="#FFFFFF", font=("Antipasto Pro Extrabold", 15), background="#3D3D3D")
+    label_nombre.grid(row=0,column=0,pady=5,sticky=tk.W)
 
-    info = tk.Frame(window, width=600, height=500)
-    info.config(bg="#FFFFFF")
-    info.grid(row=0,column=0)
+    entry_nombre.grid(row=1,column=0,pady=5,sticky=tk.W)
 
-    play = tk.Frame(window, width=200, height=500)
-    play.config(bg="#3D3D3D")
-    play.grid(row=0,column=1)
+    laber_ram.config(fg="#FFFFFF", font=("Antipasto Pro Extrabold", 15), background="#3D3D3D")
+    laber_ram.grid(row=2,column=0,pady=5,sticky=tk.W)
 
-    NameText = tk.Label(play, text="Nombre de usuario:", fg="#FFFFFF", font=("Antipasto Pro Extrabold", 15), background="#3D3D3D")
-    NameText.grid(row=0,column=0,pady=5,sticky=tk.W)
-    NameInput = tk.Entry(play)
-    NameInput.grid(row=1,column=0,pady=5)
+    entry_ram.grid(row=3,column=0,pady=5,sticky=tk.W)
+    
+    bt_instalar_versiones.config(command=instalar_versiones_normales,text='Instalar versiones',fg="#FFFFFF", font=("Antipasto Pro Extrabold", 12), background="#2BC911")
+    bt_instalar_versiones.grid(row=4,column=0,pady=5,sticky=tk.W)
 
-    VersionText = tk.Label(play, text="Version de minecraft:", fg="#FFFFFF", font=("Antipasto Pro Extrabold", 15), background="#3D3D3D")
-    VersionText.grid(row=2,column=0,pady=5,sticky=tk.W)
-    VersionInput = tk.Entry(play)
-    VersionInput.grid(row=3,column=0,pady=5)
+    bt_instalar_forge.config(command=instalar_versiones_forge,text='Instalar forge',fg="#FFFFFF", font=("Antipasto Pro Extrabold", 12), background="#2BC911")
+    bt_instalar_forge.grid(row=5,column=0,pady=5,sticky=tk.W)
 
-    InstalacionTexto = tk.Label(play, text="Tipo de instalacion:", fg="#FFFFFF", font=("Antipasto Pro Extrabold", 15), background="#3D3D3D")
-    InstalacionTexto.grid(row=4,column=0,pady=5,sticky=tk.W)
-    InstalacionInput = tk.Entry(play)
-    InstalacionInput.grid(row=5,column=0,pady=5)
-
-    SubtimButton = tk.Button(play, text="Empezar", fg="#FFFFFF", font=("Antipasto Pro Extrabold", 12), background="#11A11E")
-    SubtimButton.grid(row=6,column=0,pady=5)
-
+    versiones_menu_desplegable.config(fg="#FFFFFF", font=(12), background="#2BC911")
+    versiones_menu_desplegable.grid(row=6,column=0,pady=5,sticky=tk.W)
+    
+    bt_ejecutar_minecraft.config(command=ejecutar_minecraft,text='Iniciar',fg="#FFFFFF", font=("Antipasto Pro Extrabold", 12), background="#2BC911")
+    bt_ejecutar_minecraft.grid(row=7,column=0,pady=5,sticky=tk.W)
+    
     window.mainloop()
 
-if __name__ == "__main__":
-    menu()
+menu()
