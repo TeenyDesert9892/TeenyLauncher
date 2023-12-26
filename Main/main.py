@@ -2,6 +2,14 @@ import customtkinter as ctk
 import minecraft_launcher_lib
 import os
 import subprocess
+import pkg_resources
+import shutil
+
+test = False
+
+if test == True:
+    packages = [dist.project_name for dist in pkg_resources.working_set]
+    subprocess.call("pip install --upgrade " + ' '.join(packages), shell=True)
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
@@ -19,8 +27,10 @@ entry_name = ctk.CTkEntry(master=mineconf)
 entry_ram = ctk.CTkEntry(master=mineconf)
 
 installVersions = ctk.CTkButton(master=mineconf)
+uninstallVersions = ctk.CTkButton(master=mineconf)
 
-selected_versions = ctk.CTkEntry(master=mineconf)
+versions_display = ctk.CTkOptionMenu(master=mineconf)
+updateVersions = ctk.CTkButton(master=mineconf)
 iniciar_minecraft = ctk.CTkButton(master=mineconf)
 
 user = os.getenv('USERNAME')
@@ -29,23 +39,20 @@ if os.name == "nt":
 elif os.name == "posix":
     minecraft_directori = f"/home/{user}/.TeenyLauncher"
 
-vers = ctk.StringVar(mineconf)
-lista_versiones_instaladas = []
-
 def check_vers():
+    vers = ctk.StringVar()
+    lista_versiones_instaladas = []
     versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
 
-    for i in range(0, len(versiones_instaladas), 1):
-        lista_versiones_instaladas.append(versiones_instaladas['id'])
+    for version_instalada in versiones_instaladas:
+        lista_versiones_instaladas.append(version_instalada['id'])
 
     if len(lista_versiones_instaladas) != 0:
         vers.set(lista_versiones_instaladas[0])
     elif len(lista_versiones_instaladas) == 0:
         vers.set('Sin versiones instaladas')
         lista_versiones_instaladas.append('Sin versiones instaladas')
-check_vers()
-
-versions_display = ctk.CTkOptionMenu(master=mineconf, variable=vers, values=lista_versiones_instaladas)
+    versions_display.configure(variable=vers, values=lista_versiones_instaladas)
 
 def message(msg):
     winmsg = ctk.CTk()
@@ -67,11 +74,9 @@ def message(msg):
     winmsg.mainloop()
 
 def install_minecraft(version):
-    if version:
-        minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
-        message(f"Se ha instalado la version {version}!")
-    else:
-        message("No se ingreso ninguna version...")
+    minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
+    check_vers()
+    message(f"La version de minecraft vanilla se ha instalado correctamente!")
 
 def install_forge(version):
     forge = minecraft_launcher_lib.forge.find_forge_version(version)
@@ -79,28 +84,27 @@ def install_forge(version):
         message("Esta version no tiene soporte por parte de el equipo de Forge.")
     else:
         minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
-        message("Forge instalado!")
+        check_vers()
+        message("La version de minecraft forge se ha instalado correctamente!")
 
 def install_fabric(version):
     if not minecraft_launcher_lib.fabric.is_minecraft_version_supported(version):
         message("Esta version no tiene soporte por parte de el equipo de Fabric.")
     else:
         minecraft_launcher_lib.fabric.install_fabric(version, minecraft_directori)
-        message('Fabric instalado!')
+        check_vers()
+        message('La version de minecraft fabric se ha instalado correctamente!')
 
 def install_quilt(version):
     if not minecraft_launcher_lib.quilt.is_minecraft_version_supported(version):
         message("Esta version no tiene soporte por parte de el equipo de Quilt.")
     else:
         minecraft_launcher_lib.quilt.install_quilt(version, minecraft_directori)
-        message("Quilt instalado!")
+        check_vers()
+        message("La version de minecraft quilt se ha instalado correctamente!")
 
-def ejecutar_minecraft():
-    mine_user = entry_name.get()
-    version = vers.get()
-    ram = f"-Xmx{entry_ram.get()}G"
-
-    options = {'username': mine_user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "1.0.0"}
+def ejecutar_minecraft(user, version, ram):
+    options = {'username': user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "1.0.0"}
 
     minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
     subprocess.run(minecraft_command)
@@ -148,6 +152,42 @@ def install_versions():
 
     winins.mainloop()
 
+def uninstall_minecraft_version(version):
+    shutil.rmtree(minecraft_directori + '/versions/' + version)
+    check_vers()
+    message(f"La version {version} ha sido desinstalada con exito!")
+
+def uninstall_versions():
+    winuns = ctk.CTk()
+    winuns.geometry("300x200")
+    winuns.iconbitmap("assets/Icon.ico")
+    winuns.title("Desinstalar versiones")
+    winuns.resizable(width=False, height=False)
+
+    display = ctk.CTkOptionMenu(master=winuns,font=("",16))
+    display.grid(row=0, column=0, pady=5, padx=5, sticky="we")
+
+    button = ctk.CTkButton(master=winuns,text="Desinstalar",font=("Antipasto Pro Extrabold", 24),command=lambda: uninstall_minecraft_version(display.get()))
+    button.grid(row=1, column=0, pady=5, padx=5, sticky="we")
+
+    vers = ctk.StringVar()
+    lista_versiones_instaladas = []
+
+    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
+
+    for version_instalada in versiones_instaladas:
+        lista_versiones_instaladas.append(version_instalada['id'])
+
+    if len(lista_versiones_instaladas) != 0:
+        vers.set(lista_versiones_instaladas[0])
+    elif len(lista_versiones_instaladas) == 0:
+        vers.set('Sin versiones instaladas')
+        lista_versiones_instaladas.append('Sin versiones instaladas')
+
+    display.configure(variable=vers, values=lista_versiones_instaladas)
+
+    winuns.mainloop()
+
 def menu():
     info.grid_propagate(False)
     info.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
@@ -167,12 +207,16 @@ def menu():
     installVersions.configure(text="Instalar versiones de Minecraft", font=("Antipasto Pro Extrabold", 16), command=install_versions)
     installVersions.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
-    versions_display.configure(font=("",16))
-    versions_display.grid(row=5, column=0, pady=5, padx=5, sticky="we")
+    uninstallVersions.configure(text="Desinstalar versiones de Minecraft", font=("Antipasto Pro Extrabold", 16), command=uninstall_versions)
+    uninstallVersions.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
-    iniciar_minecraft.configure(text="Inicar Minecraft", font=("Antipasto Pro Extrabold", 16), command=ejecutar_minecraft)
-    iniciar_minecraft.grid(row=6, column=0, pady=5, padx=5, sticky="we")
+    versions_display.configure(font=("",16))
+    versions_display.grid(row=6, column=0, pady=5, padx=5, sticky="we")
+
+    iniciar_minecraft.configure(text="Inicar Minecraft", font=("Antipasto Pro Extrabold", 16), command=lambda: ejecutar_minecraft(entry_name.get(), versions_display.get(), f"-Xmx{entry_ram.get()}G"))
+    iniciar_minecraft.grid(row=7, column=0, pady=5, padx=5, sticky="we")
 
     window.mainloop()
 
+check_vers()
 menu()
