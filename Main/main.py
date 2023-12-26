@@ -29,46 +29,71 @@ if os.name == "nt":
 elif os.name == "posix":
     minecraft_directori = f"/home/{user}/.TeenyLauncher"
 
-versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
-
 vers = ctk.StringVar(mineconf)
 lista_versiones_instaladas = []
-for versiones_instaladas in versiones_instaladas:
-    lista_versiones_instaladas.append(versiones_instaladas['id'])
 
-if len(lista_versiones_instaladas) != 0:
-    vers.set(lista_versiones_instaladas[0])
-elif len(lista_versiones_instaladas) == 0:
-    vers.set('Sin versiones instaladas')
-    lista_versiones_instaladas.append('Sin versiones instaladas')
+def check_vers():
+    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
+
+    for i in range(0, len(versiones_instaladas), 1):
+        lista_versiones_instaladas.append(versiones_instaladas['id'])
+
+    if len(lista_versiones_instaladas) != 0:
+        vers.set(lista_versiones_instaladas[0])
+    elif len(lista_versiones_instaladas) == 0:
+        vers.set('Sin versiones instaladas')
+        lista_versiones_instaladas.append('Sin versiones instaladas')
+check_vers()
 
 versions_display = ctk.CTkOptionMenu(master=mineconf, variable=vers, values=lista_versiones_instaladas)
+
+def message(msg):
+    winmsg = ctk.CTk()
+    winmsg.geometry("300x200")
+    winmsg.iconbitmap("assets/Icon.ico")
+    winmsg.title("Mensaje")
+    winmsg.resizable(width=False, height=False)
+
+    frame = ctk.CTkFrame(master=winmsg, width=280, height=140)
+    frame.grid_propagate(False)
+    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+
+    msgtxt = ctk.CTkLabel(master=frame, text=msg, font=("Antipasto Pro Extrabold", 16),wraplength=280)
+    msgtxt.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
+
+    msgbtn = ctk.CTkButton(master=winmsg,text="Ok", font=("Antipasto Pro Extrabold", 16),command=winmsg.destroy)
+    msgbtn.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
+
+    winmsg.mainloop()
 
 def install_minecraft(version):
     if version:
         minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
-        print(f'Se ha instalado la version {version}!')
+        message(f"Se ha instalado la version {version}!")
     else:
-        print('No se ingreso ninguna version...')
+        message("No se ingreso ninguna version...")
 
 def install_forge(version):
     forge = minecraft_launcher_lib.forge.find_forge_version(version)
-    minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
-    print('Forge instalado!')
+    if not forge:
+        message("Esta version no tiene soporte por parte de el equipo de Forge.")
+    else:
+        minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
+        message("Forge instalado!")
 
 def install_fabric(version):
     if not minecraft_launcher_lib.fabric.is_minecraft_version_supported(version):
-        print("This version is not supported by fabric")
+        message("Esta version no tiene soporte por parte de el equipo de Fabric.")
     else:
         minecraft_launcher_lib.fabric.install_fabric(version, minecraft_directori)
-        print('Fabric instalado!')
+        message('Fabric instalado!')
 
 def install_quilt(version):
     if not minecraft_launcher_lib.quilt.is_minecraft_version_supported(version):
-        print("This version is not supported by quilt")
+        message("Esta version no tiene soporte por parte de el equipo de Quilt.")
     else:
         minecraft_launcher_lib.quilt.install_quilt(version, minecraft_directori)
-        print('Quilt instalado!')
+        message("Quilt instalado!")
 
 def ejecutar_minecraft():
     mine_user = entry_name.get()
@@ -81,16 +106,19 @@ def ejecutar_minecraft():
     subprocess.run(minecraft_command)
 
 def verif_ver(ver, type):
-    if type == "Vanilla":
-        install_minecraft(ver)
-    elif type == "Forge":
-        install_forge(ver)
-    elif type == "Fabric":
-        install_fabric(ver)
-    elif type == "Quilt":
-        install_quilt(ver)
+    if ver != "":
+        if type == "Vanilla":
+            install_minecraft(ver)
+        elif type == "Forge":
+            install_forge(ver)
+        elif type == "Fabric":
+            install_fabric(ver)
+        elif type == "Quilt":
+            install_quilt(ver)
+        else:
+            message("Selecciona un tipo de verion!")
     else:
-        return
+        message("Introduce el numero de la version!")
 
 def install_versions():
     winins = ctk.CTk()
