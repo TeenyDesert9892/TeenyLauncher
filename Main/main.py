@@ -5,9 +5,11 @@ import subprocess
 import pkg_resources
 import shutil
 
-test = False
+print("This code was made by TeenyDesert9892")
 
-if test == True:
+test = True
+
+if test == False:
     packages = [dist.project_name for dist in pkg_resources.working_set]
     subprocess.call("pip install --upgrade " + ' '.join(packages), shell=True)
 
