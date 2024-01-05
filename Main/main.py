@@ -7,7 +7,7 @@ from scripts import configpkl
 
 print("This code was made by TeenyDesert9892")
 
-# Configure the gui and config
+# Configure ctk and config
 
 configpkl.check_config()
 config = configpkl.load_config()
@@ -235,6 +235,5 @@ def menu():
 
     window.mainloop()
 
-if __name__ == "__main__":
-    check_vers()
-    menu()
+check_vers()
+menu()
