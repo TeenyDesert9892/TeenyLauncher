@@ -1,8 +1,13 @@
 import customtkinter as ctk
 import minecraft_launcher_lib
-from scripts import configpkl, mcfunctios
+import os
+import subprocess
+import shutil
+from scripts import configpkl
 
 print("This code was made by TeenyDesert9892")
+
+# Configure the gui and config
 
 configpkl.check_config()
 config = configpkl.load_config()
@@ -30,10 +35,87 @@ versions_display = ctk.CTkOptionMenu(master=mineconf)
 updateVersions = ctk.CTkButton(master=mineconf)
 iniciar_minecraft = ctk.CTkButton(master=mineconf)
 
+# From here to above is all for minecraft_launcher_lib
+
+user = os.getenv('USERNAME')
+if os.name == "nt":
+    minecraft_directori = f"C:/Users/{user}/AppData/Roaming/.TeenyLauncher"
+elif os.name == "posix":
+    minecraft_directori = f"/home/{user}/.TeenyLauncher"
+
+def install_minecraft(version):
+    minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
+    check_vers()
+    message(f"La version de minecraft vanilla se ha instalado correctamente!")
+
+def install_forge(version):
+    forge = minecraft_launcher_lib.forge.find_forge_version(version)
+    if not forge:
+        message("Esta version no tiene soporte por parte de el equipo de Forge.")
+    else:
+        minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
+        check_vers()
+        message("La version de minecraft forge se ha instalado correctamente!")
+
+def install_fabric(version):
+    if not minecraft_launcher_lib.fabric.is_minecraft_version_supported(version):
+        message("Esta version no tiene soporte por parte de el equipo de Fabric.")
+    else:
+        minecraft_launcher_lib.fabric.install_fabric(version, minecraft_directori)
+        check_vers()
+        message('La version de minecraft fabric se ha instalado correctamente!')
+
+def install_quilt(version):
+    if not minecraft_launcher_lib.quilt.is_minecraft_version_supported(version):
+        message("Esta version no tiene soporte por parte de el equipo de Quilt.")
+    else:
+        minecraft_launcher_lib.quilt.install_quilt(version, minecraft_directori)
+        check_vers()
+        message("La version de minecraft quilt se ha instalado correctamente!")
+
+def ejecutar_minecraft(version, ram):
+    user = config[0]["Accounts"]["Default"]["Name"]
+    online = config[0]["Accounts"]["Default"]["Online"]
+
+    if ram != "":
+        ram = "2"
+
+    if online:
+        uuid = config[0]["Accounts"]["Default"]["Uuid"]
+        token = config[0]["Accounts"]["Default"]["Token"]
+        options = {'username': user,'uuid' : uuid,'token': token,'jvArguments': [ram,ram],'launcherVersion': "1.0.0"}
+    else:
+        options = {'username': user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "1.0.0"}
+
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
+    subprocess.run(minecraft_command)
+
+def verif_ver(ver, type):
+    if ver != "":
+        if type == "Vanilla":
+            install_minecraft(ver)
+        elif type == "Forge":
+            install_forge(ver)
+        elif type == "Fabric":
+            install_fabric(ver)
+        elif type == "Quilt":
+            install_quilt(ver)
+        else:
+            message("Selecciona un tipo de verion!")
+    else:
+        message("Introduce el numero de la version!")
+
+def uninstall_minecraft_version(version):
+    shutil.rmtree(minecraft_directori + '/versions/' + version)
+    check_vers()
+    message(f"La version {version} ha sido desinstalada con exito!")
+
+# From here to above is all for customtkinter
+
 def check_vers():
     vers = ctk.StringVar()
     lista_versiones_instaladas = []
-    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(mcfunctios.minecraft_directori)
+    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
 
     for version_instalada in versiones_instaladas:
         lista_versiones_instaladas.append(version_instalada['id'])
@@ -87,7 +169,7 @@ def install_versions():
     type_display.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
     install_button = ctk.CTkButton(master=frame)
-    install_button.configure(text="Instalar", font=("", 16), command=lambda: mcfunctios.verif_ver(ver_name.get(), type_display.get()))
+    install_button.configure(text="Instalar", font=("", 16), command=lambda: verif_ver(ver_name.get(), type_display.get()))
     install_button.grid(row=2, column=0, pady=5, padx=5, sticky="nswe")
 
     winins.mainloop()
@@ -102,13 +184,13 @@ def uninstall_versions():
     display = ctk.CTkOptionMenu(master=winuns,font=("",16))
     display.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
-    button = ctk.CTkButton(master=winuns,text="Desinstalar",font=("", 24),command=lambda: mcfunctios.uninstall_minecraft_version(display.get()))
+    button = ctk.CTkButton(master=winuns,text="Desinstalar",font=("", 24),command=lambda: uninstall_minecraft_version(display.get()))
     button.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
     vers = ctk.StringVar()
     lista_versiones_instaladas = []
 
-    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(mcfunctios.minecraft_directori)
+    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
 
     for version_instalada in versiones_instaladas:
         lista_versiones_instaladas.append(version_instalada['id'])
@@ -148,7 +230,7 @@ def menu():
     versions_display.configure(font=("",16))
     versions_display.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
-    iniciar_minecraft.configure(text="Inicar Minecraft", font=("", 16), command=lambda: mcfunctios.ejecutar_minecraft(versions_display.get(), f"-Xmx{entry_ram.get()}G"))
+    iniciar_minecraft.configure(text="Inicar Minecraft", font=("", 16), command=lambda: ejecutar_minecraft(versions_display.get(), f"-Xmx{entry_ram.get()}G"))
     iniciar_minecraft.grid(row=6, column=0, pady=5, padx=5, sticky="we")
 
     window.mainloop()
