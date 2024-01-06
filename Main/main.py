@@ -1,16 +1,33 @@
 import customtkinter as ctk
 import minecraft_launcher_lib
-import os
 import subprocess
 import shutil
-from scripts import configpkl
+import pickle
+import os
+import icecream
 
 print("This code was made by TeenyDesert9892")
 
+# Load data and config
+
+def save_config(var):
+    with open("assets/config.pkl", 'wb') as pklfile:
+        pickle.dump(var, pklfile)
+
+def load_config():
+    with open("assets/config.pkl", 'rb') as pklfile:
+        variable = pickle.load(pklfile)
+    return variable
+
+def check_config():
+    if not os.path.exists("assets/config.pkl"):
+        default_config = [{"Accounts": {"Default": {"Name": "User", "Online": False, }}},{"Launcher": {"Color": "dark"}},{"Version": "0.2.0"}]
+        save_config(default_config)
+
 # Configure ctk and config
 
-configpkl.check_config()
-config = configpkl.load_config()
+check_config()
+config = load_config()
 launcher = config[1]["Launcher"]["Color"]
 
 ctk.set_appearance_mode(launcher)
@@ -25,14 +42,16 @@ window.resizable(width=False, height=False)
 info = ctk.CTkFrame(master=window, width=500,height=480)
 mineconf = ctk.CTkFrame(master=window, width=260,height=480)
 
+addAcount = ctk.CTkButton(master=mineconf)
+deleteAcount = ctk.CTkButton(master=mineconf)
 acount_display = ctk.CTkOptionMenu(master=mineconf)
+
 entry_ram = ctk.CTkEntry(master=mineconf)
 
 installVersions = ctk.CTkButton(master=mineconf)
 uninstallVersions = ctk.CTkButton(master=mineconf)
-
 versions_display = ctk.CTkOptionMenu(master=mineconf)
-updateVersions = ctk.CTkButton(master=mineconf)
+
 iniciar_minecraft = ctk.CTkButton(master=mineconf)
 
 # From here to above is all for minecraft_launcher_lib
@@ -77,18 +96,20 @@ def ejecutar_minecraft(version, ram):
     user = config[0]["Accounts"]["Default"]["Name"]
     online = config[0]["Accounts"]["Default"]["Online"]
 
-    if ram != "":
-        ram = "2"
+    if ram != "-XmxG":
+        ram = "-Xmx2G"
 
     if online:
         uuid = config[0]["Accounts"]["Default"]["Uuid"]
         token = config[0]["Accounts"]["Default"]["Token"]
-        options = {'username': user,'uuid' : uuid,'token': token,'jvArguments': [ram,ram],'launcherVersion': "1.0.0"}
+        options = {'username': user,'uuid' : uuid,'token': token,'jvArguments': [ram,ram],'launcherVersion': "0.2.0"}
     else:
-        options = {'username': user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "1.0.0"}
+        options = {'username': user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "0.2.0"}
 
+    window.destroy()
     minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
     subprocess.run(minecraft_command)
+    menu()
 
 def verif_ver(ver, type):
     if ver != "":
@@ -112,6 +133,21 @@ def uninstall_minecraft_version(version):
 
 # From here to above is all for customtkinter
 
+def check_accounts():
+    accounts = ctk.StringVar()
+    list_added_accounts = []
+    accounts_added = config[0]["Accounts"]
+
+    for account_added in accounts_added:
+        list_added_accounts.append(account_added)
+
+    if len(list_added_accounts) != 0:
+        accounts.set(list_added_accounts[0])
+    elif len(list_added_accounts) == 0:
+        accounts.set('Sin cuentas')
+        list_added_accounts.append('Sin cuentas')
+    acount_display.configure(variable=accounts, values=list_added_accounts)
+
 def check_vers():
     vers = ctk.StringVar()
     lista_versiones_instaladas = []
@@ -134,14 +170,14 @@ def message(msg):
     winmsg.title("Mensaje")
     winmsg.resizable(width=False, height=False)
 
-    frame = ctk.CTkFrame(master=winmsg, width=280, height=140)
-    frame.grid_propagate(False)
-    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+    msgframe = ctk.CTkFrame(master=winmsg, width=280, height=140)
+    msgframe.grid_propagate(False)
+    msgframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    msgtxt = ctk.CTkLabel(master=frame, text=msg, font=("", 16),wraplength=280)
+    msgtxt = ctk.CTkLabel(master=msgframe, text=msg, font=("", 16), wraplength=280)
     msgtxt.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
-    msgbtn = ctk.CTkButton(master=winmsg,text="Ok", font=("", 16),command=winmsg.destroy)
+    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), command=winmsg.quit)
     msgbtn.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
     winmsg.mainloop()
@@ -215,25 +251,32 @@ def menu():
     title = ctk.CTkLabel(master=mineconf, text="Configuracion Minecraft", font=("", 24))
     title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
+    addAcount.configure(text="Agregar cuenta de Minecraft", font=("", 16), command=install_versions)
+    addAcount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
+
+    deleteAcount.configure(text="Eliminar cuenta de Minecraft", font=("", 16), command=uninstall_versions)
+    deleteAcount.grid(row=2, column=0, pady=5, padx=5, sticky="we")
+
     acount_display.configure(font=("",16))
-    acount_display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
+    acount_display.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
     entry_ram.configure(placeholder_text="Uso de ram",font=("",16))
-    entry_ram.grid(row=2, column=0, pady=5, padx=5, sticky="we")
+    entry_ram.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
     installVersions.configure(text="Instalar versiones de Minecraft", font=("", 16), command=install_versions)
-    installVersions.grid(row=3, column=0, pady=5, padx=5, sticky="we")
+    installVersions.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
     uninstallVersions.configure(text="Desinstalar versiones de Minecraft", font=("", 16), command=uninstall_versions)
-    uninstallVersions.grid(row=4, column=0, pady=5, padx=5, sticky="we")
+    uninstallVersions.grid(row=6, column=0, pady=5, padx=5, sticky="we")
 
     versions_display.configure(font=("",16))
-    versions_display.grid(row=5, column=0, pady=5, padx=5, sticky="we")
+    versions_display.grid(row=7, column=0, pady=5, padx=5, sticky="we")
 
     iniciar_minecraft.configure(text="Inicar Minecraft", font=("", 16), command=lambda: ejecutar_minecraft(versions_display.get(), f"-Xmx{entry_ram.get()}G"))
-    iniciar_minecraft.grid(row=6, column=0, pady=5, padx=5, sticky="we")
+    iniciar_minecraft.grid(row=8, column=0, pady=5, padx=5, sticky="we")
 
     window.mainloop()
 
+check_accounts()
 check_vers()
 menu()
