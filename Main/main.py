@@ -92,25 +92,6 @@ def install_quilt(version):
         check_vers()
         message("La version de minecraft quilt se ha instalado correctamente!")
 
-def ejecutar_minecraft(version, ram):
-    user = config[0]["Accounts"]["Default"]["Name"]
-    online = config[0]["Accounts"]["Default"]["Online"]
-
-    if ram != "-XmxG":
-        ram = "-Xmx2G"
-
-    if online:
-        uuid = config[0]["Accounts"]["Default"]["Uuid"]
-        token = config[0]["Accounts"]["Default"]["Token"]
-        options = {'username': user,'uuid' : uuid,'token': token,'jvArguments': [ram,ram],'launcherVersion': "0.2.0"}
-    else:
-        options = {'username': user,'uuid' : '','token': '','jvArguments': [ram,ram],'launcherVersion': "0.2.0"}
-
-    window.destroy()
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
-    subprocess.run(minecraft_command)
-    menu()
-
 def verif_ver(ver, type):
     if ver != "":
         if type == "Vanilla":
@@ -130,6 +111,24 @@ def uninstall_minecraft_version(version):
     shutil.rmtree(minecraft_directori + '/versions/' + version)
     check_vers()
     message(f"La version {version} ha sido desinstalada con exito!")
+
+def ejecutar_minecraft(version, ram):
+    user = config[0]["Accounts"]["Default"]["Name"]
+    online = config[0]["Accounts"]["Default"]["Online"]
+
+    if ram == "-XmxG":
+        ram = "-Xmx2G"
+
+    if online:
+        uuid = config[0]["Accounts"]["Default"]["Uuid"]
+        token = config[0]["Accounts"]["Default"]["Token"]
+        options = {'username': user, 'uuid': uuid, 'token': token, 'jvArguments': [ram, ram], 'launcherVersion': "0.2.0"}
+    else:
+        options = {'username': user, 'uuid': '', 'token': '', 'jvArguments': [ram, ram], 'launcherVersion': "0.2.0"}
+
+    window.destroy()
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
+    subprocess.run(minecraft_command)
 
 # From here to above is all for customtkinter
 
@@ -177,7 +176,7 @@ def message(msg):
     msgtxt = ctk.CTkLabel(master=msgframe, text=msg, font=("", 16), wraplength=280)
     msgtxt.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
-    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), command=winmsg.quit)
+    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), command=winmsg.destroy)
     msgbtn.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
     winmsg.mainloop()
