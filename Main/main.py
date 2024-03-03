@@ -2,35 +2,54 @@ import customtkinter as ctk
 import minecraft_launcher_lib
 import subprocess
 import shutil
-import pickle
+import json
 import os
-import icecream
+from icecream import ic
 
 print("This code was made by TeenyDesert9892")
 
 # Load data and config
 
-def save_config(var):
-    with open("assets/config.pkl", 'wb') as pklfile:
-        pickle.dump(var, pklfile)
+def save_config(variable):
+    jsonlfile = open("assets/config.json", "w")
+    json.dump(variable, jsonlfile)
 
 def load_config():
-    with open("assets/config.pkl", 'rb') as pklfile:
-        variable = pickle.load(pklfile)
-    return variable
+    if os.path.exists("assets/config.pkl"):
+        jsonlfile = open("assets/config.json", "r")
+        variable = json.load(jsonlfile)
+        return variable
+    else:
+        save_config([{"Accounts": {"Default": {"Name": "User", "Online": False}}}, {"Launcher": {"Color": "dark"}}, {"Version": "0.2.0"}])
+        return load_config()
 
-def check_config():
-    if not os.path.exists("assets/config.pkl"):
-        default_config = [{"Accounts": {"Default": {"Name": "User", "Online": False, }}},{"Launcher": {"Color": "dark"}},{"Version": "0.2.0"}]
-        save_config(default_config)
+def add_acount_data(type, name, pasword):
+    if type == "Premiun":
+        if name != "":
+            if pasword != "":
+                pass
+            else:
+                message("Introduce una clave")
+        else:
+            message("Introduce un nombre")
+    elif type == "No Premiun":
+        if name != "":
+            pass
+        else:
+            message("Introduce un nombre")
+    else:
+        message("Ocurrio un error pruebe otra vez")
+
+def del_acount_data():
+    return True
 
 # Configure ctk and config
 
-check_config()
 config = load_config()
-launcher = config[1]["Launcher"]["Color"]
 
-ctk.set_appearance_mode(launcher)
+ic(config)
+
+ctk.set_appearance_mode(config[1]["Launcher"]["Color"])
 ctk.set_default_color_theme("green")
 
 window = ctk.CTk()
@@ -39,40 +58,42 @@ window.iconbitmap("assets/Icon.ico")
 window.title("Teeny Launcher")
 window.resizable(width=False, height=False)
 
-info = ctk.CTkFrame(master=window, width=500,height=480)
-mineconf = ctk.CTkFrame(master=window, width=260,height=480)
+info = ctk.CTkFrame(master=window, width=500, height=480)
+mineconfig = ctk.CTkFrame(master=window, width=260, height=480)
 
-addAcount = ctk.CTkButton(master=mineconf)
-deleteAcount = ctk.CTkButton(master=mineconf)
-acount_display = ctk.CTkOptionMenu(master=mineconf)
+addAcount = ctk.CTkButton(master=mineconfig)
+deleteAcount = ctk.CTkButton(master=mineconfig)
+acount_display = ctk.CTkOptionMenu(master=mineconfig)
 
-entry_ram = ctk.CTkEntry(master=mineconf)
+entry_ram = ctk.CTkEntry(master=mineconfig)
 
-installVersions = ctk.CTkButton(master=mineconf)
-uninstallVersions = ctk.CTkButton(master=mineconf)
-versions_display = ctk.CTkOptionMenu(master=mineconf)
+installVersions = ctk.CTkButton(master=mineconfig)
+uninstallVersions = ctk.CTkButton(master=mineconfig)
+versions_display = ctk.CTkOptionMenu(master=mineconfig)
 
-iniciar_minecraft = ctk.CTkButton(master=mineconf)
+iniciar_minecraft = ctk.CTkButton(master=mineconfig)
 
 # From here to above is all for minecraft_launcher_lib
+def systemDetect():
+    user = os.getenv('USERNAME')
+    if os.name == "nt":
+        return f"C:/Users/{user}/AppData/Roaming/.TeenyLauncher"
+    elif os.name == "posix":
+        return f"/home/{user}/.TeenyLauncher"
 
-user = os.getenv('USERNAME')
-if os.name == "nt":
-    minecraft_directori = f"C:/Users/{user}/AppData/Roaming/.TeenyLauncher"
-elif os.name == "posix":
-    minecraft_directori = f"/home/{user}/.TeenyLauncher"
+minecraft_directori = systemDetect()
 
 def install_minecraft(version):
-    minecraft_launcher_lib.install.install_minecraft_version(version,minecraft_directori)
+    minecraft_launcher_lib.install.install_minecraft_version(version, minecraft_directori)
     check_vers()
-    message(f"La version de minecraft vanilla se ha instalado correctamente!")
+    message(f"La version {version} de minecraft vanilla se ha instalado correctamente!")
 
 def install_forge(version):
     forge = minecraft_launcher_lib.forge.find_forge_version(version)
     if not forge:
         message("Esta version no tiene soporte por parte de el equipo de Forge.")
     else:
-        minecraft_launcher_lib.forge.install_forge_version(forge,minecraft_directori)
+        minecraft_launcher_lib.forge.install_forge_version(forge, minecraft_directori)
         check_vers()
         message("La version de minecraft forge se ha instalado correctamente!")
 
@@ -108,25 +129,27 @@ def verif_ver(ver, type):
         message("Introduce el numero de la version!")
 
 def uninstall_minecraft_version(version):
-    shutil.rmtree(minecraft_directori + '/versions/' + version)
+    shutil.rmtree(f'{minecraft_directori}/versions/{version}')
     check_vers()
     message(f"La version {version} ha sido desinstalada con exito!")
 
 def ejecutar_minecraft(version, ram):
-    user = config[0]["Accounts"]["Default"]["Name"]
-    online = config[0]["Accounts"]["Default"]["Online"]
+    name = acount_display.get()
+    user = config[0]["Accounts"][name]["Name"]
+    online = config[0]["Accounts"][name]["Online"]
 
     if ram == "-XmxG":
         ram = "-Xmx2G"
 
     if online:
-        uuid = config[0]["Accounts"]["Default"]["Uuid"]
-        token = config[0]["Accounts"]["Default"]["Token"]
+        uuid = config[0]["Accounts"][name]["Uuid"]
+        token = config[0]["Accounts"][name]["Token"]
         options = {'username': user, 'uuid': uuid, 'token': token, 'jvArguments': [ram, ram], 'launcherVersion': "0.2.0"}
     else:
         options = {'username': user, 'uuid': '', 'token': '', 'jvArguments': [ram, ram], 'launcherVersion': "0.2.0"}
 
     window.destroy()
+
     minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
     subprocess.run(minecraft_command)
 
@@ -181,45 +204,96 @@ def message(msg):
 
     winmsg.mainloop()
 
+def add_acount():
+    winAddAc = ctk.CTk()
+    winAddAc.geometry("300x300")
+    winAddAc.iconbitmap("assets/Icon.ico")
+    winAddAc.title("Configurar nueva cuenta")
+    winAddAc.resizable(width=False, height=False)
+
+    frame = ctk.CTkFrame(master=winAddAc, width=280, height=280)
+    frame.grid_propagate(False)
+    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+
+    title = ctk.CTkLabel(master=frame, wraplength=320, text="Agregar cuenta", font=("", 24))
+    title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
+
+    ac_types = ["Premiun", "No Premiun"]
+    def_ac_type = ctk.StringVar(value="Selecciona el tipo de cuenta")
+
+    type_display = ctk.CTkOptionMenu(master=frame, values=ac_types, variable=def_ac_type, font=("", 16))
+    type_display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
+
+    name_title = ctk.CTkLabel(master=frame, wraplength=320, text="Nombre de usuario", font=("", 16))
+    name_title.grid(row=2, column=0, pady=5, padx=5, sticky="w")
+
+    name_entry = ctk.CTkEntry(master=frame, placeholder_text="Introduce nombre de usuario", font=("", 16))
+    name_entry.grid(row=3, column=0, pady=5, padx=5, sticky="we")
+
+    pasword_title = ctk.CTkLabel(master=frame, wraplength=320, text="Clave solo premiun", font=("", 16))
+    pasword_title.grid(row=4, column=0, pady=5, padx=5, sticky="w")
+
+    pasword_entry = ctk.CTkEntry(master=frame, placeholder_text="Introduce clave", font=("", 16), show="*")
+    pasword_entry.grid(row=5, column=0, pady=5, padx=5, sticky="we")
+
+    add_button = ctk.CTkButton(master=frame, text="Agregar", font=("", 16), command=lambda: add_acount_data(type_display.get(), name_entry.get(), pasword_entry.get()))
+    add_button.grid(row=6, column=0, pady=5, padx=5, sticky="nswe")
+
+    winAddAc.mainloop()
+
+def delete_acount():
+    winDelAc = ctk.CTk()
+    winDelAc.geometry("300x300")
+    winDelAc.iconbitmap("assets/Icon.ico")
+    winDelAc.title("Agregar Cuenta")
+    winDelAc.resizable(width=False, height=False)
+
+    frame = ctk.CTkFrame(master=winDelAc, width=280, height=280)
+    frame.grid_propagate(False)
+    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+
+    winDelAc.mainloop()
+
 def install_versions():
     winins = ctk.CTk()
-    winins.geometry("300x200")
+    winins.geometry("275x200")
     winins.iconbitmap("assets/Icon.ico")
     winins.title("Instalar versiones")
     winins.resizable(width=False, height=False)
 
-    frame = ctk.CTkFrame(master=winins, width=280, height=180)
+    frame = ctk.CTkFrame(master=winins, width=255, height=180)
     frame.grid_propagate(False)
     frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    ver_name = ctk.CTkEntry(master=frame)
-    ver_name.configure(placeholder_text="Numero de la version", font=("",16))
+    ver_name = ctk.CTkEntry(master=frame, placeholder_text="Numero de la version", font=("", 16))
     ver_name.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
     ver_types = ["Vanilla", "Forge", "Fabric", "Quilt"]
-    def_ver_type = ctk.StringVar(value="Selecciona el tipo e version")
+    def_ver_type = ctk.StringVar(value="Selecciona el tipo de version")
 
-    type_display = ctk.CTkOptionMenu(master=frame,values=ver_types,variable=def_ver_type)
-    type_display.configure(font=("", 16))
+    type_display = ctk.CTkOptionMenu(master=frame, values=ver_types, variable=def_ver_type, font=("", 16))
     type_display.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
-    install_button = ctk.CTkButton(master=frame)
-    install_button.configure(text="Instalar", font=("", 16), command=lambda: verif_ver(ver_name.get(), type_display.get()))
+    install_button = ctk.CTkButton(master=frame, text="Instalar", font=("", 16), command=lambda: verif_ver(ver_name.get(), type_display.get()))
     install_button.grid(row=2, column=0, pady=5, padx=5, sticky="nswe")
 
     winins.mainloop()
 
 def uninstall_versions():
     winuns = ctk.CTk()
-    winuns.geometry("300x200")
+    winuns.geometry("275x200")
     winuns.iconbitmap("assets/Icon.ico")
     winuns.title("Desinstalar versiones")
     winuns.resizable(width=False, height=False)
 
-    display = ctk.CTkOptionMenu(master=winuns,font=("",16))
+    frame = ctk.CTkFrame(master=winuns, width=255, height=180)
+    frame.grid_propagate(False)
+    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+
+    display = ctk.CTkOptionMenu(master=frame, font=("", 16))
     display.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
-    button = ctk.CTkButton(master=winuns,text="Desinstalar",font=("", 24),command=lambda: uninstall_minecraft_version(display.get()))
+    button = ctk.CTkButton(master=frame, text="Desinstalar", font=("", 24), command=lambda: uninstall_minecraft_version(display.get()))
     button.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
     vers = ctk.StringVar()
@@ -244,22 +318,22 @@ def menu():
     info.grid_propagate(False)
     info.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    mineconf.grid_propagate(False)
-    mineconf.grid(row=0, column=1, pady=10, padx=10, sticky="nswe")
+    mineconfig.grid_propagate(False)
+    mineconfig.grid(row=0, column=1, pady=10, padx=10, sticky="nswe")
 
-    title = ctk.CTkLabel(master=mineconf, text="Configuracion Minecraft", font=("", 24))
+    title = ctk.CTkLabel(master=mineconfig, text="Configuracion Minecraft", font=("", 24))
     title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
-    addAcount.configure(text="Agregar cuenta de Minecraft", font=("", 16), command=install_versions)
+    addAcount.configure(text="Agregar cuenta de Minecraft", font=("", 16), command=add_acount)
     addAcount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    deleteAcount.configure(text="Eliminar cuenta de Minecraft", font=("", 16), command=uninstall_versions)
+    deleteAcount.configure(text="Eliminar cuenta de Minecraft", font=("", 16), command=delete_acount)
     deleteAcount.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
-    acount_display.configure(font=("",16))
+    acount_display.configure(font=("", 16))
     acount_display.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
-    entry_ram.configure(placeholder_text="Uso de ram",font=("",16))
+    entry_ram.configure(placeholder_text="Uso de ram",font=("", 16))
     entry_ram.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
     installVersions.configure(text="Instalar versiones de Minecraft", font=("", 16), command=install_versions)
@@ -268,7 +342,7 @@ def menu():
     uninstallVersions.configure(text="Desinstalar versiones de Minecraft", font=("", 16), command=uninstall_versions)
     uninstallVersions.grid(row=6, column=0, pady=5, padx=5, sticky="we")
 
-    versions_display.configure(font=("",16))
+    versions_display.configure(font=("", 16))
     versions_display.grid(row=7, column=0, pady=5, padx=5, sticky="we")
 
     iniciar_minecraft.configure(text="Inicar Minecraft", font=("", 16), command=lambda: ejecutar_minecraft(versions_display.get(), f"-Xmx{entry_ram.get()}G"))
