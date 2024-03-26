@@ -1,0 +1,20 @@
+[
+    {
+        "Launcher": {
+            "Color": "dark",
+            "Version": "0.2.0"
+        },
+        "Accounts": {
+            "Default": {
+                "User": "Default",
+                "Uuid": "",
+                "Token": ""
+            },
+            "Test": {
+                "User": "Test",
+                "Uuid": "",
+                "Token": ""
+            }
+        }
+    }
+]

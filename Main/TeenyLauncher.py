@@ -10,46 +10,65 @@ print("This code was made by TeenyDesert9892")
 
 # Load data and config
 
-def save_config(variable):
-    jsonlfile = open("assets/config.json", "w")
-    json.dump(variable, jsonlfile)
+
+def save_config(data):
+    with open("assets/config.json", "w") as jsonlFile:
+        json.dump(data, jsonlFile, indent=4)
+
 
 def load_config():
-    if os.path.exists("assets/config.pkl"):
-        jsonlfile = open("assets/config.json", "r")
-        variable = json.load(jsonlfile)
-        return variable
-    else:
-        save_config([{"Accounts": {"Default": {"Name": "User", "Online": False}}}, {"Launcher": {"Color": "dark"}}, {"Version": "0.2.0"}])
-        return load_config()
+    with open("assets/config.json", "r") as jsonlFile:
+        global config
+        config = json.load(jsonlFile)
+
+
+if not os.path.exists("assets/config.json"):
+    save_config([{"Launcher": {"Color": "dark", "Version": "0.2.0"},"Accounts": {"Default": {"User": "Default", "Uuid": "", "Token": ""}}}])
+load_config()
+
 
 def add_acount_data(type, name, pasword):
     if type == "Premiun":
         if name != "":
             if pasword != "":
-                pass
+                auth_code = minecraft_launcher_lib.microsoft_account.get_auth_code_from_url(url='https://TeenyLauncherMinecraft/redirect')
+                minecraft_launcher_lib.microsoft_account.complete_login(client_id='d56f21dc-e9f4-439b-b45e-8b4c42c6f541', client_secret=None, redirect_uri='https://TeenyLauncherMinecraft/redirect', auth_code=auth_code, code_verifier=None)
+
+                config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
+                save_config(config)
+                check_accounts()
+                message(f"La cuenta premiun {name} fue creada correctamente!")
             else:
                 message("Introduce una clave")
         else:
             message("Introduce un nombre")
     elif type == "No Premiun":
         if name != "":
-            pass
+            config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': '', 'Token': ''}
+            save_config(config)
+            check_accounts()
+            message(f"La cuenta no premiun {name} fue creada correctamente!")
         else:
             message("Introduce un nombre")
     else:
-        message("Ocurrio un error pruebe otra vez")
+        message("Seleccina un tipo de cuanta")
 
-def del_acount_data():
-    return True
+
+def del_acount_data(account):
+    newConfig = [{"Launcher": {'Color': config[0]["Launcher"]["Color"], 'Version': config[0]["Launcher"]["Version"]}, 'Accounts': {}}]
+    for ac in config[0]["Accounts"]:
+        if not ac == account:
+            newConfig[0]["Accounts"][str(ac)] = {'User': config[0]["Accounts"][str(ac)]["User"], 'Uuid': config[0]["Accounts"][str(ac)]["Uuid"], 'Token': config[0]["Accounts"][str(ac)]["Token"]}
+    save_config(newConfig)
+    check_accounts()
+    message(f"La cuenta {account} fue eliminada correctamente!")
+
 
 # Configure ctk and config
 
-config = load_config()
-
 ic(config)
 
-ctk.set_appearance_mode(config[1]["Launcher"]["Color"])
+ctk.set_appearance_mode(config[0]["Launcher"]["Color"])
 ctk.set_default_color_theme("green")
 
 window = ctk.CTk()
@@ -74,19 +93,19 @@ versions_display = ctk.CTkOptionMenu(master=mineconfig)
 iniciar_minecraft = ctk.CTkButton(master=mineconfig)
 
 # From here to above is all for minecraft_launcher_lib
-def systemDetect():
-    user = os.getenv('USERNAME')
-    if os.name == "nt":
-        return f"C:/Users/{user}/AppData/Roaming/.TeenyLauncher"
-    elif os.name == "posix":
-        return f"/home/{user}/.TeenyLauncher"
 
-minecraft_directori = systemDetect()
+
+if os.name == "nt":
+    minecraft_directori = f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher"
+elif os.name == "posix":
+    minecraft_directori = f"/home/{os.getlogin()}/.TeenyLauncher"
+
 
 def install_minecraft(version):
     minecraft_launcher_lib.install.install_minecraft_version(version, minecraft_directori)
     check_vers()
     message(f"La version {version} de minecraft vanilla se ha instalado correctamente!")
+
 
 def install_forge(version):
     forge = minecraft_launcher_lib.forge.find_forge_version(version)
@@ -97,6 +116,7 @@ def install_forge(version):
         check_vers()
         message("La version de minecraft forge se ha instalado correctamente!")
 
+
 def install_fabric(version):
     if not minecraft_launcher_lib.fabric.is_minecraft_version_supported(version):
         message("Esta version no tiene soporte por parte de el equipo de Fabric.")
@@ -105,6 +125,7 @@ def install_fabric(version):
         check_vers()
         message('La version de minecraft fabric se ha instalado correctamente!')
 
+
 def install_quilt(version):
     if not minecraft_launcher_lib.quilt.is_minecraft_version_supported(version):
         message("Esta version no tiene soporte por parte de el equipo de Quilt.")
@@ -112,6 +133,7 @@ def install_quilt(version):
         minecraft_launcher_lib.quilt.install_quilt(version, minecraft_directori)
         check_vers()
         message("La version de minecraft quilt se ha instalado correctamente!")
+
 
 def verif_ver(ver, type):
     if ver != "":
@@ -128,32 +150,30 @@ def verif_ver(ver, type):
     else:
         message("Introduce el numero de la version!")
 
+
 def uninstall_minecraft_version(version):
     shutil.rmtree(f'{minecraft_directori}/versions/{version}')
     check_vers()
     message(f"La version {version} ha sido desinstalada con exito!")
 
+
 def ejecutar_minecraft(version, ram):
+    window.destroy()
+
     name = acount_display.get()
-    user = config[0]["Accounts"][name]["Name"]
-    online = config[0]["Accounts"][name]["Online"]
+    user = config[0]["Accounts"][name]["User"]
+    uuid = config[0]["Accounts"][name]["Uuid"]
+    token = config[0]["Accounts"][name]["Token"]
+    launcherVersion = config[0]["Launcher"]["Version"]
 
     if ram == "-XmxG":
         ram = "-Xmx2G"
 
-    if online:
-        uuid = config[0]["Accounts"][name]["Uuid"]
-        token = config[0]["Accounts"][name]["Token"]
-        options = {'username': user, 'uuid': uuid, 'token': token, 'jvArguments': [ram, ram], 'launcherVersion': "0.2.0"}
-    else:
-        options = {'username': user, 'uuid': '', 'token': '', 'jvArguments': [ram, ram], 'launcherVersion': "0.2.0"}
-
-    window.destroy()
-
-    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, options)
+    minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': [f"{ram}", f"{ram}"], 'launcherVersion': f"{launcherVersion}"})
     subprocess.run(minecraft_command)
 
 # From here to above is all for customtkinter
+
 
 def check_accounts():
     accounts = ctk.StringVar()
@@ -170,6 +190,7 @@ def check_accounts():
         list_added_accounts.append('Sin cuentas')
     acount_display.configure(variable=accounts, values=list_added_accounts)
 
+
 def check_vers():
     vers = ctk.StringVar()
     lista_versiones_instaladas = []
@@ -184,6 +205,7 @@ def check_vers():
         vers.set('Sin versiones instaladas')
         lista_versiones_instaladas.append('Sin versiones instaladas')
     versions_display.configure(variable=vers, values=lista_versiones_instaladas)
+
 
 def message(msg):
     winmsg = ctk.CTk()
@@ -203,6 +225,7 @@ def message(msg):
     msgbtn.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
     winmsg.mainloop()
+
 
 def add_acount():
     winAddAc = ctk.CTk()
@@ -241,18 +264,33 @@ def add_acount():
 
     winAddAc.mainloop()
 
+
 def delete_acount():
     winDelAc = ctk.CTk()
     winDelAc.geometry("300x300")
     winDelAc.iconbitmap("assets/Icon.ico")
-    winDelAc.title("Agregar Cuenta")
+    winDelAc.title("Eliminar Cuenta")
     winDelAc.resizable(width=False, height=False)
 
     frame = ctk.CTkFrame(master=winDelAc, width=280, height=280)
     frame.grid_propagate(False)
     frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
+    title = ctk.CTkLabel(master=frame, text="Eliminar Cuenta", font=("", 24))
+    title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
+
+    addedAcounts = []
+    for account in config[0]["Accounts"]:
+        addedAcounts.append(account)
+
+    selectedAccount = ctk.CTkOptionMenu(master=frame, variable=ctk.StringVar(master=frame, value="Selecciona una cuenta"), values=addedAcounts, font=("", 16))
+    selectedAccount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
+
+    deleteButton = ctk.CTkButton(master=frame, text="Eliminar", font=("", 16), command=lambda: del_acount_data(selectedAccount.get()))
+    deleteButton.grid(row=2, column=0, pady=5, padx=5, sticky="we")
+
     winDelAc.mainloop()
+
 
 def install_versions():
     winins = ctk.CTk()
@@ -278,6 +316,7 @@ def install_versions():
     install_button.grid(row=2, column=0, pady=5, padx=5, sticky="nswe")
 
     winins.mainloop()
+
 
 def uninstall_versions():
     winuns = ctk.CTk()
@@ -314,6 +353,7 @@ def uninstall_versions():
 
     winuns.mainloop()
 
+
 def menu():
     info.grid_propagate(False)
     info.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
@@ -349,6 +389,7 @@ def menu():
     iniciar_minecraft.grid(row=8, column=0, pady=5, padx=5, sticky="we")
 
     window.mainloop()
+
 
 check_accounts()
 check_vers()
