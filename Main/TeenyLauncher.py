@@ -12,17 +12,17 @@ print("This code was made by TeenyDesert9892")
 
 
 def save_config(data):
-    with open("Main/assets/config.json", "w") as jsonlFile:
+    with open("assets/config.json", "w") as jsonlFile:
         json.dump(data, jsonlFile, indent=4)
 
 
 def load_config():
-    with open("Main/assets/config.json", "r") as jsonlFile:
+    with open("assets/config.json", "r") as jsonlFile:
         global config
         config = json.load(jsonlFile)
 
 
-if not os.path.exists("Main/assets/config.json"):
+if not os.path.exists("assets/config.json"):
     save_config([{"Launcher": {"Color": "dark", "Version": "0.2.0"}, "Accounts": {"Default": {"User": "Default", "Uuid": "", "Token": ""}}}])
 load_config()
 
@@ -74,8 +74,8 @@ ctk.set_default_color_theme("green")
 
 window = ctk.CTk()
 window.geometry("800x500")
-window.iconbitmap("Main/assets/Icon.ico")
-window.title("Teeny Launcher")
+window.iconbitmap("assets/Icon.ico")
+window.title("TeenyLauncher")
 window.resizable(width=False, height=False)
 
 info = ctk.CTkFrame(master=window, width=500, height=480)
@@ -211,7 +211,7 @@ def check_vers():
 def message(msg):
     winmsg = ctk.CTk()
     winmsg.geometry("300x200")
-    winmsg.iconbitmap("Main/assets/Icon.ico")
+    winmsg.iconbitmap("assets/Icon.ico")
     winmsg.title("Mensaje")
     winmsg.resizable(width=False, height=False)
 
@@ -231,7 +231,7 @@ def message(msg):
 def add_acount():
     winAddAc = ctk.CTk()
     winAddAc.geometry("300x300")
-    winAddAc.iconbitmap("Main/assets/Icon.ico")
+    winAddAc.iconbitmap("assets/Icon.ico")
     winAddAc.title("Configurar nueva cuenta")
     winAddAc.resizable(width=False, height=False)
 
@@ -269,7 +269,7 @@ def add_acount():
 def delete_acount():
     winDelAc = ctk.CTk()
     winDelAc.geometry("300x300")
-    winDelAc.iconbitmap("Main/assets/Icon.ico")
+    winDelAc.iconbitmap("assets/Icon.ico")
     winDelAc.title("Eliminar Cuenta")
     winDelAc.resizable(width=False, height=False)
 
@@ -296,7 +296,7 @@ def delete_acount():
 def install_versions():
     winins = ctk.CTk()
     winins.geometry("275x200")
-    winins.iconbitmap("Main/assets/Icon.ico")
+    winins.iconbitmap("assets/Icon.ico")
     winins.title("Instalar versiones")
     winins.resizable(width=False, height=False)
 
@@ -322,7 +322,7 @@ def install_versions():
 def uninstall_versions():
     winuns = ctk.CTk()
     winuns.geometry("275x200")
-    winuns.iconbitmap("Main/assets/Icon.ico")
+    winuns.iconbitmap("assets/Icon.ico")
     winuns.title("Desinstalar versiones")
     winuns.resizable(width=False, height=False)
 
