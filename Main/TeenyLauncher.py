@@ -12,18 +12,18 @@ print("This code was made by TeenyDesert9892")
 
 
 def save_config(data):
-    with open("assets/config.json", "w") as jsonlFile:
+    with open("Main/assets/config.json", "w") as jsonlFile:
         json.dump(data, jsonlFile, indent=4)
 
 
 def load_config():
-    with open("assets/config.json", "r") as jsonlFile:
+    with open("Main/assets/config.json", "r") as jsonlFile:
         global config
         config = json.load(jsonlFile)
 
 
-if not os.path.exists("assets/config.json"):
-    save_config([{"Launcher": {"Color": "dark", "Version": "0.2.0"},"Accounts": {"Default": {"User": "Default", "Uuid": "", "Token": ""}}}])
+if not os.path.exists("Main/assets/config.json"):
+    save_config([{"Launcher": {"Color": "dark", "Version": "0.2.0"}, "Accounts": {"Default": {"User": "Default", "Uuid": "", "Token": ""}}}])
 load_config()
 
 
@@ -32,7 +32,8 @@ def add_acount_data(type, name, pasword):
         if name != "":
             if pasword != "":
                 auth_code = minecraft_launcher_lib.microsoft_account.get_auth_code_from_url(url='https://TeenyLauncherMinecraft/redirect')
-                minecraft_launcher_lib.microsoft_account.complete_login(client_id='d56f21dc-e9f4-439b-b45e-8b4c42c6f541', client_secret=None, redirect_uri='https://TeenyLauncherMinecraft/redirect', auth_code=auth_code, code_verifier=None)
+                print(auth_code)
+                minecraft_launcher_lib.microsoft_account.complete_login(client_id='d56f21dc-e9f4-439b-b45e-8b4c42c6f541', client_secret=None, redirect_uri=str(f'https://TeenyLauncherMinecraft/redirect?code={auth_code}&state=<optional'), auth_code=auth_code, code_verifier=None)
 
                 config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
                 save_config(config)
@@ -73,7 +74,7 @@ ctk.set_default_color_theme("green")
 
 window = ctk.CTk()
 window.geometry("800x500")
-window.iconbitmap("assets/Icon.ico")
+window.iconbitmap("Main/assets/Icon.ico")
 window.title("Teeny Launcher")
 window.resizable(width=False, height=False)
 
@@ -210,7 +211,7 @@ def check_vers():
 def message(msg):
     winmsg = ctk.CTk()
     winmsg.geometry("300x200")
-    winmsg.iconbitmap("assets/Icon.ico")
+    winmsg.iconbitmap("Main/assets/Icon.ico")
     winmsg.title("Mensaje")
     winmsg.resizable(width=False, height=False)
 
@@ -230,7 +231,7 @@ def message(msg):
 def add_acount():
     winAddAc = ctk.CTk()
     winAddAc.geometry("300x300")
-    winAddAc.iconbitmap("assets/Icon.ico")
+    winAddAc.iconbitmap("Main/assets/Icon.ico")
     winAddAc.title("Configurar nueva cuenta")
     winAddAc.resizable(width=False, height=False)
 
@@ -268,7 +269,7 @@ def add_acount():
 def delete_acount():
     winDelAc = ctk.CTk()
     winDelAc.geometry("300x300")
-    winDelAc.iconbitmap("assets/Icon.ico")
+    winDelAc.iconbitmap("Main/assets/Icon.ico")
     winDelAc.title("Eliminar Cuenta")
     winDelAc.resizable(width=False, height=False)
 
@@ -295,7 +296,7 @@ def delete_acount():
 def install_versions():
     winins = ctk.CTk()
     winins.geometry("275x200")
-    winins.iconbitmap("assets/Icon.ico")
+    winins.iconbitmap("Main/assets/Icon.ico")
     winins.title("Instalar versiones")
     winins.resizable(width=False, height=False)
 
@@ -321,7 +322,7 @@ def install_versions():
 def uninstall_versions():
     winuns = ctk.CTk()
     winuns.geometry("275x200")
-    winuns.iconbitmap("assets/Icon.ico")
+    winuns.iconbitmap("Main/assets/Icon.ico")
     winuns.title("Desinstalar versiones")
     winuns.resizable(width=False, height=False)
 
