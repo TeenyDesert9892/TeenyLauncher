@@ -61,6 +61,7 @@ def del_acount_data(account):
         if not ac == account:
             newConfig[0]["Accounts"][str(ac)] = {'User': config[0]["Accounts"][str(ac)]["User"], 'Uuid': config[0]["Accounts"][str(ac)]["Uuid"], 'Token': config[0]["Accounts"][str(ac)]["Token"]}
     save_config(newConfig)
+    load_config()
     check_accounts()
     message(f"La cuenta {account} fue eliminada correctamente!")
 
