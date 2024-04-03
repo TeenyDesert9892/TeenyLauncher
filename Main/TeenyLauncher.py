@@ -1,10 +1,10 @@
-import customtkinter as ctk
-import minecraft_launcher_lib
-import subprocess
-import shutil
 import json
 import os
-from icecream import ic
+import shutil
+import subprocess
+
+import customtkinter as ctk
+import minecraft_launcher_lib
 
 print("This code was made by TeenyDesert9892")
 
@@ -68,19 +68,21 @@ def del_acount_data(account):
 
 # Configure ctk and config
 
-ic(config)
-
 ctk.set_appearance_mode(config[0]["Launcher"]["Color"])
 ctk.set_default_color_theme("green")
 
 window = ctk.CTk()
 window.geometry("800x500")
-window.iconbitmap("assets/Icon.ico")
+window.iconbitmap("assets/images/Icon.ico")
 window.title("TeenyLauncher")
 window.resizable(width=False, height=False)
 
-info = ctk.CTkFrame(master=window, width=500, height=480)
-mineconfig = ctk.CTkFrame(master=window, width=260, height=480)
+top = ctk.CTkFrame(master=window, width=780, height=40)
+
+versionInfoButton = ctk.CTkButton(master=top)
+configurationButton = ctk.CTkButton(master=top)
+
+mineconfig = ctk.CTkFrame(master=window, width=260, height=430)
 
 addAcount = ctk.CTkButton(master=mineconfig)
 deleteAcount = ctk.CTkButton(master=mineconfig)
@@ -212,7 +214,7 @@ def check_vers():
 def message(msg):
     winmsg = ctk.CTk()
     winmsg.geometry("300x200")
-    winmsg.iconbitmap("assets/Icon.ico")
+    winmsg.iconbitmap("assets/images/Icon.ico")
     winmsg.title("Mensaje")
     winmsg.resizable(width=False, height=False)
 
@@ -232,7 +234,7 @@ def message(msg):
 def add_acount():
     winAddAc = ctk.CTk()
     winAddAc.geometry("300x300")
-    winAddAc.iconbitmap("assets/Icon.ico")
+    winAddAc.iconbitmap("assets/images/Icon.ico")
     winAddAc.title("Configurar nueva cuenta")
     winAddAc.resizable(width=False, height=False)
 
@@ -246,7 +248,8 @@ def add_acount():
     ac_types = ["Premiun", "No Premiun"]
     def_ac_type = ctk.StringVar(value="Selecciona el tipo de cuenta")
 
-    type_display = ctk.CTkOptionMenu(master=frame, values=ac_types, variable=def_ac_type, font=("", 16))
+    type_display = ctk.CTkOptionMenu(master=frame, values=ac_types, variable=def_ac_type, font=("", 16), width=270)
+    type_display.grid_propagate(False)
     type_display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
     name_title = ctk.CTkLabel(master=frame, wraplength=320, text="Nombre de usuario", font=("", 16))
@@ -269,12 +272,12 @@ def add_acount():
 
 def delete_acount():
     winDelAc = ctk.CTk()
-    winDelAc.geometry("300x300")
-    winDelAc.iconbitmap("assets/Icon.ico")
+    winDelAc.geometry("250x150")
+    winDelAc.iconbitmap("assets/images/Icon.ico")
     winDelAc.title("Eliminar Cuenta")
     winDelAc.resizable(width=False, height=False)
 
-    frame = ctk.CTkFrame(master=winDelAc, width=280, height=280)
+    frame = ctk.CTkFrame(master=winDelAc, width=230, height=130)
     frame.grid_propagate(False)
     frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
@@ -285,7 +288,8 @@ def delete_acount():
     for account in config[0]["Accounts"]:
         addedAcounts.append(account)
 
-    selectedAccount = ctk.CTkOptionMenu(master=frame, variable=ctk.StringVar(master=frame, value="Selecciona una cuenta"), values=addedAcounts, font=("", 16))
+    selectedAccount = ctk.CTkOptionMenu(master=frame, variable=ctk.StringVar(master=frame, value="Selecciona una cuenta"), values=addedAcounts, font=("", 16), width=220)
+    selectedAccount.grid_propagate(False)
     selectedAccount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
     deleteButton = ctk.CTkButton(master=frame, text="Eliminar", font=("", 16), command=lambda: del_acount_data(selectedAccount.get()))
@@ -297,7 +301,7 @@ def delete_acount():
 def install_versions():
     winins = ctk.CTk()
     winins.geometry("275x200")
-    winins.iconbitmap("assets/Icon.ico")
+    winins.iconbitmap("assets/images/Icon.ico")
     winins.title("Instalar versiones")
     winins.resizable(width=False, height=False)
 
@@ -323,7 +327,7 @@ def install_versions():
 def uninstall_versions():
     winuns = ctk.CTk()
     winuns.geometry("275x200")
-    winuns.iconbitmap("assets/Icon.ico")
+    winuns.iconbitmap("assets/images/Icon.ico")
     winuns.title("Desinstalar versiones")
     winuns.resizable(width=False, height=False)
 
@@ -356,15 +360,44 @@ def uninstall_versions():
     winuns.mainloop()
 
 
-def menu():
+def infoEdit(section, lastFrame):
+    lastFrame.destroy()
+    info = ctk.CTkFrame(master=window, width=500, height=430)
     info.grid_propagate(False)
-    info.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+    info.place(x=10, y=60)
+
+    if section == "VersionInfo":
+        infoTitle = ctk.CTkLabel(master=info, text="TeenyLauncher (v0.1.2)", font=("", 36), wraplength=490)
+        infoTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
+
+        infoVersionInfo = ctk.CTkLabel(master=info, text="", font=("", 16), wraplength=490)
+        infoVersionInfo.grid(row=1, column=0, pady=5, padx=5, sticky="w")
+    elif section == "Configuration":
+        configurationTitle = ctk.CTkLabel(master=info, text="Configuracion del launcher", font=("", 36), wraplength=490)
+        configurationTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
+    else:
+        message("Hubo un problema tratando de cargar la interfaz")
+    info.update()
+
+
+def menu():
+    top.grid_propagate(False)
+    top.place(x=10, y=10)
+
+    info = ctk.CTkFrame(master=window)
+    infoEdit("VersionInfo", info)
+
+    versionInfoButton.configure(text="Info v0.1.2", font=("", 20), command=lambda: infoEdit("VersionInfo", info))
+    versionInfoButton.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
+
+    configurationButton.configure(text="Configuracion", font=("", 20), command=lambda: infoEdit("Configuration", info))
+    configurationButton.grid(row=0, column=1, pady=5, padx=5, sticky="nswe")
 
     mineconfig.grid_propagate(False)
-    mineconfig.grid(row=0, column=1, pady=10, padx=10, sticky="nswe")
+    mineconfig.place(x=520, y=60)
 
-    title = ctk.CTkLabel(master=mineconfig, text="Configuracion Minecraft", font=("", 24))
-    title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
+    configTitle = ctk.CTkLabel(master=mineconfig, text="Configuracion Minecraft", font=("", 24))
+    configTitle.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
     addAcount.configure(text="Agregar cuenta de Minecraft", font=("", 16), command=add_acount)
     addAcount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
