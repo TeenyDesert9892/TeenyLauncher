@@ -2,7 +2,8 @@
     {
         "Launcher": {
             "Color": "dark",
-            "Version": "0.2.0"
+            "Lang": "es_es",
+            "Version": "0.1.2"
         },
         "Accounts": {
             "Default": {
