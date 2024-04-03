@@ -60,7 +60,7 @@ def add_acount_data(type, name, pasword):
 
 
 def del_acount_data(account):
-    newConfig = [{"Launcher": {'Color': config[0]["Launcher"]["Color"], 'Version': config[0]["Launcher"]["Version"]}, 'Accounts': {}}]
+    newConfig = [{"Launcher": {'Theme': config[0]["Launcher"]["Theme"], 'Version': config[0]["Launcher"]["Version"]}, 'Accounts': {}}]
     for ac in config[0]["Accounts"]:
         if not ac == account:
             newConfig[0]["Accounts"][str(ac)] = {'User': config[0]["Accounts"][str(ac)]["User"], 'Uuid': config[0]["Accounts"][str(ac)]["Uuid"], 'Token': config[0]["Accounts"][str(ac)]["Token"]}
@@ -354,6 +354,15 @@ def uninstall_versions():
     winuns.mainloop()
 
 
+def update_config(lang, theme):
+    if lang != langData[0]["Info_Configurate_Languaje_Default"]:
+        config[0]["Launcher"]["Lang"] = lang
+    if lang != langData[0]["Info_Configuration_Theme_Default"]:
+        config[0]["Launcher"]["Theme"] = theme
+    save_config(config)
+    ctk.set_appearance_mode(config[0]["Launcher"]["Theme"])
+
+
 def infoEdit(section, lastFrame):
     lastFrame.destroy()
     info = ctk.CTkFrame(master=window, width=500, height=430)
@@ -366,15 +375,32 @@ def infoEdit(section, lastFrame):
 
         infoVersionInfo = ctk.CTkLabel(master=info, text="Gracias por usar TeenyLauncher", font=("", 16), wraplength=490)
         infoVersionInfo.grid(row=1, column=0, pady=5, padx=5, sticky="w")
+
     elif section == "Configuration":
         configurationTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Title"], font=("", 36), wraplength=490)
         configurationTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
+
+        languajeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configurate_Languaje_Title"], font=("", 16))
+        languajeTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
+
+        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[arch.name.replace(".json", "") for arch in os.scandir("assets/lang") if arch.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
+        configurationLanguaje.grid(row=2, column=0, pady=5, padx=5, sticky="we")
+
+        themeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Theme_Title"], font=("", 16))
+        themeTitle.grid(row=3, column=0, pady=5, padx=5, sticky="w")
+
+        configurationTheme = ctk.CTkOptionMenu(master=info, values=["Light", "Dark"], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
+        configurationTheme.grid(row=4, column=0, pady=5, padx=5, sticky="we")
+
+        configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationTheme.get()))
+        configurationSave.grid(row=5, column=0, pady=5, padx=5, sticky="we")
+
     else:
         infoEdit("LauncherVersion", info)
 
 
 def menu():
-    ctk.set_appearance_mode(config[0]["Launcher"]["Color"])
+    ctk.set_appearance_mode(config[0]["Launcher"]["Theme"])
 
     top.grid_propagate(False)
     top.place(x=10, y=10)
@@ -431,7 +457,7 @@ def menu():
 
 print("Loading Config...")
 if not os.path.exists("assets/config.json"):
-    save_config([{"Launcher": {"Color": "dark", "Lang": "es_es", "Version": "0.1.2"}, "Accounts": {"Default": {"User": "Default", "Uuid": "", "Token": ""}}}])
+    save_config([{"Launcher": {"Theme": "dark", "Lang": "es_es", "Version": "0.2.0"}, "Accounts": {}}])
 load_config()
 print("Loading Accounts...")
 check_accounts()
