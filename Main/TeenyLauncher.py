@@ -28,7 +28,7 @@ def set_languaje(lang):
     if os.path.isfile(langFile):
         langData = json.load(open(langFile, "r"))
     else:
-        langData = json.load(open("assets/lang/en_en", "r"))
+        langData = json.load(open("assets/lang/en_en.json", "r"))
 
 
 def add_acount_data(type, name, pasword):
@@ -42,25 +42,25 @@ def add_acount_data(type, name, pasword):
                 config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
                 save_config(config)
                 check_accounts()
-                message("Add Acount Premiun Success", langData[0]["Add_Acount_Premiun_Success"])
+                message("Add Account Premiun Success", langData[0]["Add_Account_Premiun_Success"])
             else:
-                message("Add Acount Pasword Remaining", langData[0]["Add_Acount_Pasword_Remaining"])
+                message("Add Account Pasword Remaining", langData[0]["Add_Account_Pasword_Remaining"])
         else:
-            message("Add Acount Name Remaining", langData[0]["Add_Acount_Name_Remaining"])
+            message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
     elif type == "No Premiun":
         if name != "":
             config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': '', 'Token': ''}
             save_config(config)
             check_accounts()
-            message("Add Acount No Premiun Success", langData[0]["Add_Acount_No_Premiun_Success"])
+            message("Add Account No Premiun Success", langData[0]["Add_Account_No_Premiun_Success"])
         else:
-            message("Add Acount Name Remaining", langData[0]["Add_Acount_Name_Remaining"])
+            message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
     else:
         message("Add Account No Type Selected", langData[0]["Add_Account_No_Type_Selected"])
 
 
 def del_acount_data(account):
-    newConfig = [{"Launcher": {'Theme': config[0]["Launcher"]["Theme"], 'Version': config[0]["Launcher"]["Version"]}, 'Accounts': {}}]
+    newConfig = [{"Launcher": {'Color': config[0]["Launcher"]["Color"], "Theme": config[0]["Launcher"]["Theme"], "Lang": config[0]["Launcher"]["Lang"], 'Version': config[0]["Launcher"]["Version"]}, 'Accounts': {}}]
     for ac in config[0]["Accounts"]:
         if not ac == account:
             newConfig[0]["Accounts"][str(ac)] = {'User': config[0]["Accounts"][str(ac)]["User"], 'Uuid': config[0]["Accounts"][str(ac)]["Uuid"], 'Token': config[0]["Accounts"][str(ac)]["Token"]}
@@ -68,36 +68,6 @@ def del_acount_data(account):
     load_config()
     check_accounts()
     message("Delete_Account_Success", langData[0]["Delete_Account_Success"])
-
-
-# Configure ctk and config
-
-ctk.set_default_color_theme("green")
-
-window = ctk.CTk()
-window.geometry("800x500")
-window.iconbitmap("assets/images/Icon.ico")
-window.title("TeenyLauncher")
-window.resizable(width=False, height=False)
-
-top = ctk.CTkFrame(master=window, width=780, height=40)
-
-versionInfoButton = ctk.CTkButton(master=top)
-configurationButton = ctk.CTkButton(master=top)
-
-mineconfig = ctk.CTkFrame(master=window, width=270, height=430)
-
-addAcount = ctk.CTkButton(master=mineconfig)
-deleteAcount = ctk.CTkButton(master=mineconfig)
-acount_display = ctk.CTkOptionMenu(master=mineconfig)
-
-entry_ram = ctk.CTkEntry(master=mineconfig)
-
-installVersions = ctk.CTkButton(master=mineconfig)
-uninstallVersions = ctk.CTkButton(master=mineconfig)
-versions_display = ctk.CTkOptionMenu(master=mineconfig)
-
-iniciar_minecraft = ctk.CTkButton(master=mineconfig)
 
 # From here to above is all for minecraft_launcher_lib
 
@@ -152,11 +122,10 @@ def uninstall_minecraft_version(version):
     message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
 
 
-def ejecutar_minecraft(version, ram):
-    if acount_display.get() != langData[0]["Without_Accounts"]:
+def ejecutar_minecraft(version, ram, name):
+    if name != langData[0]["Without_Accounts"]:
         window.destroy()
 
-        name = acount_display.get()
         user = config[0]["Accounts"][name]["User"]
         uuid = config[0]["Accounts"][name]["Uuid"]
         token = config[0]["Accounts"][name]["Token"]
@@ -357,13 +326,18 @@ def uninstall_versions():
     winuns.mainloop()
 
 
-def update_config(lang, theme):
-    if lang != langData[0]["Info_Configurate_Languaje_Default"] or not lang == "empty_example":
-        config[0]["Launcher"]["Lang"] = lang
-    if lang != langData[0]["Info_Configuration_Theme_Default"]:
+def update_config(lang, color, theme):
+    if lang != langData[0]["Info_Configurate_Languaje_Default"]:
+        if lang != "empty_example":
+            config[0]["Launcher"]["Lang"] = lang
+    if color != langData[0]["Info_Configuration_Color_Default"]:
+        config[0]["Launcher"]["Color"] = color
+    if theme != langData[0]["Info_Configuration_Theme_Default"]:
         config[0]["Launcher"]["Theme"] = theme
     save_config(config)
-    ctk.set_appearance_mode(config[0]["Launcher"]["Theme"])
+    window.destroy()
+    print("Reloading...")
+    main()
 
 
 def infoEdit(section, lastFrame):
@@ -386,87 +360,108 @@ def infoEdit(section, lastFrame):
         languajeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configurate_Languaje_Title"], font=("", 16))
         languajeTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
 
-        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[arch.name.replace(".json", "") for arch in os.scandir("assets/lang") if arch.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
+        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("assets/lang") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
         configurationLanguaje.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
         themeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Theme_Title"], font=("", 16))
         themeTitle.grid(row=3, column=0, pady=5, padx=5, sticky="w")
 
-        configurationTheme = ctk.CTkOptionMenu(master=info, values=["Light", "Dark"], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
-        configurationTheme.grid(row=4, column=0, pady=5, padx=5, sticky="we")
+        configurationColor = ctk.CTkOptionMenu(master=info, values=["Light", "Dark"], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Color_Default"]), font=("", 16))
+        configurationColor.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
-        configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationTheme.get()))
-        configurationSave.grid(row=5, column=0, pady=5, padx=5, sticky="we")
+        configurationTheme = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("assets/themes") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
+        configurationTheme.grid(row=5, column=0, pady=5, padx=5, sticky="we")
+
+        configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationColor.get(), configurationTheme.get()))
+        configurationSave.grid(row=6, column=0, pady=5, padx=5, sticky="we")
 
     else:
         infoEdit("LauncherVersion", info)
 
 
-def menu():
-    ctk.set_appearance_mode(config[0]["Launcher"]["Theme"])
+def main():
+    print("Loading Config...")
+    if not os.path.exists("assets/config.json"):
+        save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "Version": "0.2.0"}, "Accounts": {}}])
+    load_config()
 
+    print("Loading Launguaje...")
+    set_languaje(config[0]["Launcher"]["Lang"])
+
+    print("Loading GUI...")
+    ctk.set_appearance_mode(config[0]["Launcher"]["Color"])
+    ctk.set_default_color_theme(f"assets/themes/{config[0]["Launcher"]["Theme"]}.json")
+
+    global window
+    window = ctk.CTk()
+    window.geometry("800x500")
+    window.iconbitmap("assets/images/Icon.ico")
+    window.title("TeenyLauncher")
+    window.resizable(width=False, height=False)
+
+    top = ctk.CTkFrame(master=window, width=780, height=40)
     top.grid_propagate(False)
     top.place(x=10, y=10)
 
     info = ctk.CTkFrame(master=window)
     infoEdit("LauncherVersion", info)
 
-    versionInfoButton.configure(text=f"{langData[0]["Top_Button_Info_Version"]} v{config[0]["Launcher"]["Version"]}", font=("", 20), command=lambda: infoEdit("LauncherVersion", info))
+    versionInfoButton = ctk.CTkButton(master=top, text=f"{langData[0]["Top_Button_Info_Version"]} v{config[0]["Launcher"]["Version"]}", font=("", 20), command=lambda: infoEdit("LauncherVersion", info))
     versionInfoButton.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
-    configurationButton.configure(text=langData[0]["Top_Button_Configuration"], font=("", 20), command=lambda: infoEdit("Configuration", info))
+    configurationButton = ctk.CTkButton(master=top, text=langData[0]["Top_Button_Configuration"], font=("", 20), command=lambda: infoEdit("Configuration", info))
     configurationButton.grid(row=0, column=1, pady=5, padx=5, sticky="nswe")
 
+    mineconfig = ctk.CTkFrame(master=window, width=270, height=430)
     mineconfig.grid_propagate(False)
     mineconfig.place(x=520, y=60)
 
     acountsTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Account_Title"], font=("", 16))
     acountsTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
 
-    addAcount.configure(text=langData[0]["Menu_Minecraft_Config_Add_Account"], font=("", 16), command=add_acount)
+    addAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Add_Account"], font=("", 16), command=add_acount)
     addAcount.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
-    deleteAcount.configure(text=langData[0]["Menu_Minecraft_Config_Delete_Account"], font=("", 16), command=delete_acount)
+    deleteAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Delete_Account"], font=("", 16), command=delete_acount)
     deleteAcount.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
-    acount_display.configure(font=("", 16), width=260)
+    global acount_display
+    acount_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16), width=260)
     acount_display.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
     ramTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Ram_Title"], font=("", 16))
     ramTitle.grid(row=5, column=0, pady=5, padx=5, sticky="w")
 
-    entry_ram.configure(placeholder_text=langData[0]["Menu_Minecraft_Config_Ram_Input"], font=("", 16))
+    entry_ram = ctk.CTkEntry(master=mineconfig, placeholder_text=langData[0]["Menu_Minecraft_Config_Ram_Input"], font=("", 16))
     entry_ram.grid(row=6, column=0, pady=5, padx=5, sticky="we")
 
     versionsTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Version_Title"], font=("", 16))
     versionsTitle.grid(row=7, column=0, pady=5, padx=5, sticky="w")
 
-    installVersions.configure(text=langData[0]["Menu_Minecraft_Config_Install_Version"], font=("", 16), command=install_versions)
+    installVersions = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Install_Version"], font=("", 16), command=install_versions)
     installVersions.grid(row=8, column=0, pady=5, padx=5, sticky="we")
 
-    uninstallVersions.configure(text=langData[0]["Menu_Minecraft_Config_Uninstall_Version"], font=("", 16), command=uninstall_versions)
+    uninstallVersions = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Uninstall_Version"], font=("", 16), command=uninstall_versions)
     uninstallVersions.grid(row=9, column=0, pady=5, padx=5, sticky="we")
 
-    versions_display.configure(font=("", 16))
+    global versions_display
+    versions_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16))
     versions_display.grid(row=10, column=0, pady=5, padx=5, sticky="we")
 
-    runMinecraft = threading.Thread(target=(ejecutar_minecraft), args=(versions_display.get(), f"-Xmx{entry_ram.get()}G"))
+    runMinecraft = threading.Thread(target=(ejecutar_minecraft), args=(versions_display.get(), f"-Xmx{entry_ram.get()}G", acount_display.get()))
 
-    iniciar_minecraft.configure(text=langData[0]["Menu_Minecraft_Config_Run_Minecraft_Button"], font=("", 20), command=lambda: runMinecraft.start())
+    iniciar_minecraft = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Run_Minecraft_Button"], font=("", 20), command=lambda: runMinecraft.start())
     iniciar_minecraft.grid(row=11, column=0, pady=5, padx=5, sticky="we")
 
+    print("Loading Accounts...")
+    check_accounts()
+
+    print("Loading Versions...")
+    check_vers()
+
+    print("Done!")
     window.mainloop()
 
-
-print("Loading Config...")
-if not os.path.exists("assets/config.json"):
-    save_config([{"Launcher": {"Theme": "dark", "Lang": "es_es", "Version": "0.2.0"}, "Accounts": {}}])
-load_config()
-print("Loading Launguaje...")
-set_languaje(config[0]["Launcher"]["Lang"])
-print("Loading Accounts...")
-check_accounts()
-print("Loading Versions...")
-check_vers()
-print("Starting...")
-menu()
+if __name__ == "__main__":
+    print("Starting...")
+    main()
