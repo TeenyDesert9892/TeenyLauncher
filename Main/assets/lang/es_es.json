@@ -22,6 +22,7 @@
     "Delete_Account_Success": "La cuenta fue eliminada correctamente!",
     "Delete_Account_Failure": "",
     "Without_Accounts": "Sin cuentas agregadas",
+    "Without_Accounts_To_Play": "No tienes agregada ninguna cuenta",
     "Install_Versions_Window_Title": "Instalar versiones",
     "Install_Versions_Num_Title": "Numero de la version",
     "Install_Versions_Num_Title_Entry": "Introduce la version",
@@ -30,6 +31,7 @@
     "Install_Versions_Install_Button": "Instalar",
     "Install_Vanilla_Version_Success": "La version de minecraft vanilla se ha instalado correctamente!",
     "Install_Vanilla_Version_Failure": "",
+    "Forge_Version_Unsuported": "Esta version de minecraft tiene soporte por parte de equipo de Forge",
     "Install_Forge_Version_Succes": "La version de minecraft forge se ha instalado correctamente!",
     "Install_Forge_Version_Failure": "",
     "Fabric_Version_Unsuported": "Esta version no tiene soporte por parte de el equipo de Fabric",
@@ -62,6 +64,7 @@
     "Menu_Minecraft_Config_Version_Title": "Versiones de Minecraft",
     "Menu_Minecraft_Config_Install_Version": "Instalar versiones",
     "Menu_Minecraft_Config_Uninstall_Version": "Desinstalar versiones",
-    "Menu_Minecraft_Config_Run_Minecraft_Button": "Inicar Minecraft"
+    "Menu_Minecraft_Config_Run_Minecraft_Button": "Inicar Minecraft",
+    "TeenyLauncher_Version_Info": "Gracias por usar TeenyLauncher!"
   }
 ]

@@ -5,12 +5,6 @@
             "Lang": "es_es",
             "Version": "0.2.0"
         },
-        "Accounts": {
-            "Default": {
-                "User": "Default",
-                "Uuid": "",
-                "Token": ""
-            }
-        }
+        "Accounts": {}
     }
 ]
