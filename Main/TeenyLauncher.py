@@ -122,7 +122,8 @@ def uninstall_minecraft_version(version):
     message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
 
 
-def ejecutar_minecraft(version, ram, name):
+def run_minecraft(version, ram):
+    name = account_display.get()
     if name != langData[0]["Without_Accounts"]:
         window.destroy()
 
@@ -134,7 +135,7 @@ def ejecutar_minecraft(version, ram, name):
         if ram == "-XmxG":
             ram = "-Xmx2G"
 
-        minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': [f"{ram}", f"{ram}"], 'launcherVersion': f"{launcherVersion}"})
+        minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)})
         subprocess.run(minecraft_command)
     else:
         message("Without Accounts To Play", langData[0]["Without_Accounts_To_Play"])
@@ -155,7 +156,7 @@ def check_accounts():
     elif len(list_added_accounts) == 0:
         accounts.set(langData[0]["Without_Accounts"])
         list_added_accounts.append(langData[0]["Without_Accounts"])
-    acount_display.configure(variable=accounts, values=list_added_accounts)
+    account_display.configure(variable=accounts, values=list_added_accounts)
 
 
 def check_vers():
@@ -320,7 +321,6 @@ def uninstall_versions():
     elif len(lista_versiones_instaladas) == 0:
         vers.set(langData[0]["Without_Versions"])
         lista_versiones_instaladas.append(langData[0]["Without_Versions"])
-
     display.configure(variable=vers, values=lista_versiones_instaladas)
 
     winuns.mainloop()
@@ -425,9 +425,9 @@ def main():
     deleteAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Delete_Account"], font=("", 16), command=delete_acount)
     deleteAcount.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
-    global acount_display
-    acount_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16), width=260)
-    acount_display.grid(row=4, column=0, pady=5, padx=5, sticky="we")
+    global account_display
+    account_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16), width=260)
+    account_display.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
     ramTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Ram_Title"], font=("", 16))
     ramTitle.grid(row=5, column=0, pady=5, padx=5, sticky="w")
@@ -448,9 +448,7 @@ def main():
     versions_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16))
     versions_display.grid(row=10, column=0, pady=5, padx=5, sticky="we")
 
-    runMinecraft = threading.Thread(target=(ejecutar_minecraft), args=(versions_display.get(), f"-Xmx{entry_ram.get()}G", acount_display.get()))
-
-    iniciar_minecraft = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Run_Minecraft_Button"], font=("", 20), command=lambda: runMinecraft.start())
+    iniciar_minecraft = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Run_Minecraft_Button"], font=("", 20), command=lambda: run_minecraft(versions_display.get(), str(f"-Xmx{entry_ram.get()}G")))
     iniciar_minecraft.grid(row=11, column=0, pady=5, padx=5, sticky="we")
 
     print("Loading Accounts...")
