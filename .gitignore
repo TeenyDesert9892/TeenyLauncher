@@ -1,6 +1,6 @@
-# Default ignored files
 /shelf/
 /.idea/workspace.xml
 /venv/
-/Main/assets/config.pkl
 /Main/logs/
+Main/assets/config.json
+/logs/

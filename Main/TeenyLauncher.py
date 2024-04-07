@@ -50,12 +50,9 @@ def create_uuid():
 
     uuid += create_chain(8)
     uuid += "-"
-    uuid += create_chain(4)
-    uuid += "-"
-    uuid += create_chain(4)
-    uuid += "-"
-    uuid += create_chain(4)
-    uuid += "-"
+    for i in range(0, 3):
+        uuid += create_chain(4)
+        uuid += "-"
     uuid += create_chain(12)
     return uuid
 
@@ -165,6 +162,7 @@ def run_minecraft(version, ram):
         if ram == "-XmxG":
             ram = "-Xmx2G"
 
+        print("Running:", version)
         minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)})
         subprocess.run(minecraft_command)
     else:
@@ -275,11 +273,7 @@ def delete_acount():
     title = ctk.CTkLabel(master=frame, text=langData[0]["Delete_Account_Title"], font=("", 24))
     title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
-    addedAcounts = []
-    for account in config[0]["Accounts"]:
-        addedAcounts.append(account)
-
-    selectedAccount = ctk.CTkOptionMenu(master=frame, variable=ctk.StringVar(master=frame, value=langData[0]["Delete_Account_Select_Default"]), values=addedAcounts, font=("", 16), width=220)
+    selectedAccount = ctk.CTkOptionMenu(master=frame, variable=ctk.StringVar(master=frame, value=langData[0]["Delete_Account_Select_Default"]), values=[account for account in config[0]["Accounts"]], font=("", 16), width=220)
     selectedAccount.grid_propagate(False)
     selectedAccount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
@@ -377,7 +371,7 @@ def infoEdit(section, lastFrame):
     info.place(x=10, y=60)
 
     if section == "LauncherVersion":
-        infoTitle = ctk.CTkLabel(master=info, text=f"TeenyLauncher (v{config[0]["Launcher"]["Version"]})", font=("", 36), wraplength=490)
+        infoTitle = ctk.CTkLabel(master=info, text=str(f"TeenyLauncher (v{config[0]["Launcher"]["Version"]})"), font=("", 36), wraplength=490)
         infoTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
 
         infoVersionInfo = ctk.CTkLabel(master=info, text=langData[0]["TeenyLauncher_Version_Info"], font=("", 16), wraplength=490)
@@ -404,7 +398,6 @@ def infoEdit(section, lastFrame):
 
         configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationColor.get(), configurationTheme.get()))
         configurationSave.grid(row=6, column=0, pady=5, padx=5, sticky="we")
-
     else:
         infoEdit("LauncherVersion", info)
 

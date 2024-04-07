@@ -32,7 +32,7 @@
     "Install_Vanilla_Version_Success": "La version de minecraft vanilla se ha instalado correctamente!",
     "Install_Vanilla_Version_Failure": "",
     "Forge_Version_Unsuported": "Esta version de minecraft tiene soporte por parte de equipo de Forge",
-    "Install_Forge_Version_Succes": "La version de minecraft forge se ha instalado correctamente!",
+    "Install_Forge_Version_Success": "La version de minecraft forge se ha instalado correctamente!",
     "Install_Forge_Version_Failure": "",
     "Fabric_Version_Unsuported": "Esta version no tiene soporte por parte de el equipo de Fabric",
     "Install_Fabric_Version_Success": "La version de minecraft fabric se ha instalado correctamente!",

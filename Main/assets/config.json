@@ -6,6 +6,12 @@
             "Lang": "es_es",
             "Version": "0.2.0"
         },
-        "Accounts": {}
+        "Accounts": {
+            "Teeny": {
+                "User": "Teeny",
+                "Uuid": "d3c3f038-20a8-d943-d061-b482b0ad9749",
+                "Token": "0"
+            }
+        }
     }
 ]
