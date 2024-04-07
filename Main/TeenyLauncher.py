@@ -405,7 +405,7 @@ def infoEdit(section, lastFrame):
 def main():
     print("Loading Config...")
     if not os.path.exists("assets/config.json"):
-        save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "Version": "0.2.0"}, "Accounts": {}}])
+        save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "Version": "0.2.2"}, "Accounts": {}}])
     load_config()
 
     print("Loading Launguaje...")
