@@ -1,8 +1,8 @@
 import json
 import os
+import random
 import shutil
 import subprocess
-import threading
 
 import customtkinter as ctk
 import minecraft_launcher_lib
@@ -31,6 +31,35 @@ def set_languaje(lang):
         langData = json.load(open("assets/lang/en_en.json", "r"))
 
 
+def create_uuid():
+    uuid = ""
+
+    def create_chain(lenghth):
+        chain = ""
+        for i in range(0, lenghth):
+            char = random.randint(0, 15)
+            chain += str(hexa_num(char))
+        return chain
+
+    def hexa_num(num):
+        letters = ["a", "b", "c", "d", "e", "f"]
+        if num >= 0 and num <= 9:
+            return str(num)
+        else:
+            return letters[num-10]
+
+    uuid += create_chain(8)
+    uuid += "-"
+    uuid += create_chain(4)
+    uuid += "-"
+    uuid += create_chain(4)
+    uuid += "-"
+    uuid += create_chain(4)
+    uuid += "-"
+    uuid += create_chain(12)
+    return uuid
+
+
 def add_acount_data(type, name, pasword):
     if type == "Premiun":
         if name != "":
@@ -42,21 +71,22 @@ def add_acount_data(type, name, pasword):
                 config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
                 save_config(config)
                 check_accounts()
-                message("Add Account Premiun Success", langData[0]["Add_Account_Premiun_Success"])
+                text_message("Add Account Premiun Success", langData[0]["Add_Account_Premiun_Success"])
             else:
-                message("Add Account Pasword Remaining", langData[0]["Add_Account_Pasword_Remaining"])
+                text_message("Add Account Pasword Remaining", langData[0]["Add_Account_Pasword_Remaining"])
         else:
-            message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
+            text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
     elif type == "No Premiun":
         if name != "":
-            config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': '', 'Token': ''}
+            uuid = create_uuid()
+            config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(uuid), 'Token': '0'}
             save_config(config)
             check_accounts()
-            message("Add Account No Premiun Success", langData[0]["Add_Account_No_Premiun_Success"])
+            text_message("Add Account No Premiun Success", langData[0]["Add_Account_No_Premiun_Success"])
         else:
-            message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
+            text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
     else:
-        message("Add Account No Type Selected", langData[0]["Add_Account_No_Type_Selected"])
+        text_message("Add Account No Type Selected", langData[0]["Add_Account_No_Type_Selected"])
 
 
 def del_acount_data(account):
@@ -67,7 +97,7 @@ def del_acount_data(account):
     save_config(newConfig)
     load_config()
     check_accounts()
-    message("Delete_Account_Success", langData[0]["Delete_Account_Success"])
+    text_message("Delete_Account_Success", langData[0]["Delete_Account_Success"])
 
 # From here to above is all for minecraft_launcher_lib
 
@@ -83,43 +113,43 @@ def verif_ver(ver, type):
         if type == "Vanilla":
             minecraft_launcher_lib.install.install_minecraft_version(ver, minecraft_directori)
             check_vers()
-            message("Install_Vanilla_Version_Success", langData[0]["Install_Vanilla_Version_Success"])
+            text_message("Install_Vanilla_Version_Success", langData[0]["Install_Vanilla_Version_Success"])
             
         elif type == "Forge":
             forge = minecraft_launcher_lib.forge.find_forge_version(ver)
             if not forge:
-                message("Forge Version Unsuported", langData[0]["Forge_Version_Unsuported"])
+                text_message("Forge Version Unsuported", langData[0]["Forge_Version_Unsuported"])
 
             else:
                 minecraft_launcher_lib.forge.install_forge_version(forge, minecraft_directori)
                 check_vers()
-                message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
+                text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
 
         elif type == "Fabric":
             if not minecraft_launcher_lib.fabric.is_minecraft_version_supported(ver):
-                message("Fabric Version Unsuported", langData[0]["Fabric_Version_Unsuported"])
+                text_message("Fabric Version Unsuported", langData[0]["Fabric_Version_Unsuported"])
             else:
                 minecraft_launcher_lib.fabric.install_fabric(ver, minecraft_directori)
                 check_vers()
-                message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
+                text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
 
         elif type == "Quilt":
             if not minecraft_launcher_lib.quilt.is_minecraft_version_supported(ver):
-                message("Quilt Version Unsuported", langData[0]["Quilt_Version_Unsuported"])
+                text_message("Quilt Version Unsuported", langData[0]["Quilt_Version_Unsuported"])
             else:
                 minecraft_launcher_lib.quilt.install_quilt(ver, minecraft_directori)
                 check_vers()
-                message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
+                text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
         else:
-            message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
+            text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
     else:
-        message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
+        text_message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
 
 
 def uninstall_minecraft_version(version):
     shutil.rmtree(f'{minecraft_directori}/versions/{version}')
     check_vers()
-    message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
+    text_message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
 
 
 def run_minecraft(version, ram):
@@ -138,7 +168,7 @@ def run_minecraft(version, ram):
         minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)})
         subprocess.run(minecraft_command)
     else:
-        message("Without Accounts To Play", langData[0]["Without_Accounts_To_Play"])
+        text_message("Without Accounts To Play", langData[0]["Without_Accounts_To_Play"])
 
 # From here to above is all for customtkinter
 
@@ -175,7 +205,7 @@ def check_vers():
     versions_display.configure(variable=vers, values=lista_versiones_instaladas)
 
 
-def message(title, msg):
+def text_message(title, msg):
     winmsg = ctk.CTk()
     winmsg.geometry("300x200")
     winmsg.iconbitmap("assets/images/Icon.ico")
