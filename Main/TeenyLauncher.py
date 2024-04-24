@@ -1,26 +1,34 @@
+import pickle
 import json
 import os
 import random
-import shutil
 import subprocess
+import threading
 
 import customtkinter as ctk
-import minecraft_launcher_lib
+import minecraft_launcher_lib as mllb
 
 print("This code was made by TeenyDesert9892")
 
+version = "0.3.0"
+
 # Load data and config
+
+if os.name == "nt":
+    minecraft_directory = f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher"
+elif os.name == "posix":
+    minecraft_directory = f"/home/{os.getlogin()}/.TeenyLauncher"
 
 
 def save_config(data):
-    with open("assets/config.json", "w") as jsonlFile:
-        json.dump(data, jsonlFile, indent=4)
+    with open(f"{minecraft_directory}/launcher_config.pkl", "wb") as pickleFile:
+        pickle.dump(data, pickleFile)
 
 
 def load_config():
-    with open("assets/config.json", "r") as jsonlFile:
+    with open(f"{minecraft_directory}/launcher_config.pkl", "rb") as pickleFile:
         global config
-        config = json.load(jsonlFile)
+        config = pickle.load(pickleFile)
 
 def set_languaje(lang):
     langFile = f"assets/lang/{lang}.json"
@@ -58,20 +66,24 @@ def create_uuid():
 
 
 def add_acount_data(type, name, pasword):
+    addAcInfo.configure(text="Creating...")
     if type == "Premiun":
         if name != "":
             if pasword != "":
-                auth_code = minecraft_launcher_lib.microsoft_account.get_auth_code_from_url(url='https://TeenyLauncherMinecraft/redirect')
+                auth_code = mllb.microsoft_account.get_auth_code_from_url(url='https://TeenyLauncherMinecraft/redirect')
                 print(auth_code)
-                minecraft_launcher_lib.microsoft_account.complete_login(client_id='d56f21dc-e9f4-439b-b45e-8b4c42c6f541', client_secret=None, redirect_uri=str(f'https://TeenyLauncherMinecraft/redirect?code={auth_code}&state=<optional'), auth_code=auth_code, code_verifier=None)
+                mllb.microsoft_account.complete_login(client_id='d56f21dc-e9f4-439b-b45e-8b4c42c6f541', client_secret=None, redirect_uri=str(f'https://TeenyLauncherMinecraft/redirect?code={auth_code}&state=<optional'), auth_code=auth_code, code_verifier=None)
 
                 config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
                 save_config(config)
                 check_accounts()
+                addAcInfo.configure(text="Create exit!")
                 text_message("Add Account Premiun Success", langData[0]["Add_Account_Premiun_Success"])
             else:
+                addAcInfo.configure(text="Create failure...")
                 text_message("Add Account Pasword Remaining", langData[0]["Add_Account_Pasword_Remaining"])
         else:
+            addAcInfo.configure(text="Create failure...")
             text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
     elif type == "No Premiun":
         if name != "":
@@ -79,14 +91,18 @@ def add_acount_data(type, name, pasword):
             config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(uuid), 'Token': '0'}
             save_config(config)
             check_accounts()
+            addAcInfo.configure(text="Create exit!")
             text_message("Add Account No Premiun Success", langData[0]["Add_Account_No_Premiun_Success"])
         else:
+            addAcInfo.configure(text="Create failure...")
             text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
     else:
+        addAcInfo.configure(text="Create failure...")
         text_message("Add Account No Type Selected", langData[0]["Add_Account_No_Type_Selected"])
 
 
-def del_acount_data(account):
+def del_acount_data(account, *args):
+    delAcInfo.configure(text="Deleting...")
     newConfig = [{"Launcher": {'Color': config[0]["Launcher"]["Color"], "Theme": config[0]["Launcher"]["Theme"], "Lang": config[0]["Launcher"]["Lang"], 'Version': config[0]["Launcher"]["Version"]}, 'Accounts': {}}]
     for ac in config[0]["Accounts"]:
         if not ac == account:
@@ -94,62 +110,75 @@ def del_acount_data(account):
     save_config(newConfig)
     load_config()
     check_accounts()
+    delAcInfo.configure(text="Delete exit!")
     text_message("Delete_Account_Success", langData[0]["Delete_Account_Success"])
 
-# From here to above is all for minecraft_launcher_lib
+# From here to above is all for mllb
 
 
-if os.name == "nt":
-    minecraft_directori = f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher"
-elif os.name == "posix":
-    minecraft_directori = f"/home/{os.getlogin()}/.TeenyLauncher"
-
-
-def verif_ver(ver, type):
+def install_minecraft_verison(ver, type):
+    installInfo.configure(text="Installing...")
     if ver != "":
         if type == "Vanilla":
-            minecraft_launcher_lib.install.install_minecraft_version(ver, minecraft_directori)
+            mllb.install.install_minecraft_version(ver, minecraft_directory)
             check_vers()
+            installInfo.configure(text="Install succes!")
             text_message("Install_Vanilla_Version_Success", langData[0]["Install_Vanilla_Version_Success"])
-            
-        elif type == "Forge":
-            forge = minecraft_launcher_lib.forge.find_forge_version(ver)
-            if not forge:
-                text_message("Forge Version Unsuported", langData[0]["Forge_Version_Unsuported"])
 
+        elif type == "Forge":
+            if not mllb.forge.find_forge_version(ver):
+                text_message("Forge Version Unsuported", langData[0]["Forge_Version_Unsuported"])
             else:
-                minecraft_launcher_lib.forge.install_forge_version(forge, minecraft_directori)
+                mllb.forge.install_forge_version(mllb.forge.find_forge_version(ver), minecraft_directory)
                 check_vers()
+                installInfo.configure(text="Install succes!")
                 text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
 
         elif type == "Fabric":
-            if not minecraft_launcher_lib.fabric.is_minecraft_version_supported(ver):
+            if not mllb.fabric.is_minecraft_version_supported(ver):
                 text_message("Fabric Version Unsuported", langData[0]["Fabric_Version_Unsuported"])
             else:
-                minecraft_launcher_lib.fabric.install_fabric(ver, minecraft_directori)
+                mllb.fabric.install_fabric(ver, minecraft_directory)
                 check_vers()
+                installInfo.configure(text="Install succes!")
                 text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
 
         elif type == "Quilt":
-            if not minecraft_launcher_lib.quilt.is_minecraft_version_supported(ver):
+            if not mllb.quilt.is_minecraft_version_supported(ver):
                 text_message("Quilt Version Unsuported", langData[0]["Quilt_Version_Unsuported"])
             else:
-                minecraft_launcher_lib.quilt.install_quilt(ver, minecraft_directori)
+                mllb.quilt.install_quilt(ver, minecraft_directory)
                 check_vers()
+                installInfo.configure(text="Install succes!")
                 text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
         else:
+            installInfo.configure(text="Install failure...")
             text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
     else:
+        installInfo.configure(text="Install failure...")
         text_message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
 
 
-def uninstall_minecraft_version(version):
-    shutil.rmtree(f'{minecraft_directori}/versions/{version}')
+def uninstall_minecraft_version(version, *args):
+    uninstallInfo.configure(text="Uninstalling...")
+
+    if os.path.exists(f'{minecraft_directory}/versions/{version}/natives'):
+        for file in os.scandir(f'{minecraft_directory}/versions/{version}/natives'):
+            os.remove(file)
+        os.removedirs(f'{minecraft_directory}/versions/{version}/natives')
+
+    for file in os.scandir(f'{minecraft_directory}/versions/{version}'):
+        os.remove(file)
+    os.removedirs(f'{minecraft_directory}/versions/{version}')
+
     check_vers()
     text_message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
-
+    uninstallInfo.configure(text="Uninstall success!")
 
 def run_minecraft(version, ram):
+    config[0]["Launcher"]["DefaultAccount"] = account_display.get()
+    config[0]["Launcher"]["DefaultVersion"] = versions_display.get()
+    save_config(config)
     name = account_display.get()
     if name != langData[0]["Without_Accounts"]:
         window.destroy()
@@ -163,8 +192,10 @@ def run_minecraft(version, ram):
             ram = "-Xmx2G"
 
         print("Running:", version)
-        minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(version, minecraft_directori, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)})
+        minecraft_command = mllb.command.get_minecraft_command(version, minecraft_directory, {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)})
         subprocess.run(minecraft_command)
+        print("Restarting...")
+        main()
     else:
         text_message("Without Accounts To Play", langData[0]["Without_Accounts_To_Play"])
 
@@ -180,7 +211,10 @@ def check_accounts():
         list_added_accounts.append(account_added)
 
     if len(list_added_accounts) != 0:
-        accounts.set(list_added_accounts[0])
+        if config[0]["Launcher"]["DefaultAccount"] == "Null":
+            accounts.set(list_added_accounts[0])
+        else:
+            accounts.set(config[0]["Launcher"]["DefaultAccount"])
     elif len(list_added_accounts) == 0:
         accounts.set(langData[0]["Without_Accounts"])
         list_added_accounts.append(langData[0]["Without_Accounts"])
@@ -190,13 +224,16 @@ def check_accounts():
 def check_vers():
     vers = ctk.StringVar()
     lista_versiones_instaladas = []
-    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
+    versiones_instaladas = mllb.utils.get_installed_versions(minecraft_directory)
 
     for version_instalada in versiones_instaladas:
         lista_versiones_instaladas.append(version_instalada['id'])
 
     if len(lista_versiones_instaladas) != 0:
-        vers.set(lista_versiones_instaladas[0])
+        if config[0]["Launcher"]["DefaultVersion"] == "Null":
+            vers.set(lista_versiones_instaladas[0])
+        else:
+            vers.set(config[0]["Launcher"]["DefaultVersion"])
     elif len(lista_versiones_instaladas) == 0:
         vers.set(langData[0]["Without_Versions"])
         lista_versiones_instaladas.append(langData[0]["Without_Versions"])
@@ -206,9 +243,12 @@ def check_vers():
 def text_message(title, msg):
     winmsg = ctk.CTk()
     winmsg.geometry("300x200")
-    winmsg.iconbitmap("assets/images/Icon.ico")
     winmsg.title(title)
     winmsg.resizable(width=False, height=False)
+    try:
+        winmsg.iconbitmap("assets/images/Icon.ico")
+    except:
+        print("Unable to load logo...")
 
     msgframe = ctk.CTkFrame(master=winmsg, width=280, height=140)
     msgframe.grid_propagate(False)
@@ -217,125 +257,169 @@ def text_message(title, msg):
     msgtxt = ctk.CTkLabel(master=msgframe, text=msg, font=("", 16), wraplength=280)
     msgtxt.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
-    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), command=winmsg.destroy)
+    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), command=lambda: winmsg.destroy())
     msgbtn.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
     winmsg.mainloop()
 
 
 def add_acount():
+    def add_ac_thread(type, name, password):
+        thread = threading.Thread(target=add_acount_data, args=(type, name, password), daemon=True)
+        thread.start()
+
     winAddAc = ctk.CTk()
-    winAddAc.geometry("300x300")
-    winAddAc.iconbitmap("assets/images/Icon.ico")
+    winAddAc.geometry("300x325")
     winAddAc.title(langData[0]["Add_Account_Window_Title"])
     winAddAc.resizable(width=False, height=False)
+    try:
+        winAddAc.iconbitmap("assets/images/Icon.ico")
+    except:
+        print("Unable to load logo...")
 
-    frame = ctk.CTkFrame(master=winAddAc, width=280, height=280)
-    frame.grid_propagate(False)
-    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+    AddAcframe = ctk.CTkFrame(master=winAddAc, width=280, height=305)
+    AddAcframe.grid_propagate(False)
+    AddAcframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    title = ctk.CTkLabel(master=frame, wraplength=320, text=langData[0]["Add_Account_Title"], font=("", 24))
+    title = ctk.CTkLabel(master=AddAcframe, wraplength=320, text=langData[0]["Add_Account_Title"], font=("", 24))
     title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
-    type_display = ctk.CTkOptionMenu(master=frame, values=["Premiun", "No Premiun"], variable=ctk.StringVar(value=langData[0]["Add_Account_Type_Default"]), font=("", 16), width=270)
+    type_display = ctk.CTkOptionMenu(master=AddAcframe, values=["Premiun", "No Premiun"], variable=ctk.StringVar(value=langData[0]["Add_Account_Type_Default"]), font=("", 16), width=270)
     type_display.grid_propagate(False)
     type_display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    name_title = ctk.CTkLabel(master=frame, wraplength=320, text=langData[0]["Add_Account_Name"], font=("", 16))
+    name_title = ctk.CTkLabel(master=AddAcframe, wraplength=320, text=langData[0]["Add_Account_Name"], font=("", 16))
     name_title.grid(row=2, column=0, pady=5, padx=5, sticky="w")
 
-    name_entry = ctk.CTkEntry(master=frame, placeholder_text=langData[0]["Add_Account_Name_Input"], font=("", 16))
+    name_entry = ctk.CTkEntry(master=AddAcframe, placeholder_text=langData[0]["Add_Account_Name_Input"], font=("", 16))
     name_entry.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
-    pasword_title = ctk.CTkLabel(master=frame, wraplength=320, text=langData[0]["Add_Account_Password"], font=("", 16))
+    pasword_title = ctk.CTkLabel(master=AddAcframe, wraplength=320, text=langData[0]["Add_Account_Password"], font=("", 16))
     pasword_title.grid(row=4, column=0, pady=5, padx=5, sticky="w")
 
-    pasword_entry = ctk.CTkEntry(master=frame, placeholder_text=langData[0]["Add_Account_Password_Input"], font=("", 16), show="*")
+    pasword_entry = ctk.CTkEntry(master=AddAcframe, placeholder_text=langData[0]["Add_Account_Password_Input"], font=("", 16), show="*")
     pasword_entry.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
-    add_button = ctk.CTkButton(master=frame, text=langData[0]["Add_Account_Create_Button"], font=("", 16), command=lambda: add_acount_data(type_display.get(), name_entry.get(), pasword_entry.get()))
-    add_button.grid(row=6, column=0, pady=5, padx=5, sticky="nswe")
+    add_button = ctk.CTkButton(master=AddAcframe, text=langData[0]["Add_Account_Create_Button"], font=("", 16), command=lambda: add_ac_thread(type_display.get(), name_entry.get(), pasword_entry.get()))
+    add_button.grid(row=6, column=0, pady=5, padx=5, sticky="we")
+
+    global addAcInfo
+    addAcInfo = ctk.CTkLabel(master=AddAcframe, text="", font=("", 16))
+    addAcInfo.grid(row=7, column=0, pady=5, padx=5, sticky="we")
 
     winAddAc.mainloop()
 
 
 def delete_acount():
+    def del_ac_thread(account):
+        thread = threading.Thread(target=del_acount_data, args=(account, None), daemon=True)
+        thread.start()
+
     winDelAc = ctk.CTk()
-    winDelAc.geometry("250x150")
-    winDelAc.iconbitmap("assets/images/Icon.ico")
+    winDelAc.geometry("250x175")
     winDelAc.title(langData[0]["Delete_Account_Window_Title"])
     winDelAc.resizable(width=False, height=False)
+    try:
+        winDelAc.iconbitmap("assets/images/Icon.ico")
+    except:
+        print("Unable to load logo...")
 
-    frame = ctk.CTkFrame(master=winDelAc, width=230, height=130)
-    frame.grid_propagate(False)
-    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+    DelAcframe = ctk.CTkFrame(master=winDelAc, width=230, height=155)
+    DelAcframe.grid_propagate(False)
+    DelAcframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    title = ctk.CTkLabel(master=frame, text=langData[0]["Delete_Account_Title"], font=("", 24))
+    title = ctk.CTkLabel(master=DelAcframe, text=langData[0]["Delete_Account_Title"], font=("", 24))
     title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
-    selectedAccount = ctk.CTkOptionMenu(master=frame, variable=ctk.StringVar(master=frame, value=langData[0]["Delete_Account_Select_Default"]), values=[account for account in config[0]["Accounts"]], font=("", 16), width=220)
+    selectedAccount = ctk.CTkOptionMenu(master=DelAcframe, variable=ctk.StringVar(master=DelAcframe, value=langData[0]["Delete_Account_Select_Default"]), values=[account for account in config[0]["Accounts"]], font=("", 16), width=220)
     selectedAccount.grid_propagate(False)
     selectedAccount.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    deleteButton = ctk.CTkButton(master=frame, text=langData[0]["Delete_Account_Button"], font=("", 16), command=lambda: del_acount_data(selectedAccount.get()))
+    deleteButton = ctk.CTkButton(master=DelAcframe, text=langData[0]["Delete_Account_Button"], font=("", 16), command=lambda: del_ac_thread(selectedAccount.get()))
     deleteButton.grid(row=2, column=0, pady=5, padx=5, sticky="we")
+
+    global delAcInfo
+    delAcInfo = ctk.CTkLabel(master=DelAcframe, text="", font=("", 16))
+    delAcInfo.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
     winDelAc.mainloop()
 
 
 def install_versions():
+    def install_thread(version, type):
+        thread = threading.Thread(target=install_minecraft_verison, args=(version, type), demon=True)
+        thread.start()
+    
     winins = ctk.CTk()
-    winins.geometry("275x225")
-    winins.iconbitmap("assets/images/Icon.ico")
+    winins.geometry("275x250")
     winins.title(langData[0]["Install_Versions_Window_Title"])
     winins.resizable(width=False, height=False)
+    try:
+        winins.iconbitmap("assets/images/Icon.ico")
+    except:
+        print("Unable to load logo...")
 
-    frame = ctk.CTkFrame(master=winins, width=255, height=205)
-    frame.grid_propagate(False)
-    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+    Insframe = ctk.CTkFrame(master=winins, width=255, height=225)
+    Insframe.grid_propagate(False)
+    Insframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    verTitle = ctk.CTkLabel(master=frame, text=langData[0]["Install_Versions_Num_Title"], font=("", 16))
+    verTitle = ctk.CTkLabel(master=Insframe, text=langData[0]["Install_Versions_Num_Title"], font=("", 16))
     verTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
 
-    ver_name = ctk.CTkEntry(master=frame, placeholder_text=langData[0]["Install_Versions_Num_Title_Entry"], font=("", 16))
+    ver_name = ctk.CTkEntry(master=Insframe, placeholder_text=langData[0]["Install_Versions_Num_Title_Entry"], font=("", 16), width=245)
     ver_name.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    modedTitle = ctk.CTkLabel(master=frame, text=langData[0]["Install_Versions_Type_Title"], font=("", 16))
+    modedTitle = ctk.CTkLabel(master=Insframe, text=langData[0]["Install_Versions_Type_Title"], font=("", 16))
     modedTitle.grid(row=2, column=0, pady=5, padx=5, sticky="w")
 
-    type_display = ctk.CTkOptionMenu(master=frame, values=["Vanilla", "Forge", "Fabric", "Quilt"], variable=ctk.StringVar(value=langData[0]["Install_Version_Type_Default"]), font=("", 16))
+    type_display = ctk.CTkOptionMenu(master=Insframe, values=["Vanilla", "Forge", "Fabric", "Quilt"], variable=ctk.StringVar(value=langData[0]["Install_Version_Type_Default"]), font=("", 16))
     type_display.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
-    install_button = ctk.CTkButton(master=frame, text=langData[0]["Install_Versions_Install_Button"], font=("", 16), command=lambda: verif_ver(ver_name.get(), type_display.get()))
+    install_button = ctk.CTkButton(master=Insframe, text=langData[0]["Install_Versions_Install_Button"], font=("", 16), command=lambda: install_thread(ver_name.get(), type_display.get()))
     install_button.grid(row=4, column=0, pady=5, padx=5, sticky="we")
+
+    global installInfo
+    installInfo = ctk.CTkLabel(master=Insframe, text="", font=("", 16))
+    installInfo.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
     winins.mainloop()
 
 
 def uninstall_versions():
+    def uninstall_thread(version):
+        thread = threading.Thread(target=uninstall_minecraft_version, args=(version, None), daemon=True)
+        thread.start()
+    
     winuns = ctk.CTk()
-    winuns.geometry("300x150")
-    winuns.iconbitmap("assets/images/Icon.ico")
+    winuns.geometry("300x175")
     winuns.title(langData[0]["Uninstall_Version_Window_Title"])
     winuns.resizable(width=False, height=False)
+    try:
+        winuns.iconbitmap("assets/images/Icon.ico")
+    except:
+        print("Unable to load logo...")
 
-    frame = ctk.CTkFrame(master=winuns, width=280, height=130)
-    frame.grid_propagate(False)
-    frame.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
+    Unsframe = ctk.CTkFrame(master=winuns, width=280, height=155)
+    Unsframe.grid_propagate(False)
+    Unsframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    title = ctk.CTkLabel(master=frame, text=langData[0]["Uninstall_Version_Title"], font=("", 18))
+    title = ctk.CTkLabel(master=Unsframe, text=langData[0]["Uninstall_Version_Title"], font=("", 18))
     title.grid(row=0, column=0, pady=10, padx=10, sticky="w")
 
-    display = ctk.CTkOptionMenu(master=frame, font=("", 16))
+    display = ctk.CTkOptionMenu(master=Unsframe, font=("", 16))
     display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    button = ctk.CTkButton(master=frame, text=langData[0]["Uninstall_Version_Button"], font=("", 20), command=lambda: uninstall_minecraft_version(display.get()))
+    button = ctk.CTkButton(master=Unsframe, text=langData[0]["Uninstall_Version_Button"], font=("", 20), command=lambda: uninstall_thread(display.get()))
     button.grid(row=2, column=0, pady=5, padx=5, sticky="we")
+
+    global uninstallInfo
+    uninstallInfo = ctk.CTkLabel(master=Unsframe, text="", font=("", 16))
+    uninstallInfo.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
     vers = ctk.StringVar()
     lista_versiones_instaladas = []
 
-    versiones_instaladas = minecraft_launcher_lib.utils.get_installed_versions(minecraft_directori)
+    versiones_instaladas = mllb.utils.get_installed_versions(minecraft_directory)
 
     for version_instalada in versiones_instaladas:
         lista_versiones_instaladas.append(version_instalada['id'])
@@ -349,7 +433,6 @@ def uninstall_versions():
 
     winuns.mainloop()
 
-
 def update_config(lang, color, theme):
     if lang != langData[0]["Info_Configurate_Languaje_Default"]:
         if lang != "empty_example":
@@ -358,6 +441,8 @@ def update_config(lang, color, theme):
         config[0]["Launcher"]["Color"] = color
     if theme != langData[0]["Info_Configuration_Theme_Default"]:
         config[0]["Launcher"]["Theme"] = theme
+    config[0]["Launcher"]["DefaultAccount"] = account_display.get()
+    config[0]["Launcher"]["DefaultVersion"] = versions_display.get()
     save_config(config)
     window.destroy()
     print("Reloading...")
@@ -403,10 +488,11 @@ def infoEdit(section, lastFrame):
 
 
 def main():
+
     print("Loading Config...")
-    if not os.path.exists("assets/config.json"):
-        save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "Version": "0.2.2"}, "Accounts": {}}])
     load_config()
+    if config[0]["Launcher"]["Version"] != version:
+        config[0]["Launcher"]["Version"] = version
 
     print("Loading Launguaje...")
     set_languaje(config[0]["Launcher"]["Lang"])
@@ -418,9 +504,12 @@ def main():
     global window
     window = ctk.CTk()
     window.geometry("800x500")
-    window.iconbitmap("assets/images/Icon.ico")
     window.title("TeenyLauncher")
     window.resizable(width=False, height=False)
+    try:
+        window.iconbitmap("assets/images/Icon.ico")
+    except:
+        print("Unable to load logo...")
 
     top = ctk.CTkFrame(master=window, width=780, height=40)
     top.grid_propagate(False)
@@ -483,6 +572,15 @@ def main():
     print("Done!")
     window.mainloop()
 
+
 if __name__ == "__main__":
+    if not mllb.utils.is_minecraft_installed(minecraft_directory):
+        print("Installing launcher libraries... (This may take a while)")
+        mllb.install.install_minecraft_version(mllb.utils.get_latest_version()['release'], minecraft_directory)
+    if not os.path.exists(f"{minecraft_directory}/launcher_config.pkl"):
+        save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "Null", "DefaultVersion": "Null", "Version": str(version)}, "Accounts": {}}])
     print("Starting...")
     main()
+    config[0]["Launcher"]["DefaultAccount"] = account_display.get()
+    config[0]["Launcher"]["DefaultVersion"] = versions_display.get()
+    save_config(config)
