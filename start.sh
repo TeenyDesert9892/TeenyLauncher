@@ -1,6 +1,3 @@
 #!/bin/bash
-cd Main
-cd scripts
-python Update.py
-cd ..
-python TeenyLauncher.py
+python Main/scripts/Update.py
+python Main/TeenyLauncher.py

@@ -1,7 +1,4 @@
-cd Desktop
-cd TeenyLauncher
-cd Main
-cd scripts
-python Update.py
-cd ..
-python TeenyLauncher.py
+@echo off
+title TeenyLauncher
+python Main/scripts/Update.py
+python Main/TeenyLauncher.py

@@ -1,7 +1,7 @@
 import subprocess
 
 def Update():
-    pkgList = ["pip", "customtkinter", "pickle", "pillow", "minecraft_launcher_lib", "icecream"]
+    pkgList = ["pip", "customtkinter", "pillow", "minecraft_launcher_lib", "icecream"]
     for pkg in pkgList:
         subprocess.run("python -m pip install --upgrade " + pkg, shell=True)
 

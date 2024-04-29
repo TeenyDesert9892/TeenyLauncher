@@ -1,7 +1,8 @@
-import pickle
 import json
 import os
+import pickle
 import random
+import shutil
 import subprocess
 import threading
 
@@ -31,12 +32,12 @@ def load_config():
         config = pickle.load(pickleFile)
 
 def set_languaje(lang):
-    langFile = f"assets/lang/{lang}.json"
+    langFile = f"Main/assets/lang/{lang}.json"
     global langData
     if os.path.isfile(langFile):
         langData = json.load(open(langFile, "r"))
     else:
-        langData = json.load(open("assets/lang/en_en.json", "r"))
+        langData = json.load(open("Main/assets/lang/en_en.json", "r"))
 
 
 def create_uuid():
@@ -161,24 +162,17 @@ def install_minecraft_verison(ver, type):
 
 def uninstall_minecraft_version(version, *args):
     uninstallInfo.configure(text="Uninstalling...")
-
-    if os.path.exists(f'{minecraft_directory}/versions/{version}/natives'):
-        for file in os.scandir(f'{minecraft_directory}/versions/{version}/natives'):
-            os.remove(file)
-        os.removedirs(f'{minecraft_directory}/versions/{version}/natives')
-
-    for file in os.scandir(f'{minecraft_directory}/versions/{version}'):
-        os.remove(file)
-    os.removedirs(f'{minecraft_directory}/versions/{version}')
-
+    shutil.rmtree(f"{minecraft_directory}/versions/{version}")
     check_vers()
     text_message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
     uninstallInfo.configure(text="Uninstall success!")
 
 def run_minecraft(version, ram):
+    print("Saving data...")
     config[0]["Launcher"]["DefaultAccount"] = account_display.get()
     config[0]["Launcher"]["DefaultVersion"] = versions_display.get()
     save_config(config)
+    print("Starting minecraft...")
     name = account_display.get()
     if name != langData[0]["Without_Accounts"]:
         window.destroy()
@@ -246,7 +240,7 @@ def text_message(title, msg):
     winmsg.title(title)
     winmsg.resizable(width=False, height=False)
     try:
-        winmsg.iconbitmap("assets/images/Icon.ico")
+        winmsg.iconbitmap("Main/assets/images/Icon.ico")
     except:
         print("Unable to load logo...")
 
@@ -273,7 +267,7 @@ def add_acount():
     winAddAc.title(langData[0]["Add_Account_Window_Title"])
     winAddAc.resizable(width=False, height=False)
     try:
-        winAddAc.iconbitmap("assets/images/Icon.ico")
+        winAddAc.iconbitmap("Main/assets/images/Icon.ico")
     except:
         print("Unable to load logo...")
 
@@ -320,7 +314,7 @@ def delete_acount():
     winDelAc.title(langData[0]["Delete_Account_Window_Title"])
     winDelAc.resizable(width=False, height=False)
     try:
-        winDelAc.iconbitmap("assets/images/Icon.ico")
+        winDelAc.iconbitmap("Main/assets/images/Icon.ico")
     except:
         print("Unable to load logo...")
 
@@ -355,7 +349,7 @@ def install_versions():
     winins.title(langData[0]["Install_Versions_Window_Title"])
     winins.resizable(width=False, height=False)
     try:
-        winins.iconbitmap("assets/images/Icon.ico")
+        winins.iconbitmap("Main/assets/images/Icon.ico")
     except:
         print("Unable to load logo...")
 
@@ -395,7 +389,7 @@ def uninstall_versions():
     winuns.title(langData[0]["Uninstall_Version_Window_Title"])
     winuns.resizable(width=False, height=False)
     try:
-        winuns.iconbitmap("assets/images/Icon.ico")
+        winuns.iconbitmap("Main/assets/images/Icon.ico")
     except:
         print("Unable to load logo...")
 
@@ -434,6 +428,7 @@ def uninstall_versions():
     winuns.mainloop()
 
 def update_config(lang, color, theme):
+    print("Saving data...")
     if lang != langData[0]["Info_Configurate_Languaje_Default"]:
         if lang != "empty_example":
             config[0]["Launcher"]["Lang"] = lang
@@ -469,7 +464,7 @@ def infoEdit(section, lastFrame):
         languajeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configurate_Languaje_Title"], font=("", 16))
         languajeTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
 
-        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("assets/lang") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
+        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("Main/assets/lang") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
         configurationLanguaje.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
         themeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Theme_Title"], font=("", 16))
@@ -478,7 +473,7 @@ def infoEdit(section, lastFrame):
         configurationColor = ctk.CTkOptionMenu(master=info, values=["Light", "Dark"], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Color_Default"]), font=("", 16))
         configurationColor.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
-        configurationTheme = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("assets/themes") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
+        configurationTheme = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("Main/assets/themes") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
         configurationTheme.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
         configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationColor.get(), configurationTheme.get()))
@@ -499,7 +494,7 @@ def main():
 
     print("Loading GUI...")
     ctk.set_appearance_mode(config[0]["Launcher"]["Color"])
-    ctk.set_default_color_theme(f"assets/themes/{config[0]["Launcher"]["Theme"]}.json")
+    ctk.set_default_color_theme(f"Main/assets/themes/{config[0]["Launcher"]["Theme"]}.json")
 
     global window
     window = ctk.CTk()
@@ -507,7 +502,7 @@ def main():
     window.title("TeenyLauncher")
     window.resizable(width=False, height=False)
     try:
-        window.iconbitmap("assets/images/Icon.ico")
+        window.iconbitmap("Main/assets/images/Icon.ico")
     except:
         print("Unable to load logo...")
 
@@ -581,6 +576,8 @@ if __name__ == "__main__":
         save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "Null", "DefaultVersion": "Null", "Version": str(version)}, "Accounts": {}}])
     print("Starting...")
     main()
+    print("Saving data...")
     config[0]["Launcher"]["DefaultAccount"] = account_display.get()
     config[0]["Launcher"]["DefaultVersion"] = versions_display.get()
     save_config(config)
+    print("Program finished!")
