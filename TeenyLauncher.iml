@@ -5,6 +5,8 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/Main/logs" />
       <excludeFolder url="file://$MODULE_DIR$/logs" />
+      <excludeFolder url="file://$MODULE_DIR$/u-venv" />
+      <excludeFolder url="file://$MODULE_DIR$/w-venv" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (TeenyLauncher)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
