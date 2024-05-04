@@ -11,14 +11,30 @@ import minecraft_launcher_lib as mllb
 
 print("This code was made by TeenyDesert9892")
 
-version = "0.3.0"
+version = "0.3.2"
 
 # Load data and config
 
+def get_short_user():
+    count = 0
+    user = ""
+    for char in os.getlogin():
+        if count < 6:
+            user += char
+            count += 1
+    return user
+
 if os.name == "nt":
-    minecraft_directory = f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher"
+    try:
+        minecraft_directory = f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher"
+    except:
+        minecraft_directory = f"C:/Users/{get_short_user()}/AppData/Roaming/.TeenyLauncher"
+
 elif os.name == "posix":
-    minecraft_directory = f"/home/{os.getlogin()}/.TeenyLauncher"
+    try:
+        minecraft_directory = f"/home/{os.getlogin()}/.TeenyLauncher"
+    except:
+        minecraft_directory = f"/home/{get_short_user()}/.TeenyLauncher"
 
 
 def save_config(data):
@@ -33,6 +49,8 @@ def load_config():
 
 def set_languaje(lang):
     langFile = f"Main/assets/lang/{lang}.json"
+    if not os.path.exists(langFile):
+        langFile = f"assets/lang/{lang}.json"
     global langData
     if os.path.isfile(langFile):
         langData = json.load(open(langFile, "r"))
@@ -240,7 +258,10 @@ def text_message(title, msg):
     winmsg.title(title)
     winmsg.resizable(width=False, height=False)
     try:
-        winmsg.iconbitmap("Main/assets/images/Icon.ico")
+        iconImage = "Main/assets/images/Icon.ico"
+        if not os.path.exists(iconImage):
+            iconImage = "assets/images/Icon.ico"
+        winmsg.iconbitmap(iconImage)
     except:
         print("Unable to load logo...")
 
@@ -267,7 +288,10 @@ def add_acount():
     winAddAc.title(langData[0]["Add_Account_Window_Title"])
     winAddAc.resizable(width=False, height=False)
     try:
-        winAddAc.iconbitmap("Main/assets/images/Icon.ico")
+        iconImage = "Main/assets/images/Icon.ico"
+        if not os.path.exists(iconImage):
+            iconImage = "assets/images/Icon.ico"
+        winAddAc.iconbitmap(iconImage)
     except:
         print("Unable to load logo...")
 
@@ -314,7 +338,10 @@ def delete_acount():
     winDelAc.title(langData[0]["Delete_Account_Window_Title"])
     winDelAc.resizable(width=False, height=False)
     try:
-        winDelAc.iconbitmap("Main/assets/images/Icon.ico")
+        iconImage = "Main/assets/images/Icon.ico"
+        if not os.path.exists(iconImage):
+            iconImage = "assets/images/Icon.ico"
+        winDelAc.iconbitmap(iconImage)
     except:
         print("Unable to load logo...")
 
@@ -349,7 +376,10 @@ def install_versions():
     winins.title(langData[0]["Install_Versions_Window_Title"])
     winins.resizable(width=False, height=False)
     try:
-        winins.iconbitmap("Main/assets/images/Icon.ico")
+        iconImage = "Main/assets/images/Icon.ico"
+        if not os.path.exists(iconImage):
+            iconImage = "assets/images/Icon.ico"
+        winins.iconbitmap(iconImage)
     except:
         print("Unable to load logo...")
 
@@ -389,7 +419,10 @@ def uninstall_versions():
     winuns.title(langData[0]["Uninstall_Version_Window_Title"])
     winuns.resizable(width=False, height=False)
     try:
-        winuns.iconbitmap("Main/assets/images/Icon.ico")
+        iconImage = "Main/assets/images/Icon.ico"
+        if not os.path.exists(iconImage):
+            iconImage = "assets/images/Icon.ico"
+        winuns.iconbitmap(iconImage)
     except:
         print("Unable to load logo...")
 
@@ -451,7 +484,7 @@ def infoEdit(section, lastFrame):
     info.place(x=10, y=60)
 
     if section == "LauncherVersion":
-        infoTitle = ctk.CTkLabel(master=info, text=str(f"TeenyLauncher (v{config[0]["Launcher"]["Version"]})"), font=("", 36), wraplength=490)
+        infoTitle = ctk.CTkLabel(master=info, text=str(f"TeenyLauncher (v{config[0]['Launcher']['Version']})"), font=("", 36), wraplength=490)
         infoTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
 
         infoVersionInfo = ctk.CTkLabel(master=info, text=langData[0]["TeenyLauncher_Version_Info"], font=("", 16), wraplength=490)
@@ -464,7 +497,11 @@ def infoEdit(section, lastFrame):
         languajeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configurate_Languaje_Title"], font=("", 16))
         languajeTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
 
-        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("Main/assets/lang") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
+        langDir = "Main/assets/lang"
+        if not os.path.exists(langDir):
+            langDir = "assets/lang"
+
+        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir(langDir) if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
         configurationLanguaje.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
         themeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Theme_Title"], font=("", 16))
@@ -473,7 +510,11 @@ def infoEdit(section, lastFrame):
         configurationColor = ctk.CTkOptionMenu(master=info, values=["Light", "Dark"], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Color_Default"]), font=("", 16))
         configurationColor.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
-        configurationTheme = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir("Main/assets/themes") if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
+        themeDir = "Main/assets/themes"
+        if not os.path.exists(themeDir):
+            themeDir = "assets/themes"
+
+        configurationTheme = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir(themeDir) if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configuration_Theme_Default"]), font=("", 16))
         configurationTheme.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
         configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationColor.get(), configurationTheme.get()))
@@ -494,7 +535,12 @@ def main():
 
     print("Loading GUI...")
     ctk.set_appearance_mode(config[0]["Launcher"]["Color"])
-    ctk.set_default_color_theme(f"Main/assets/themes/{config[0]["Launcher"]["Theme"]}.json")
+
+    themesDir = f"Main/assets/themes/{config[0]['Launcher']['Theme']}.json"
+    if not os.path.exists(themesDir):
+        themesDir = f"assets/themes/{config[0]['Launcher']['Theme']}.json"
+
+    ctk.set_default_color_theme(themesDir)
 
     global window
     window = ctk.CTk()
@@ -502,7 +548,10 @@ def main():
     window.title("TeenyLauncher")
     window.resizable(width=False, height=False)
     try:
-        window.iconbitmap("Main/assets/images/Icon.ico")
+        iconImage = "Main/assets/images/Icon.ico"
+        if not os.path.exists(iconImage):
+            iconImage = "assets/images/Icon.ico"
+        window.iconbitmap(iconImage)
     except:
         print("Unable to load logo...")
 
@@ -513,7 +562,7 @@ def main():
     info = ctk.CTkFrame(master=window)
     infoEdit("LauncherVersion", info)
 
-    versionInfoButton = ctk.CTkButton(master=top, text=f"{langData[0]["Top_Button_Info_Version"]} v{config[0]["Launcher"]["Version"]}", font=("", 20), command=lambda: infoEdit("LauncherVersion", info))
+    versionInfoButton = ctk.CTkButton(master=top, text=f"{langData[0]['Top_Button_Info_Version']} v{config[0]['Launcher']['Version']}", font=("", 20), command=lambda: infoEdit("LauncherVersion", info))
     versionInfoButton.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
     configurationButton = ctk.CTkButton(master=top, text=langData[0]["Top_Button_Configuration"], font=("", 20), command=lambda: infoEdit("Configuration", info))
@@ -569,9 +618,12 @@ def main():
 
 
 if __name__ == "__main__":
-    if not mllb.utils.is_minecraft_installed(minecraft_directory):
-        print("Installing launcher libraries... (This may take a while)")
-        mllb.install.install_minecraft_version(mllb.utils.get_latest_version()['release'], minecraft_directory)
+    try:
+        if not mllb.utils.is_minecraft_installed(minecraft_directory):
+            print("Installing launcher libraries... (This may take a while)")
+            mllb.install.install_minecraft_version(mllb.utils.get_latest_version()['release'], minecraft_directory)
+    except:
+        print("The base libraries wasn't installed correctly please check your wifi...")
     if not os.path.exists(f"{minecraft_directory}/launcher_config.pkl"):
         save_config([{"Launcher": {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "Null", "DefaultVersion": "Null", "Version": str(version)}, "Accounts": {}}])
     print("Starting...")
