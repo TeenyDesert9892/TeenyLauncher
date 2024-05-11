@@ -1,11 +1,9 @@
-# Guia De TeenyLauncher
+# TeenyLauncher guide:
 
-Para poder usar estew launcher primero teneis que seguir los siguientes pasos
-1. Instalar la ultima verion de python.
-2. Crear una carpeta en el escritorio que se llame: TeenyLauncher
-3. En esa carpeta metes los archivos start.bat, Main y yo recomiendo README.md tambien.
-4. Y por ultimo para abrirlo solo hay que darle doble click al archivo start.bat si estas en windows o start.sh en linux
+For using this launcher the only thing you need to do it is downloading the latest release, extract all the files in a folder and before that execute the file _TeenyLauncher.exe_ or _start.bat_ if you are in windows and if you are using Ubuntu _start.sh_ and wait a little to start the launcher.
 
-Y ya esta, ya tienes TeenyLauncher
+And that is it, is easy to run.
 
-AVISO: No es una version definitiva y estable al 100% del launcher asi que ante cualquier problema consultar con TeenyDesert9892.
+But if you are using linux you may need to give permission to the file start.sh with _chmod 755 start.sh_.
+
+WARNING: It is not a stable and definitive version at 100% of the launcher, if you have any issue try to contact with TeenyDesert9892.
