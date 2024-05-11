@@ -12,7 +12,7 @@ import minecraft_launcher_lib as mllb
 
 print("This code was made by TeenyDesert9892")
 
-version = "0.4.0"
+version = "0.4.1"
 
 version_info = "TeenyLauncher has got a masive update in the version 0.4.0\n" \
                 "\n" \
@@ -23,7 +23,9 @@ version_info = "TeenyLauncher has got a masive update in the version 0.4.0\n" \
                 "-Upgraded the installation working.\n" \
                 "-Better RAM adjustment in the new Advanced config section in the\n" \
                 "config.\n" \
-                "-A small redressing for the interface in general."
+                "-A small redressing for the interface in general.\n" \
+                "\n" \
+                "Extra fast fix for version v0.4.1"
 
 launcherConfig = {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "Null", "DefaultVersion": "Null", "Version": str(version), "RamAmount": 2048}
 
@@ -74,33 +76,32 @@ def set_languaje(lang):
         langData = json.load(open("Main/assets/lang/en_en.json", "r"))
 
 
-def create_uuid():
-    uuid = ""
-
-    def create_chain(lenghth):
-        chain = ""
-        for i in range(0, lenghth):
-            char = random.randint(0, 15)
-            chain += str(hexa_num(char))
-        return chain
-
-    def hexa_num(num):
-        letters = ["a", "b", "c", "d", "e", "f"]
-        if num >= 0 and num <= 9:
-            return str(num)
-        else:
-            return letters[num-10]
-
-    uuid += create_chain(8)
-    uuid += "-"
-    for i in range(0, 3):
-        uuid += create_chain(4)
-        uuid += "-"
-    uuid += create_chain(12)
-    return uuid
-
-
 def add_acount_data(type, name, pasword):
+    def create_uuid():
+        uuid = ""
+
+        def create_chain(lenghth):
+            chain = ""
+            for i in range(0, lenghth):
+                char = random.randint(0, 15)
+                chain += str(hexa_num(char))
+            return chain
+
+        def hexa_num(num):
+            letters = ["a", "b", "c", "d", "e", "f"]
+            if num >= 0 and num <= 9:
+                return str(num)
+            else:
+                return letters[num-10]
+
+        uuid += create_chain(8)
+        uuid += "-"
+        for i in range(0, 3):
+            uuid += create_chain(4)
+            uuid += "-"
+        uuid += create_chain(12)
+        return uuid
+
     addAcInfo.configure(text="Creating...")
     if type == "Premiun":
         if name != "":
@@ -164,53 +165,79 @@ def del_acount_data(account, args):
 
 
 def install_minecraft_verison(name, ver, type, mod):
-    installInfo.configure(text="Installing...")
-    if name != "":
-        if ver != "":
-            if type == "Vanilla":
-                try:
-                    mllb.install.install_minecraft_version(ver, str(f"{minecraft_directory}/{name}"))
-                    check_vers()
-                    installInfo.configure(text="Install succes!")
-                    text_message("Install Vanilla Version Success", langData[0]["Install_Vanilla_Version_Success"])
-                except:
-                    text_message("Install Vanilla Version Failure", langData[0]["Install_Vanilla_Version_Failure"])
+    def save_version(data):
+        file = open(str(f"{minecraft_directory}/{name}/version.txt", "w"))
+        file.write(data)
+        file.close()
 
-            elif type == "Forge":
-                try:
-                    mllb.forge.install_forge_version(mod, str(f"{minecraft_directory}/{name}"))
-                    check_vers()
-                    installInfo.configure(text="Install succes!")
-                    text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
-                except:
-                    text_message("Install Forge Version Failure", langData[0]["Install_Forge_Version_Failure"])
+    alreadyExists = False
 
-            elif type == "Fabric" or type == "Fabric Snapshot":
-                try:
-                    mllb.fabric.install_fabric(ver, str(f"{minecraft_directory}/{name}"), mod)
-                    check_vers()
-                    installInfo.configure(text="Install succes!")
-                    text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
-                except:
-                    text_message("Install Fabric Version Failure", langData[0]["Install_Fabric_Version_Failure"])
+    for dir in os.scandir(minecraft_directory):
+        if name == dir.name:
+            alreadyExists = True
 
-            elif type == "Quilt" or type == "Quilt Snapshot":
-                try:
-                    mllb.quilt.install_quilt(ver, str(f"{minecraft_directory}/{name}"), mod)
-                    check_vers()
-                    installInfo.configure(text="Install succes!")
-                    text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
-                except:
-                    text_message("Install Quilt Version Failure", langData[0]["Install_Quilt_Version_Failure"])
+    if not alreadyExists:
+        if name != "":
+            installInfo.configure(text="Installing...")
+            if ver != "":
+                if type == "Vanilla":
+                    try:
+                        mllb.install.install_minecraft_version(ver, str(f"{minecraft_directory}/{name}"))
+                        save_version(ver)
+                        check_vers()
+                        installInfo.configure(text="Install succes!")
+                        text_message("Install Vanilla Version Success", langData[0]["Install_Vanilla_Version_Success"])
+                    except:
+                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+                        text_message("Install Vanilla Version Failure", langData[0]["Install_Vanilla_Version_Failure"])
+
+                elif type == "Forge":
+                    try:
+                        mllb.forge.install_forge_version(mod, str(f"{minecraft_directory}/{name}"))
+                        save_version(mod.replace("-", "-forge-"))
+                        check_vers()
+                        installInfo.configure(text="Install succes!")
+                        text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
+                    except:
+                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+                        text_message("Install Forge Version Failure", langData[0]["Install_Forge_Version_Failure"])
+
+                elif type == "Fabric" or type == "Fabric Snapshot":
+                    try:
+                        mllb.fabric.install_fabric(ver, str(f"{minecraft_directory}/{name}"), mod)
+                        save_version(str(f"fabric-loader-{mod}-{ver}"))
+                        check_vers()
+                        installInfo.configure(text="Install succes!")
+                        text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
+                    except:
+                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+                        text_message("Install Fabric Version Failure", langData[0]["Install_Fabric_Version_Failure"])
+
+                elif type == "Quilt" or type == "Quilt Snapshot":
+                    try:
+                        mllb.quilt.install_quilt(ver, str(f"{minecraft_directory}/{name}"), mod)
+                        save_version(str(f"quilt-loader-{mod}-{ver}"))
+                        check_vers()
+                        installInfo.configure(text="Install succes!")
+                        text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
+                    except:
+                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+                        text_message("Install Quilt Version Failure", langData[0]["Install_Quilt_Version_Failure"])
+                else:
+                    installInfo.configure(text="Install failure...")
+                    text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
             else:
                 installInfo.configure(text="Install failure...")
-                text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
+                text_message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
         else:
-            installInfo.configure(text="Install failure...")
-            text_message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
+            installInfo.configure(text="Install can not start")
+            text_message("Install Version Not Name", langData[0]["Install_Version_Not_Name"])
     else:
-        installInfo.configure(text="Install failure...")
-        text_message("Install Version Not Name", langData[0]["Install_Version_Not_Name"])
+        installInfo.configure(text="Install can not start")
 
 
 def uninstall_minecraft_version(version, args):
@@ -238,9 +265,13 @@ def run_minecraft(version):
         uuid = config[0]["Accounts"][name]["Uuid"]
         token = config[0]["Accounts"][name]["Token"]
         launcherVersion = config[0]["Launcher"]["Version"]
+        options = {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)}
 
         print("Running:", version, mllb.utils.get_installed_versions(str(f"{minecraft_directory}/{version}"))[0]["id"])
-        minecraft_command = mllb.command.get_minecraft_command(mllb.utils.get_installed_versions(str(f"{minecraft_directory}/{version}"))[0]["id"], str(f"{minecraft_directory}/{version}"), {'username': str(user), 'uuid': str(uuid), 'token': str(token), 'jvArguments': str(f"[{str(ram)}, {str(ram)}]"), 'launcherVersion': str(launcherVersion)})
+        file = open(str(f"{minecraft_directory}/{version}/version.txt"), "r")
+        file_ver = file.read()
+        file.close()
+        minecraft_command = mllb.command.get_minecraft_command(file_ver, str(f"{minecraft_directory}/{version}"), options)
         subprocess.run(minecraft_command)
         print("Restarting...")
         main()
@@ -570,7 +601,8 @@ def uninstall_versions():
     installed_versions_list = []
 
     for version_instalada in os.scandir(minecraft_directory):
-        installed_versions_list.append(version_instalada.name)
+        if version_instalada.name != "launcher_config.pkl":
+            installed_versions_list.append(version_instalada.name)
 
     if len(installed_versions_list) != 0:
         versions.set(installed_versions_list[0])
