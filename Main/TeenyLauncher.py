@@ -12,7 +12,7 @@ import minecraft_launcher_lib as mllb
 
 print("This code was made by TeenyDesert9892")
 
-version = "0.4.1"
+version = "0.4.2"
 
 version_info = "TeenyLauncher has got a masive update in the version 0.4.0\n" \
                 "\n" \
@@ -25,7 +25,9 @@ version_info = "TeenyLauncher has got a masive update in the version 0.4.0\n" \
                 "config.\n" \
                 "-A small redressing for the interface in general.\n" \
                 "\n" \
-                "Extra fast fix for version v0.4.1"
+                "Extra fast fix for version v0.4.1\n" \
+                "Another fast pathch v0.4.2 to fix the version installation :)\n" \
+                "(It was my fault)"
 
 launcherConfig = {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "Null", "DefaultVersion": "Null", "Version": str(version), "RamAmount": 2048}
 
@@ -166,7 +168,7 @@ def del_acount_data(account, args):
 
 def install_minecraft_verison(name, ver, type, mod):
     def save_version(data):
-        file = open(str(f"{minecraft_directory}/{name}/version.txt", "w"))
+        file = open(str(f"{minecraft_directory}/{name}/version.txt"), "w")
         file.write(data)
         file.close()
 
@@ -245,8 +247,8 @@ def uninstall_minecraft_version(version, args):
         uninstallInfo.configure(text="Uninstalling...")
         shutil.rmtree(f"{minecraft_directory}/{version}")
         check_vers()
-        text_message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
         uninstallInfo.configure(text="Uninstall success!")
+        text_message("Uninstall Version Success", langData[0]["Uninstall_Version_Success"])
     except:
         text_message("Uninstall Version Failure", langData[0]["Uninstall_Version_Failure"])
 
@@ -291,9 +293,8 @@ def check_accounts():
 
     if len(list_added_accounts) != 0:
         if config[0]["Launcher"]["DefaultAccount"] == "Null":
-            accounts.set(list_added_accounts[0])
-        else:
-            accounts.set(config[0]["Launcher"]["DefaultAccount"])
+            config[0]["Launcher"]["DefaultAccount"] = list_added_accounts[0]
+        accounts.set(config[0]["Launcher"]["DefaultAccount"])
     elif len(list_added_accounts) == 0:
         accounts.set(langData[0]["Without_Accounts"])
         list_added_accounts.append(langData[0]["Without_Accounts"])
@@ -310,9 +311,8 @@ def check_vers():
 
     if len(installed_version_list) != 0:
         if config[0]["Launcher"]["DefaultVersion"] == "Null":
-            versions.set(installed_version_list[0])
-        else:
-            versions.set(config[0]["Launcher"]["DefaultVersion"])
+            config[0]["Launcher"]["DefaultVersion"] = installed_version_list[0]
+        versions.set(config[0]["Launcher"]["DefaultVersion"])
     elif len(installed_version_list) == 0:
         versions.set(langData[0]["Without_Versions"])
         installed_version_list.append(langData[0]["Without_Versions"])
