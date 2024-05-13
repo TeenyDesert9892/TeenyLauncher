@@ -49,8 +49,8 @@
     "Uninstall_Version_Failure": "Ha ocurrido algun problema mientras se estaba eliminando la version",
     "Without_Versions": "Sin versiones instaladas",
     "Info_Configuration_Title": "Configuracion del launcher",
-    "Info_Configurate_Languaje_Title": "Selecciona un idioma:",
-    "Info_Configurate_Languaje_Default": "Idiomas",
+    "Info_Configurate_Language_Title": "Selecciona un idioma:",
+    "Info_Configurate_Language_Default": "Idiomas",
     "Info_Configuration_Theme_Title": "Configurar el color de los temas:",
     "Info_Configuration_Color_Default": "Colores",
     "Info_Configuration_Theme_Default": "Temas",
@@ -66,6 +66,7 @@
     "Menu_Minecraft_Config_Install_Version": "Instalar versiones",
     "Menu_Minecraft_Config_Uninstall_Version": "Desinstalar versiones",
     "Menu_Minecraft_Config_Game_Title": "Configurar Minecraft",
+    "Menu_Minecraft_Config_Open_Versions_Folder": "Abrir carpeta de versiones",
     "Menu_Minecraft_Config_Run_Minecraft_Button": "Inicar Minecraft"
   }
 ]

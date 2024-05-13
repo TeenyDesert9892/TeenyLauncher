@@ -22,6 +22,7 @@
     "Delete_Account_Success": "",
     "Delete_Account_Failure": "",
     "Without_Accounts": "",
+    "Without_Accounts_To_Play": "",
     "Install_Versions_Window_Title": "",
     "Install_Versions_Title": "",
     "Install_Versions_Name_Entry": "",
@@ -48,8 +49,8 @@
     "Uninstall_Version_Failure": "",
     "Without_Versions": "",
     "Info_Configuration_Title": "",
-    "Info_Configurate_Languaje_Title": "",
-    "Info_Configurate_Languaje_Default": "",
+    "Info_Configurate_Language_Title": "",
+    "Info_Configurate_Language_Default": "",
     "Info_Configuration_Theme_Title": "",
     "Info_Configuration_Color_Default": "",
     "Info_Configuration_Theme_Default": "",
@@ -65,6 +66,7 @@
     "Menu_Minecraft_Config_Install_Version": "",
     "Menu_Minecraft_Config_Uninstall_Version": "",
     "Menu_Minecraft_Config_Game_Title": "",
+    "Menu_Minecraft_Config_Open_Versions_Folder": "",
     "Menu_Minecraft_Config_Run_Minecraft_Button": ""
   }
 ]

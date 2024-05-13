@@ -29,9 +29,7 @@ version_info = "TeenyLauncher has got a masive update in the version 0.4.0\n" \
                 "Another fast pathch v0.4.2 to fix the version installation :)\n" \
                 "(It was my fault)"
 
-launcherConfig = {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "Null", "DefaultVersion": "Null", "Version": str(version), "RamAmount": 2048}
-
-# Load data and config
+launcherConfig = {"Color": "Dark", "Theme": "Green", "Lang": "es_es", "DefaultAccount": "", "DefaultVersion": "", "Version": str(version), "RamAmount": 2048}
 
 
 def get_short_user():
@@ -47,14 +45,21 @@ def get_short_user():
 def get_launcher_path():
     if os.name == "nt":
         try:
-            return f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher"
+            return str(f"C:/Users/{os.getlogin()}/AppData/Roaming/.TeenyLauncher")
         except:
-            return f"C:/Users/{get_short_user()}/AppData/Roaming/.TeenyLauncher"
+            return str(f"C:/Users/{get_short_user()}/AppData/Roaming/.TeenyLauncher")
     elif os.name == "posix":
         try:
-            return f"/home/{os.getlogin()}/.TeenyLauncher"
+            return str(f"/home/{os.getlogin()}/.TeenyLauncher")
         except:
-            return f"/home/{get_short_user()}/.TeenyLauncher"
+            return str(f"/home/{get_short_user()}/.TeenyLauncher")
+
+
+def open_versions_folder():
+    if os.name == "nt":
+        os.startfile(minecraft_directory)
+    elif os.name == "posix":
+        os.system(f'xdg-open "{minecraft_directory}"')
 
 
 def save_config(data):
@@ -163,8 +168,6 @@ def del_acount_data(account, args):
     except:
         text_message("Delete Account Failure", langData[0]["Delete_Account_Failure"])
 
-# From here to above is all for mllb
-
 
 def install_minecraft_verison(name, ver, type, mod):
     def save_version(data):
@@ -182,7 +185,7 @@ def install_minecraft_verison(name, ver, type, mod):
         if name != "":
             installInfo.configure(text="Installing...")
             if ver != "":
-                if type == "Vanilla":
+                if type == "Vanilla" or type == "Snapshot":
                     try:
                         mllb.install.install_minecraft_version(ver, str(f"{minecraft_directory}/{name}"))
                         save_version(ver)
@@ -280,19 +283,22 @@ def run_minecraft(version):
     else:
         text_message("Without Accounts To Play", langData[0]["Without_Accounts_To_Play"])
 
-# From here to above is all for customtkinter
-
 
 def check_accounts():
     accounts = ctk.StringVar()
     list_added_accounts = []
-    accounts_added = config[0]["Accounts"]
 
-    for account_added in accounts_added:
+    for account_added in config[0]["Accounts"]:
         list_added_accounts.append(account_added)
 
     if len(list_added_accounts) != 0:
-        if config[0]["Launcher"]["DefaultAccount"] == "Null":
+        if config[0]["Launcher"]["DefaultAccount"] == "" or config[0]["Launcher"]["DefaultAccount"] == langData[0]["Without_Accounts"]:
+            config[0]["Launcher"]["DefaultAccount"] = list_added_accounts[0]
+        is_added = False
+        for account_added in list_added_accounts:
+            if config[0]["Launcher"]["DefaultAccount"] == account_added:
+                is_added = True
+        if not is_added:
             config[0]["Launcher"]["DefaultAccount"] = list_added_accounts[0]
         accounts.set(config[0]["Launcher"]["DefaultAccount"])
     elif len(list_added_accounts) == 0:
@@ -310,7 +316,13 @@ def check_vers():
             installed_version_list.append(installed_version.name)
 
     if len(installed_version_list) != 0:
-        if config[0]["Launcher"]["DefaultVersion"] == "Null":
+        if config[0]["Launcher"]["DefaultVersion"] == "" or config[0]["Launcher"]["DefaultVersion"] == langData[0]["Without_Versions"]:
+            config[0]["Launcher"]["DefaultVersion"] = installed_version_list[0]
+        is_installed = False
+        for installed_version in installed_version_list:
+            if config[0]["Launcher"]["DefaultVersion"] == installed_version:
+                is_installed = True
+        if not is_installed:
             config[0]["Launcher"]["DefaultVersion"] = installed_version_list[0]
         versions.set(config[0]["Launcher"]["DefaultVersion"])
     elif len(installed_version_list) == 0:
@@ -332,14 +344,13 @@ def text_message(title, msg):
     except:
         print("Unable to load logo...")
 
-    msgframe = ctk.CTkFrame(master=winmsg, width=280, height=140)
-    msgframe.grid_propagate(False)
+    msgframe = ctk.CTkScrollableFrame(master=winmsg, width=270, height=130)
     msgframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
     msgtxt = ctk.CTkLabel(master=msgframe, text=msg, font=("", 16), wraplength=280)
     msgtxt.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
-    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), command=lambda: winmsg.destroy())
+    msgbtn = ctk.CTkButton(master=winmsg, text="Ok", font=("", 16), width=280, command=lambda: winmsg.destroy())
     msgbtn.grid(row=1, column=0, pady=5, padx=5, sticky="nswe")
 
     winmsg.mainloop()
@@ -366,30 +377,30 @@ def add_acount():
     AddAcframe.grid_propagate(False)
     AddAcframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    title = ctk.CTkLabel(master=AddAcframe, wraplength=320, text=langData[0]["Add_Account_Title"], font=("", 24))
+    title = ctk.CTkLabel(master=AddAcframe, wraplength=270, text=langData[0]["Add_Account_Title"], font=("", 24), width=270)
     title.grid(row=0, column=0, pady=5, padx=5, sticky="we")
 
     type_display = ctk.CTkOptionMenu(master=AddAcframe, values=["Premiun", "No Premiun"], variable=ctk.StringVar(value=langData[0]["Add_Account_Type_Default"]), font=("", 16), width=270)
     type_display.grid_propagate(False)
     type_display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    name_title = ctk.CTkLabel(master=AddAcframe, wraplength=320, text=langData[0]["Add_Account_Name"], font=("", 16))
+    name_title = ctk.CTkLabel(master=AddAcframe, wraplength=270, text=langData[0]["Add_Account_Name"], font=("", 16))
     name_title.grid(row=2, column=0, pady=5, padx=5, sticky="w")
 
-    name_entry = ctk.CTkEntry(master=AddAcframe, placeholder_text=langData[0]["Add_Account_Name_Input"], font=("", 16))
+    name_entry = ctk.CTkEntry(master=AddAcframe, placeholder_text=langData[0]["Add_Account_Name_Input"], font=("", 16), width=270)
     name_entry.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
-    pasword_title = ctk.CTkLabel(master=AddAcframe, wraplength=320, text=langData[0]["Add_Account_Password"], font=("", 16))
+    pasword_title = ctk.CTkLabel(master=AddAcframe, wraplength=270, text=langData[0]["Add_Account_Password"], font=("", 16))
     pasword_title.grid(row=4, column=0, pady=5, padx=5, sticky="w")
 
-    pasword_entry = ctk.CTkEntry(master=AddAcframe, placeholder_text=langData[0]["Add_Account_Password_Input"], font=("", 16), show="*")
+    pasword_entry = ctk.CTkEntry(master=AddAcframe, placeholder_text=langData[0]["Add_Account_Password_Input"], font=("", 16), width=270, show="*")
     pasword_entry.grid(row=5, column=0, pady=5, padx=5, sticky="we")
 
-    add_button = ctk.CTkButton(master=AddAcframe, text=langData[0]["Add_Account_Create_Button"], font=("", 16), command=add_ac_thread)
+    add_button = ctk.CTkButton(master=AddAcframe, text=langData[0]["Add_Account_Create_Button"], font=("", 16), width=270, command=add_ac_thread)
     add_button.grid(row=6, column=0, pady=5, padx=5, sticky="we")
 
     global addAcInfo
-    addAcInfo = ctk.CTkLabel(master=AddAcframe, text="", font=("", 16))
+    addAcInfo = ctk.CTkLabel(master=AddAcframe, text="", font=("", 16), wraplength=270)
     addAcInfo.grid(row=7, column=0, pady=5, padx=5, sticky="we")
 
     winAddAc.mainloop()
@@ -553,11 +564,11 @@ def install_versions():
     mod_ver = ctk.CTkOptionMenu(master=Insframe, values=[""], variable=ctk.StringVar(value=""), font=("", 16), width=270)
     mod_ver.grid(row=7, column=0, pady=5, padx=5, sticky="we")
 
-    install_button = ctk.CTkButton(master=Insframe, text=langData[0]["Install_Versions_Install_Button"], font=("", 16), command=install_thread)
+    install_button = ctk.CTkButton(master=Insframe, text=langData[0]["Install_Versions_Install_Button"], font=("", 16), width=270, command=install_thread)
     install_button.grid(row=8, column=0, pady=5, padx=5, sticky="we")
 
     global installInfo
-    installInfo = ctk.CTkLabel(master=Insframe, text="", font=("", 16))
+    installInfo = ctk.CTkLabel(master=Insframe, text="", font=("", 16), wraplength=270)
     installInfo.grid(row=9, column=0, pady=5, padx=5, sticky="we")
 
     winins.mainloop()
@@ -584,13 +595,13 @@ def uninstall_versions():
     Unsframe.grid_propagate(False)
     Unsframe.grid(row=0, column=0, pady=10, padx=10, sticky="nswe")
 
-    title = ctk.CTkLabel(master=Unsframe, text=langData[0]["Uninstall_Version_Title"], font=("", 18))
+    title = ctk.CTkLabel(master=Unsframe, text=langData[0]["Uninstall_Version_Title"], font=("", 18), wraplength=270)
     title.grid(row=0, column=0, pady=10, padx=10, sticky="w")
 
-    display = ctk.CTkOptionMenu(master=Unsframe, font=("", 16))
+    display = ctk.CTkOptionMenu(master=Unsframe, font=("", 16), width=270)
     display.grid(row=1, column=0, pady=5, padx=5, sticky="we")
 
-    button = ctk.CTkButton(master=Unsframe, text=langData[0]["Uninstall_Version_Button"], font=("", 20), command=uninstall_thread)
+    button = ctk.CTkButton(master=Unsframe, text=langData[0]["Uninstall_Version_Button"], font=("", 20), width=270, command=uninstall_thread)
     button.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
     global uninstallInfo
@@ -617,7 +628,7 @@ def uninstall_versions():
 def update_config(lang, color, theme, ram):
     window.destroy()
     print("Saving data...")
-    if lang != langData[0]["Info_Configurate_Languaje_Default"]:
+    if lang != langData[0]["Info_Configurate_Language_Default"]:
         if lang != "empty_example":
             config[0]["Launcher"]["Lang"] = lang
     if color != langData[0]["Info_Configuration_Color_Default"]:
@@ -654,14 +665,14 @@ def infoEdit(section, lastFrame):
         configurationTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Title"], font=("", 36), wraplength=470)
         configurationTitle.grid(row=0, column=0, pady=5, padx=5, sticky="w")
 
-        languajeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configurate_Languaje_Title"], font=("", 16), wraplength=470)
+        languajeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configurate_Language_Title"], font=("", 16), wraplength=470)
         languajeTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
 
         langDir = "Main/assets/lang"
         if not os.path.exists(langDir):
             langDir = "assets/lang"
 
-        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir(langDir) if file.is_file()], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Languaje_Default"]), font=("", 16))
+        configurationLanguaje = ctk.CTkOptionMenu(master=info, values=[file.name.replace(".json", "") for file in os.scandir(langDir) if file.is_file() if file.name != "example_file.json"], variable=ctk.StringVar(value=langData[0]["Info_Configurate_Language_Default"]), font=("", 16))
         configurationLanguaje.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
         themeTitle = ctk.CTkLabel(master=info, text=langData[0]["Info_Configuration_Theme_Title"], font=("", 16), wraplength=470)
@@ -686,16 +697,16 @@ def infoEdit(section, lastFrame):
         pc_ram = int(psutil.virtual_memory().total / (1024.0 ** 2))
         uncompatibleRam = True
         while uncompatibleRam:
-            if pc_ram%16 != 0:
+            if pc_ram%32 != 0:
                 pc_ram -= 1
             else:
                 uncompatibleRam = False
 
-        configurationRam = ctk.CTkSlider(master=info, height=10, from_=0, to=pc_ram, number_of_steps=int(pc_ram/16), command=updateRamText, width=470)
+        configurationRam = ctk.CTkSlider(master=info, height=10, from_=0, to=pc_ram, number_of_steps=int(pc_ram/32), command=updateRamText, width=470)
         configurationRam.grid(row=8, column=0, pady=5, padx=5, sticky="we")
         configurationRam.set(config[0]["Launcher"]["RamAmount"])
 
-        configurationRamText = ctk.CTkLabel(master=info, font=("", 12), text=f"{config[0]['Launcher']['RamAmount']}MB")
+        configurationRamText = ctk.CTkLabel(master=info, font=("", 12), text=str(f"{config[0]['Launcher']['RamAmount']}MB"))
         configurationRamText.grid(row=9, column=0, pady=5, padx=5, sticky="w")
 
         configurationSave = ctk.CTkButton(master=info, text=langData[0]["Info_Configuration_Save"], font=("", 16), command=lambda: update_config(configurationLanguaje.get(), configurationColor.get(), configurationTheme.get(), int(configurationRam.get())))
@@ -731,7 +742,6 @@ def main():
     window = ctk.CTk()
     window.geometry("800x500")
     window.title("TeenyLauncher")
-    window.resizable(width=False, height=False)
     try:
         iconImage = "Main/assets/images/Icon.ico"
         if not os.path.exists(iconImage):
@@ -747,47 +757,49 @@ def main():
     info = ctk.CTkFrame(master=window)
     infoEdit("LauncherVersion", info)
 
-    versionInfoButton = ctk.CTkButton(master=top, text=f"{langData[0]['Top_Button_Info_Version']} v{config[0]['Launcher']['Version']}", font=("", 20), command=lambda: infoEdit("LauncherVersion", info))
+    versionInfoButton = ctk.CTkButton(master=top, text=f"{langData[0]['Top_Button_Info_Version']} v{config[0]['Launcher']['Version']}", font=("", 20), width=380, command=lambda: infoEdit("LauncherVersion", info))
     versionInfoButton.grid(row=0, column=0, pady=5, padx=5, sticky="nswe")
 
-    configurationButton = ctk.CTkButton(master=top, text=langData[0]["Top_Button_Configuration"], font=("", 20), command=lambda: infoEdit("Configuration", info))
+    configurationButton = ctk.CTkButton(master=top, text=langData[0]["Top_Button_Configuration"], font=("", 20), width=380, command=lambda: infoEdit("Configuration", info))
     configurationButton.grid(row=0, column=1, pady=5, padx=5, sticky="nswe")
 
-    mineconfig = ctk.CTkFrame(master=window, width=270, height=430)
-    mineconfig.grid_propagate(False)
+    mineconfig = ctk.CTkScrollableFrame(master=window, width=247, height=417)
     mineconfig.place(x=520, y=60)
 
-    acountsTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Account_Title"], font=("", 16))
+    acountsTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Account_Title"], font=("", 16), wraplength=242)
     acountsTitle.grid(row=1, column=0, pady=5, padx=5, sticky="w")
 
-    addAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Add_Account"], font=("", 16), command=add_acount)
+    addAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Add_Account"], font=("", 16), width=242, command=add_acount)
     addAcount.grid(row=2, column=0, pady=5, padx=5, sticky="we")
 
-    deleteAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Delete_Account"], font=("", 16), command=delete_acount)
+    deleteAcount = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Delete_Account"], font=("", 16), width=242, command=delete_acount)
     deleteAcount.grid(row=3, column=0, pady=5, padx=5, sticky="we")
 
     global account_display
-    account_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16), width=260)
+    account_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16), width=242)
     account_display.grid(row=4, column=0, pady=5, padx=5, sticky="we")
 
-    versionsTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Version_Title"], font=("", 16))
+    versionsTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Version_Title"], wraplength=242, font=("", 16))
     versionsTitle.grid(row=7, column=0, pady=5, padx=5, sticky="w")
 
-    installVersions = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Install_Version"], font=("", 16), command=install_versions)
+    installVersions = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Install_Version"], font=("", 16), width=242, command=install_versions)
     installVersions.grid(row=8, column=0, pady=5, padx=5, sticky="we")
 
-    uninstallVersions = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Uninstall_Version"], font=("", 16), command=uninstall_versions)
+    uninstallVersions = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Uninstall_Version"], font=("", 16), width=242, command=uninstall_versions)
     uninstallVersions.grid(row=9, column=0, pady=5, padx=5, sticky="we")
 
-    startGameTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Game_Title"], font=("", 16))
+    startGameTitle = ctk.CTkLabel(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Game_Title"], font=("", 16), wraplength=242)
     startGameTitle.grid(row=10, column=0, pady=5, padx=5, sticky="w")
 
     global versions_display
-    versions_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16))
+    versions_display = ctk.CTkOptionMenu(master=mineconfig, font=("", 16), width=242)
     versions_display.grid(row=11, column=0, pady=5, padx=5, sticky="we")
 
+    versions_folder = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Open_Versions_Folder"], font=("", 16))
+    versions_folder.grid(row=12, column=0, pady=5, padx=5, sticky="we")
+
     startMinecraft = ctk.CTkButton(master=mineconfig, text=langData[0]["Menu_Minecraft_Config_Run_Minecraft_Button"], font=("", 20), command=lambda: run_minecraft(versions_display.get()))
-    startMinecraft.grid(row=12, column=0, pady=5, padx=5, sticky="we")
+    startMinecraft.grid(row=13, column=0, pady=5, padx=5, sticky="we")
 
     print("Loading Accounts...")
     check_accounts()
