@@ -2,9 +2,18 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/Main/TeenyLauncher.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Main/TeenyLauncher.spec" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Main/assets/ejemplo.pkl" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/Main/assets/lang/en_en.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Main/assets/lang/es_es.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Main/assets/lang/example_file.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Main/assets/themes/Blue.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Main/assets/themes/Dark-blue.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/Main/assets/themes/Green.json" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/client.py" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/Server/main.py" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/compile-nuitka.bat" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/compile-pyinstaller.bat" charset="UTF-8" />
     <file url="PROJECT" charset="windows-1252" />
   </component>
 </project>

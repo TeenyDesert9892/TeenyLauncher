@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 import pathlib
@@ -9,6 +10,7 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 
 import customtkinter as ctk
+import jdk
 import minecraft_launcher_lib as mllb
 import psutil
 from PIL import Image
@@ -29,7 +31,7 @@ launcherConfig = {"Color": "Dark",
                   "DefaultAccount": "",
                   "DefaultVersion": "",
                   "Version": version,
-                  "EnabledBgImg": True,
+                  "EnabledBgImg": False,
                   "RamAmount": 2048}
 
 
@@ -40,6 +42,35 @@ def get_launcher_path():
         return os.path.join(str(pathlib.Path.home()), "Library", "Application Support", "TeenyLauncher")
     else:
         return os.path.join(str(pathlib.Path.home()), ".TeenyLauncher")
+
+
+def get_jdk_version(server_version=str):
+    if float(server_version.replace(".", "", 1)) >= 120.5:
+        return "21"
+    elif float(server_version.replace(".", "", 1)) >= 118:
+        return "17"
+    elif float(server_version.replace(".", "", 1)) >= 117:
+        return "16"
+    else:
+        return "8"
+
+
+def get_jdk_client(jdk_version=str):
+    if not os.path.exists("assets/jdks"):
+        os.mkdir("assets/jdks")
+
+    try:
+        try:
+            return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk' + jdk_version + '*')[0]}")
+        except:
+            jdk.install(version=jdk_version, operating_system=jdk.OperatingSystem.detect(), arch=jdk.Architecture.detect(), jre=True, path=os.path.normpath(f"{os.getcwd()}/assets/jdks"))
+            return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk' + jdk_version + '*')[0]}")
+    except:
+        try:
+            return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk-' + jdk_version + '*')[0]}")
+        except:
+            jdk.install(version=jdk_version, operating_system=jdk.OperatingSystem.detect(), arch=jdk.Architecture.detect(), jre=True, path=os.path.normpath(f"{os.getcwd()}/assets/jdks"))
+            return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk-' + jdk_version + '*')[0]}")
 
 
 def open_versions_folder():
@@ -193,10 +224,10 @@ def del_acount_data(account=str):
 
 
 def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
-    def save_version(data):
-        file = open(str(f"{minecraft_directory}/{name}/version.txt"), "w")
-        file.write(data)
-        file.close()
+    def save_version(type, version, jar):
+        with open(str(f"{minecraft_directory}/{name}/version.json"), "w") as file:
+            json.dump({"Type": type, "Version": version, "Jar": jar}, file, indent=4)
+            file.close()
 
     callback = {"setStatus": set_progress_status, "setProgress": set_current_proggres, "setMax": set_progress_max}
 
@@ -214,8 +245,7 @@ def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
                         mllb.install.install_minecraft_version(versionid=ver,
                                                                minecraft_directory=str(f"{minecraft_directory}/{name}"),
                                                                callback=callback)
-
-                        save_version(ver)
+                        save_version(type, ver, ver)
                         check_vers()
 
                         text_message("Install Vanilla Version Success", langData[0]["Install_Vanilla_Version_Success"])
@@ -231,8 +261,7 @@ def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
                         mllb.forge.install_forge_version(versionid=mod,
                                                          path=str(f"{minecraft_directory}/{name}"),
                                                          callback=callback)
-
-                        save_version(mod.replace("-", "-forge-"))
+                        save_version(type, ver, mod.replace("-", "-forge-"))
                         check_vers()
 
                         text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
@@ -249,8 +278,7 @@ def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
                                                    minecraft_directory=str(f"{minecraft_directory}/{name}"),
                                                    loader_version=mod,
                                                    callback=callback)
-
-                        save_version(str(f"fabric-loader-{mod}-{ver}"))
+                        save_version(type, ver, str(f"fabric-loader-{mod}-{ver}"))
                         check_vers()
 
                         text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
@@ -267,8 +295,7 @@ def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
                                                  minecraft_directory=str(f"{minecraft_directory}/{name}"),
                                                  loader_version=mod,
                                                  callback=callback)
-
-                        save_version(str(f"quilt-loader-{mod}-{ver}"))
+                        save_version(type, ver, str(f"quilt-loader-{mod}-{ver}"))
                         check_vers()
 
                         text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
@@ -281,7 +308,7 @@ def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
 
                 else:
                     text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
-
+                shutil.rmtree(f"{minecraft_directory}/{name}/runtime")
                 reset_progress()
 
             else:
@@ -339,11 +366,16 @@ def run_minecraft(version=str):
 
         print("Running:", version, mllb.utils.get_installed_versions(f"{minecraft_directory}/{version}")[0]["id"])
 
-        file = open(str(f"{minecraft_directory}/{version}/version.txt"), "r")
-        file_ver = file.read()
+        file = open(str(f"{minecraft_directory}/{version}/version.json"), "r")
+        fileData = json.load(file)
         file.close()
 
-        minecraft_command = mllb.command.get_minecraft_command(file_ver, str(f"{minecraft_directory}/{version}"), options)
+        minecraft_command = mllb.command.get_minecraft_command(fileData["Jar"], str(f"{minecraft_directory}/{version}"), options)
+        if platform.system() == "Windows":
+            minecraft_command[0] = os.path.normpath(get_jdk_client(get_jdk_version(fileData["Version"])) + "/bin/java.exe")
+        else:
+            minecraft_command[0] = os.path.normpath(get_jdk_client(get_jdk_version(fileData["Version"])) + "/bin/java")
+        print(minecraft_command)
         subprocess.run(minecraft_command)
 
         print("Restarting...")

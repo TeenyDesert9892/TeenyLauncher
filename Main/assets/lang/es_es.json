@@ -45,7 +45,7 @@
     "Uninstall_Version_Button": "Eliminar instancia",
     "Uninstall_Version_Success": "La instancia ha sido desinstalada con exito!",
     "Uninstall_Version_Failure": "Ha ocurrido algun problema mientras se estaba eliminando la instancia",
-    "Without_Versions": "Sin instancias añadidas",
+    "Without_Versions": "Sin instancias agregadas",
     "Info_Configuration_Title": "Configuracion del launcher",
     "Info_Configurate_Language_Title": "Selecciona un idioma:",
     "Info_Configurate_Language_Default": "Idiomas",

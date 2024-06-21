@@ -10,6 +10,7 @@
       <excludeFolder url="file://$MODULE_DIR$/Main/build" />
       <excludeFolder url="file://$MODULE_DIR$/Main/dist" />
       <excludeFolder url="file://$MODULE_DIR$/Server" />
+      <excludeFolder url="file://$MODULE_DIR$/Main/assets/jdks" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (TeenyLauncher)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
