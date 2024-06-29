@@ -1,9 +1,13 @@
-# TeenyLauncher guide:
+# TeenyLauncher install guide:
 
-For using this launcher the only thing you need to do it is downloading the latest release, extract all the files in a folder and before that execute the file _TeenyLauncher.exe_ or _start.bat_ if you are in windows and if you are using Ubuntu _start.sh_ and wait a little to start the launcher.
+If you want to use TeenyLaucnehr all you need to do is download the latest version in the releases or pre-releases and
+simply:
 
-And that is it, is easy to run.
+1. Download the zip file for your system
+2. Open the zip file and drop the content inside a folder whatever you like
+3. And finally if you are using windows simply double-click the file to start or if you are using ubuntu or one of his
+distros you just nedd to open a cmd go to the rute of the launcher files and simply execute the file like this:
+_./TeenyLauncher_
 
-But if you are using linux you may need to give permission to the file start.sh with _chmod 755 start.sh_.
-
-WARNING: It is not a stable and definitive version at 100% of the launcher, if you have any issue try to contact with TeenyDesert9892.
+WARNING: It is not a stable and definitive version at 100% of the launcher, if you have any issue try to contact with
+TeenyDesert9892.

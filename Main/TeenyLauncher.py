@@ -17,13 +17,14 @@ from PIL import Image
 
 print("This code was made by TeenyDesert9892")
 
-version = "0.6.0"
+version = ("0.6.2")
 
-version_info = "TeenyLauncher V0.6.0 BIG update:\n" \
+version_info = "TeenyLauncher V0.6.2 update:\n" \
                "\n" \
-               "In this version I added a ton of things like a background img which\n" \
-               "you can choese to use it or not, a config option to change te path\n" \
-               "of the launcher files and I have improve the gui looking and working"
+               "In this version I fixed issues in the way to run minecraft and I\n" \
+               "improved part of the code\n" \
+               "\n" \
+               "In general a small fix"
 
 launcherConfig = {"Color": "Dark",
                   "Theme": "Green",
@@ -55,21 +56,21 @@ def get_jdk_version(server_version=str):
         return "8"
 
 
-def get_jdk_client(jdk_version=str):
+def get_jdk_client(jdk_version=str, game_version=float):
     if not os.path.exists("assets/jdks"):
         os.mkdir("assets/jdks")
 
-    try:
+    if game_version <= 116.5:
         try:
             return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk' + jdk_version + '*')[0]}")
         except:
-            jdk.install(version=jdk_version, operating_system=jdk.OperatingSystem.detect(), arch=jdk.Architecture.detect(), jre=True, path=os.path.normpath(f"{os.getcwd()}/assets/jdks"))
+            jdk.install(version=jdk_version, operating_system=jdk.OperatingSystem.detect(), arch=jdk.Architecture.detect(), jre=True, path=os.path.normpath(f"{os.getcwd()}/assets/jdks"), vendor="Adoptium")
             return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk' + jdk_version + '*')[0]}")
-    except:
+    else:
         try:
             return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk-' + jdk_version + '*')[0]}")
         except:
-            jdk.install(version=jdk_version, operating_system=jdk.OperatingSystem.detect(), arch=jdk.Architecture.detect(), jre=True, path=os.path.normpath(f"{os.getcwd()}/assets/jdks"))
+            jdk.install(version=jdk_version, operating_system=jdk.OperatingSystem.detect(), arch=jdk.Architecture.detect(), jre=True, path=os.path.normpath(f"{os.getcwd()}/assets/jdks"), vendor="Adoptium")
             return os.path.normpath(f"{os.getcwd()}/{glob.glob('assets/jdks/jdk-' + jdk_version + '*')[0]}")
 
 
@@ -105,89 +106,90 @@ def set_languaje(lang=str):
 def add_acount_data(type=str, name=str, pasword=str):
     if type == "Premiun":
         if name != "":
-            if pasword != "":
-                progressMessage.configure(text=str(f"Adding {name} premiun account"))
-                progressPercentage.set(value=0 / 1)
-                progressLabel.configure(text="0/1")
-
-                try:
-                    auth_response = mllb.microsoft_types.MinecraftAuthenticateResponse(username=name, roles=[], access_token="", token_type="", expires_in=1)
-                    auth_token = mllb.microsoft_account.authenticate_with_minecraft(name, pasword)
-                    profile = mllb.microsoft_account.get_profile(access_token=auth_token)
-                    store_info = mllb.microsoft_account.get_store_information(access_token=auth_token)
-
-                    print(auth_response)
-                    print(auth_token)
-                    print(profile)
-                    print(store_info)
-
-                    # config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
-                    # save_config(config)
-                    check_accounts()
-
-                    progressPercentage.set(value=1)
-                    progressLabel.configure(text="1/1")
-
-                    text_message("Add Account Premiun Success", langData[0]["Add_Account_Premiun_Success"])
-
-                except:
-                    text_message("Add Account Premiun Failure", langData[0]["Add_Account_Premiun_Failure"])
-
-                reset_progress()
-
-            else:
-                text_message("Add Account Pasword Remaining", langData[0]["Add_Account_Pasword_Remaining"])
-
-        else:
             text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
+            return
+
+        if pasword == "":
+            text_message("Add Account Pasword Remaining", langData[0]["Add_Account_Pasword_Remaining"])
+            return
+
+        progressMessage.configure(text=str(f"Adding {name} premiun account"))
+        progressPercentage.set(value=0 / 1)
+        progressLabel.configure(text="0/1")
+
+        try:
+            auth_response = mllb.microsoft_types.MinecraftAuthenticateResponse(username=name, roles=[], access_token="", token_type="", expires_in=1)
+            auth_token = mllb.microsoft_account.authenticate_with_minecraft(name, pasword)
+            profile = mllb.microsoft_account.get_profile(access_token=auth_token)
+            store_info = mllb.microsoft_account.get_store_information(access_token=auth_token)
+
+            print(auth_response)
+            print(auth_token)
+            print(profile)
+            print(store_info)
+
+            # config[0]["Accounts"][str(name)] = {'User': str(name), 'Uuid': str(), 'Token': str()}
+            # save_config(config)
+            check_accounts()
+
+            progressPercentage.set(value=1)
+            progressLabel.configure(text="1/1")
+
+            text_message("Add Account Premiun Success", langData[0]["Add_Account_Premiun_Success"])
+
+        except:
+            text_message("Add Account Premiun Failure", langData[0]["Add_Account_Premiun_Failure"])
+
+        reset_progress()
 
     elif type == "No Premiun":
-        if name != "":
-            progressMessage.configure(text=str(f"Creating {name} no premiun account"))
-            progressPercentage.set(value=0 / 1)
-            progressLabel.configure(text="0/1")
+        if name == "":
+            text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
+            return
 
-            try:
-                uuid = ""
+        progressMessage.configure(text=str(f"Creating {name} no premiun account"))
+        progressPercentage.set(value=0 / 1)
+        progressLabel.configure(text="0/1")
 
-                def create_chain(lenghth):
-                    chain = ""
-                    for i in range(0, lenghth):
-                        char = random.randint(0, 15)
-                        chain += str(hexa_num(char))
-                    return chain
+        try:
+            uuid = ""
 
-                def hexa_num(num):
-                    letters = ["a", "b", "c", "d", "e", "f"]
-                    if num >= 0 and num <= 9:
-                        return str(num)
-                    else:
-                        return letters[num-10]
+            def create_chain(lenghth):
+                chain = ""
+                for i in range(0, lenghth):
+                    char = random.randint(0, 15)
+                    chain += str(hexa_num(char))
+                return chain
 
-                uuid += create_chain(8)
+            def hexa_num(num):
+                letters = ["a", "b", "c", "d", "e", "f"]
+                if num >= 0 and num <= 9:
+                    return str(num)
+                else:
+                    return letters[num-10]
+
+            uuid += create_chain(8)
+            uuid += "-"
+
+            for i in range(0, 3):
+                uuid += create_chain(4)
                 uuid += "-"
 
-                for i in range(0, 3):
-                    uuid += create_chain(4)
-                    uuid += "-"
+            uuid += create_chain(12)
 
-                uuid += create_chain(12)
+            config[0]["Accounts"][str(name)] = {'User': str(name),
+                                                'Uuid': str(uuid),
+                                                'Token': '0'}
+            save_config(config)
+            check_accounts()
 
-                config[0]["Accounts"][str(name)] = {'User': str(name),
-                                                    'Uuid': str(uuid),
-                                                    'Token': '0'}
-                save_config(config)
-                check_accounts()
+            progressPercentage.set(value=1)
+            progressLabel.configure(text="1/1")
 
-                progressPercentage.set(value=1)
-                progressLabel.configure(text="1/1")
-
-                text_message("Add Account No Premiun Success", langData[0]["Add_Account_No_Premiun_Success"])
-            except:
-                text_message("Add Account No Premiun Failure", langData[0]["Add_Account_No_Premiun_Failure"])
-            reset_progress()
-        else:
-            text_message("Add Account Name Remaining", langData[0]["Add_Account_Name_Remaining"])
+            text_message("Add Account No Premiun Success", langData[0]["Add_Account_No_Premiun_Success"])
+        except:
+            text_message("Add Account No Premiun Failure", langData[0]["Add_Account_No_Premiun_Failure"])
+        reset_progress()
     else:
         text_message("Add Account No Type Selected", langData[0]["Add_Account_No_Type_Selected"])
 
@@ -220,6 +222,7 @@ def del_acount_data(account=str):
         text_message("Delete_Account_Success", langData[0]["Delete_Account_Success"])
     except:
         text_message("Delete Account Failure", langData[0]["Delete_Account_Failure"])
+
     reset_progress()
 
 
@@ -237,88 +240,94 @@ def install_minecraft_verison(name=str, ver=str, type=str, mod=str):
         if name == dir.name:
             alreadyExistsName = True
 
-    if not alreadyExistsName:
-        if name != "":
-            if ver != "":
-                if type == "Vanilla" or type == "Snapshot":
-                    try:
-                        mllb.install.install_minecraft_version(versionid=ver,
-                                                               minecraft_directory=str(f"{minecraft_directory}/{name}"),
-                                                               callback=callback)
-                        save_version(type, ver, ver)
-                        check_vers()
+    if alreadyExistsName:
+        text_message("Install Version Not Name", langData[0]["Install_Version_Not_Name"])
+        return
 
-                        text_message("Install Vanilla Version Success", langData[0]["Install_Vanilla_Version_Success"])
+    if name == "":
+        text_message("Install Version Not Name", langData[0]["Install_Version_Not_Name"])
+        return
 
-                    except:
-                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
-                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+    if ver == "":
+        text_message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
+        return
 
-                        text_message("Install Vanilla Version Failure", langData[0]["Install_Vanilla_Version_Failure"])
-
-                elif type == "Forge":
-                    try:
-                        mllb.forge.install_forge_version(versionid=mod,
-                                                         path=str(f"{minecraft_directory}/{name}"),
-                                                         callback=callback)
-                        save_version(type, ver, mod.replace("-", "-forge-"))
-                        check_vers()
-
-                        text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
-
-                    except:
-                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
-                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
-
-                        text_message("Install Forge Version Failure", langData[0]["Install_Forge_Version_Failure"])
-
-                elif type == "Fabric" or type == "Fabric Snapshot":
-                    try:
-                        mllb.fabric.install_fabric(minecraft_version=ver,
+    if type == "Vanilla" or type == "Snapshot":
+        try:
+            mllb.install.install_minecraft_version(versionid=ver,
                                                    minecraft_directory=str(f"{minecraft_directory}/{name}"),
-                                                   loader_version=mod,
                                                    callback=callback)
-                        save_version(type, ver, str(f"fabric-loader-{mod}-{ver}"))
-                        check_vers()
+            save_version(type, ver, ver)
+            check_vers()
 
-                        text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
+            text_message("Install Vanilla Version Success", langData[0]["Install_Vanilla_Version_Success"])
 
-                    except:
-                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
-                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+        except:
+            text_message("Install Vanilla Version Failure", langData[0]["Install_Vanilla_Version_Failure"])
 
-                        text_message("Install Fabric Version Failure", langData[0]["Install_Fabric_Version_Failure"])
+            if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+            return
 
-                elif type == "Quilt" or type == "Quilt Snapshot":
-                    try:
-                        mllb.quilt.install_quilt(minecraft_version=ver,
-                                                 minecraft_directory=str(f"{minecraft_directory}/{name}"),
-                                                 loader_version=mod,
-                                                 callback=callback)
-                        save_version(type, ver, str(f"quilt-loader-{mod}-{ver}"))
-                        check_vers()
+    elif type == "Forge":
+        try:
+            mllb.forge.install_forge_version(versionid=mod,
+                                             path=str(f"{minecraft_directory}/{name}"),
+                                             callback=callback)
+            save_version(type, ver, mod.replace("-", "-forge-"))
+            check_vers()
 
-                        text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
+            text_message("Install_Forge_Version_Success", langData[0]["Install_Forge_Version_Success"])
 
-                    except:
-                        if os.path.exists(str(f"{minecraft_directory}/{name}")):
-                            shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+        except:
+            text_message("Install Forge Version Failure", langData[0]["Install_Forge_Version_Failure"])
 
-                        text_message("Install Quilt Version Failure", langData[0]["Install_Quilt_Version_Failure"])
+            if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+            return
 
-                else:
-                    text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
-                shutil.rmtree(f"{minecraft_directory}/{name}/runtime")
-                reset_progress()
+    elif type == "Fabric" or type == "Fabric Snapshot":
+        try:
+            mllb.fabric.install_fabric(minecraft_version=ver,
+                                       minecraft_directory=str(f"{minecraft_directory}/{name}"),
+                                       loader_version=mod,
+                                       callback=callback)
+            save_version(type, ver, str(f"fabric-loader-{mod}-{ver}"))
+            check_vers()
 
-            else:
-                text_message("Install Version Type Not Selected", langData[0]["Install_Version_Type_Not_Selected"])
+            text_message("Install Fabric Version Success", langData[0]["Install_Fabric_Version_Success"])
 
-        else:
-            text_message("Install Version Not Name", langData[0]["Install_Version_Not_Name"])
+        except:
+            text_message("Install Fabric Version Failure", langData[0]["Install_Fabric_Version_Failure"])
+
+            if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+            return
+
+    elif type == "Quilt" or type == "Quilt Snapshot":
+        try:
+            mllb.quilt.install_quilt(minecraft_version=ver,
+                                     minecraft_directory=str(f"{minecraft_directory}/{name}"),
+                                     loader_version=mod,
+                                     callback=callback)
+            save_version(type, ver, str(f"quilt-loader-{mod}-{ver}"))
+            check_vers()
+
+            text_message("Install Quilt Version Success", langData[0]["Install_Quilt_Version_Success"])
+
+        except:
+            text_message("Install Quilt Version Failure", langData[0]["Install_Quilt_Version_Failure"])
+
+            if os.path.exists(str(f"{minecraft_directory}/{name}")):
+                shutil.rmtree(str(f"{minecraft_directory}/{name}"))
+            return
 
     else:
-        text_message("Install Version Not Name", langData[0]["Install_Version_Not_Name"])
+        text_message("Install Version Not Selected", langData[0]["Install_Version_Not_Selected"])
+        return
+
+    shutil.rmtree(f"{minecraft_directory}/{name}/runtime")
+    reset_progress()
 
 
 def uninstall_minecraft_version(version=str):
@@ -349,39 +358,46 @@ def run_minecraft(version=str):
     print("Starting minecraft...")
     name = account_display.get()
 
-    if name != langData[0]["Without_Accounts"]:
-        window.destroy()
-
-        ram = f"-Xmx{config[0]['Launcher']['RamAmount']}M"
-        user = config[0]["Accounts"][name]["User"]
-        uuid = config[0]["Accounts"][name]["Uuid"]
-        token = config[0]["Accounts"][name]["Token"]
-        launcherVersion = config[0]["Launcher"]["Version"]
-
-        options = {'username': user,
-                   'uuid': uuid,
-                   'token': token,
-                   'jvArguments': f"[{str(ram)}, {str(ram)}]",
-                   'launcherVersion': launcherVersion}
-
-        print("Running:", version, mllb.utils.get_installed_versions(f"{minecraft_directory}/{version}")[0]["id"])
-
-        file = open(str(f"{minecraft_directory}/{version}/version.json"), "r")
-        fileData = json.load(file)
-        file.close()
-
-        minecraft_command = mllb.command.get_minecraft_command(fileData["Jar"], str(f"{minecraft_directory}/{version}"), options)
-        if platform.system() == "Windows":
-            minecraft_command[0] = os.path.normpath(get_jdk_client(get_jdk_version(fileData["Version"])) + "/bin/java.exe")
-        else:
-            minecraft_command[0] = os.path.normpath(get_jdk_client(get_jdk_version(fileData["Version"])) + "/bin/java")
-        print(minecraft_command)
-        subprocess.run(minecraft_command)
-
-        print("Restarting...")
-        main()
-    else:
+    if name == langData[0]["Without_Accounts"]:
         text_message("Without Accounts To Play", langData[0]["Without_Accounts_To_Play"])
+        return
+
+    window.destroy()
+
+    ram = f"-Xmx{config[0]['Launcher']['RamAmount']}M"
+    user = config[0]["Accounts"][name]["User"]
+    uuid = config[0]["Accounts"][name]["Uuid"]
+    token = config[0]["Accounts"][name]["Token"]
+    launcherVersion = config[0]["Launcher"]["Version"]
+
+    options = {'username': user,
+               'uuid': uuid,
+               'token': token,
+               'jvArguments': f"[{str(ram)}, {str(ram)}]",
+               'launcherVersion': launcherVersion}
+
+    file = open(str(f"{minecraft_directory}/{version}/version.json"), "r")
+    fileData = json.load(file)
+    file.close()
+
+    print(f"Running: {fileData['Type']} {fileData['Version']}\nFile name: {fileData['Jar']}")
+
+    minecraft_command = mllb.command.get_minecraft_command(fileData["Jar"], str(f"{minecraft_directory}/{version}"), options)
+    try:
+        if platform.system() == "Windows":
+            minecraft_command[0] = os.path.normpath(get_jdk_client(get_jdk_version(fileData["Version"]),
+                                                                   float(fileData['Version'].replace(".", "", 1))) + "/bin/java.exe")
+        else:
+            minecraft_command[0] = os.path.normpath(get_jdk_client(get_jdk_version(fileData["Version"]),
+                                                                   float(fileData['Version'].replace(".", "", 1))) + "/bin/java")
+    except:
+        text_message("Incompatible JDK", langData[0]["Incompatibe_JDK"])
+        return
+
+    subprocess.run(minecraft_command)
+
+    print("Restarting...")
+    main()
 
 
 def check_accounts():
@@ -495,13 +511,13 @@ def update_config(lang=str, color=str, bgImg=bool, theme=str, ram=int, dir=str):
     config[0]["Launcher"]["RamAmount"] = ram
 
     global minecraft_directory
-    rPathDir = open(f"{get_launcher_path()}/minecraft_directory.txt", "r")
+    readPathDir = open(f"{get_launcher_path()}/minecraft_directory.txt", "r")
 
-    if dir != rPathDir.read() and dir != "":
+    if dir != readPathDir.read() and dir != "":
         if os.path.exists(os.path.normpath(dir)):
-            wPathDir = open(f"{get_launcher_path()}/minecraft_directory.txt", "w")
-            wPathDir.write(os.path.normpath(dir))
-            wPathDir.close()
+            writePathDir = open(f"{get_launcher_path()}/minecraft_directory.txt", "w")
+            writePathDir.write(os.path.normpath(dir))
+            writePathDir.close()
 
             for file in os.scandir(os.path.normpath(minecraft_directory)):
                 if file.name != "minecraft_directory.txt" and file.name != "launcher_config.pkl":
@@ -511,7 +527,7 @@ def update_config(lang=str, color=str, bgImg=bool, theme=str, ram=int, dir=str):
         else:
             print("Unable to change dir (does not exist)")
 
-    rPathDir.close()
+    readPathDir.close()
 
     config[0]["Launcher"]["DefaultAccount"] = account_display.get()
     config[0]["Launcher"]["DefaultVersion"] = versions_display.get()

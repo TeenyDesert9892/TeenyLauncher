@@ -31,13 +31,13 @@
     "Install_Versions_Mod_Version_Title": "Indica el numero de el modificador",
     "Install_Versions_Install_Button": "Instalar",
     "Install_Vanilla_Version_Success": "La version de minecraft vanilla se ha instalado correctamente!",
-    "Install_Vanilla_Version_Failure": "Ocurrio un error al tratar de instalar minecraft vanilla (Probabemente puede ser por el wifi)",
+    "Install_Vanilla_Version_Failure": "No de pudo descargar la version de minecraft vanilla debido a que algo interrumpio la conexion",
     "Install_Forge_Version_Success": "La version de minecraft forge se ha instalado correctamente!",
-    "Install_Forge_Version_Failure": "Ocurrio un error al tratar de instalar minecraft forge (Probabemente puede ser por el wifi)",
+    "Install_Forge_Version_Failure": "No de pudo descargar la version de minecraft forge debido a que algo interrumpio la conexion",
     "Install_Fabric_Version_Success": "La version de minecraft fabric se ha instalado correctamente!",
-    "Install_Fabric_Version_Failure": "Ocurrio un error al tratar de instalar minecraft fabric (Probabemente puede ser por el wifi)",
+    "Install_Fabric_Version_Failure": "No de pudo descargar la version de minecraft fabric debido a que algo interrumpio la conexion",
     "Install_Quilt_Version_Success": "La version de minecraft quilt se ha instalado correctamente!",
-    "Install_Quilt_Version_Failure": "Ocurrio un error al tratar de instalar minecraft quilt (Probabemente puede ser por el wifi)",
+    "Install_Quilt_Version_Failure": "No de pudo descargar la version de minecraft quilt debido a que algo interrumpio la conexion",
     "Install_Version_Not_Name": "No se ha introducido ningun nombre para la instancia",
     "Install_Version_Not_Selected": "No se ha seleccionado ninguna verison",
     "Install_Version_Type_Not_Selected": "No se ha introducido el numero de la version",
@@ -65,6 +65,7 @@
     "Menu_Minecraft_Config_Account": "Seleccionar cuenta",
     "Menu_Minecraft_Start_Game_Title": "Configurar Minecraft",
     "Menu_Minecraft_Start_Game": "Inicar Minecraft",
+    "Incompatible_JDK": "La version de jdk parece no ser compatible con tu sistema lo cual quiere decir que no poduedes jugar esta version de minecraft",
     "": ""
   }
 ]

@@ -31,13 +31,13 @@
     "Install_Versions_Mod_Version_Title": "Which modification version is good?",
     "Install_Versions_Install_Button": "Create instance",
     "Install_Vanilla_Version_Success": "The instance with the vanilla version has been successfully installed!",
-    "Install_Vanilla_Version_Failure": "The vanilla instance got an error while trying to install",
+    "Install_Vanilla_Version_Failure": "The vanilla instance got an error while trying to download because somthing has interrupted the conexion",
     "Install_Forge_Version_Succes": "The instance with the forge version has been successfully installed!",
-    "Install_Forge_Version_Failure": "The forge instance got an error while trying to install",
+    "Install_Forge_Version_Failure": "The forge instance got an error while trying to download because somthing has interrupted the conexion",
     "Install_Fabric_Version_Success": "The instance with the fabric version has been successfully installed!",
-    "Install_Fabric_Version_Failure": "The fabric instance got an error while trying to install",
+    "Install_Fabric_Version_Failure": "The fabric instance got an error while trying to download because somthing has interrupted the conexion",
     "Install_Quilt_Version_Success": "The instance with the quilt version has been successfully installed!",
-    "Install_Quilt_Version_Failure": "The quilt instance got an error while trying to install",
+    "Install_Quilt_Version_Failure": "The quilt instance got an error while trying to download because somthing has interrupted the conexion",
     "Install_Version_Not_Name": "You have not entered a name for the instance",
     "Install_Version_Not_Selected": "You have not selected a version to install",
     "Install_Version_Type_Not_Selected": "You have not selected a version type to install",
@@ -65,6 +65,7 @@
     "Menu_Minecraft_Config_Account": "Select Account",
     "Menu_Minecraft_Start_Game_Title": "Minecraft options",
     "Menu_Minecraft_Start_Game": "Play Minecraft",
+    "Incompatible_JDK": "The jdk version that was installed is not compatible with your system and that means you cant play this version of minecraft",
     "": ""
   }
 ]
