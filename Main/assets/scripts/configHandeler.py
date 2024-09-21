@@ -30,6 +30,18 @@ def get_launcher_path():
     else:
         return os.path.join(str(pathlib.Path.home()), ".TeenyLauncher")
 
+if not os.path.exists(get_launcher_path()):
+    os.mkdir(get_launcher_path())
+
+if not os.path.exists(f"{get_launcher_path()}/minecraft_directory.txt"):
+    with open(f"{get_launcher_path()}/minecraft_directory.txt", "w") as file:
+        file.write(get_launcher_path())
+        file.close()
+
+with open(f"{get_launcher_path()}/minecraft_directory.txt", "r") as dirPath:
+    minecraft_directory = dirPath.read()
+    dirPath.close()
+
 class Config:
     def __init__(self):
         self.Theme = "Dark"
@@ -47,30 +59,30 @@ class Config:
         self.load_config()
 
     def save_config(self):
-        with open(f"{get_launcher_path()}/launcher_config.pkl", "wb") as pickleFile:
-            pickle.dump({"Launcher": {"Theme": self.Theme,
-                                      "Lang": self.Lang,
-                                      "DefaultAccount": self.DefaultAccount,
-                                      "DefaultInstance": self.DefaultInstance,
-                                      "CloseOnPlay": self.CloseOnPlay,
-                                      "Version": self.Version,
-                                      "EnabledBgImg": self.EnabledBgImg,
-                                      "RamAmount": int(self.RamAmount)},
-                         "Accounts": self.Accounts}, pickleFile)
+        pickleFile = open(get_launcher_path()+'/launcher_config.pkl', 'wb')
+        pickle.dump({"Launcher": {"Theme": self.Theme,
+                                    "Lang": self.Lang,
+                                    "DefaultAccount": self.DefaultAccount,
+                                    "DefaultInstance": self.DefaultInstance,
+                                    "CloseOnPlay": self.CloseOnPlay,
+                                    "Version": self.Version,
+                                    "EnabledBgImg": self.EnabledBgImg,
+                                    "RamAmount": int(self.RamAmount)},
+                        "Accounts": self.Accounts}, pickleFile)
 
     def load_config(self):
-        with open(f"{get_launcher_path()}/launcher_config.pkl", "rb") as pickleFile:
-            configFile = pickle.load(pickleFile)
+        pickleFile = open(get_launcher_path()+'/launcher_config.pkl', 'rb')
+        configFile = pickle.load(pickleFile)
 
-            self.Theme = configFile["Launcher"]["Theme"]
-            self.Lang = configFile["Launcher"]["Lang"]
-            self.DefaultAccount = configFile["Launcher"]["DefaultAccount"]
-            self.DefaultInstance = configFile["Launcher"]["DefaultInstance"]
-            self.CloseOnPlay = configFile["Launcher"]["CloseOnPlay"]
-            self.Version = configFile["Launcher"]["Version"]
-            self.EnabledBgImg = configFile["Launcher"]["EnabledBgImg"]
-            self.RamAmount = configFile["Launcher"]["RamAmount"]
-            self.Accounts = configFile["Accounts"]
+        self.Theme = configFile["Launcher"]["Theme"]
+        self.Lang = configFile["Launcher"]["Lang"]
+        self.DefaultAccount = configFile["Launcher"]["DefaultAccount"]
+        self.DefaultInstance = configFile["Launcher"]["DefaultInstance"]
+        self.CloseOnPlay = configFile["Launcher"]["CloseOnPlay"]
+        self.Version = configFile["Launcher"]["Version"]
+        self.EnabledBgImg = configFile["Launcher"]["EnabledBgImg"]
+        self.RamAmount = configFile["Launcher"]["RamAmount"]
+        self.Accounts = configFile["Accounts"]
 
 config = Config()
 
@@ -151,8 +163,9 @@ class Lang:
         self.Nothing = ""
 
         self.set_lang()
+        
     def set_lang(self):
-        with open(f"{get_assets_path()}/assets/lang/{config.Lang}.json", "r") as langFile:
+        with open(get_assets_path()+'/assets/lang/'+config.Lang+'.json', "r") as langFile:
             lang = json.load(langFile)
             self.Accounts_Title = lang["Accounts_Title"]
             self.Add_Accounts_Title = lang["Add_Accounts_Title"]
@@ -274,16 +287,3 @@ def update_config_dir(dir):
         else:
             print("Unable to change dir (does not exist)")
     readPathDir.close()
-
-
-if not os.path.exists(get_launcher_path()):
-    os.mkdir(get_launcher_path())
-
-if not os.path.exists(f"{get_launcher_path()}/minecraft_directory.txt"):
-    with open(f"{get_launcher_path()}/minecraft_directory.txt", "w") as file:
-        file.write(get_launcher_path())
-        file.close()
-
-with open(f"{get_launcher_path()}/minecraft_directory.txt", "r") as dirPath:
-    minecraft_directory = dirPath.read()
-    dirPath.close()
