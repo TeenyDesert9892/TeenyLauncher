@@ -1,13 +1,28 @@
-# TeenyLauncher install guide:
 
-If you want to use TeenyLaucnehr all you need to do is download the latest version in the releases or pre-releases and
-simply:
+# TeenyLauncher
 
-1. Download the zip file for your system
-2. Open the zip file and drop the content inside a folder whatever you like
-3. And finally if you are using windows simply double-click the file to start or if you are using ubuntu or one of his
-distros you just nedd to open a cmd go to the rute of the launcher files and simply execute the file like this:
-_./TeenyLauncher_
+TeenyLauncher is a minecraft launcher maded in python to manage minecraft instances and accounts to play the game
+## Authors
 
-WARNING: It is not a stable and definitive version at 100% of the launcher, if you have any issue try to contact with
-TeenyDesert9892.
+- [@TeenyDesert9892](https://www.github.com/TeenyDesert9892)
+
+
+## FAQ
+
+#### Why I made the launcher?
+
+I decided to made the launcher because there is people like some of mi friends who doesn't have the oportunity of bying a minecraft copy and they don't want to install some unkown software in his computers so thats why I worked hard in building this and improving it with the time
+
+#### Is it safe to use the launcher?
+
+Actually it is and if you don't trust me check the code manually and test it by your own
+
+
+## Installation
+
+To install my launcher you will need to download one of the versions that is on the release/pre-release tags compatible with your system
+
+When you have downloaded succesfully you will need to uncompres the zip and place the content in a folder whorever you want and just with that you can execute it
+## Support
+
+If you have any problems with the launcher contact with me via discord: @TeenyDesert9892

@@ -1,0 +1,1 @@
+flet pack -vv -i Main/assets/images/Icon.png -n "TeenyLauncher" --add-data Main/assets:assets --product-name "TeenyLauncher" --product-version "0.7.0" --copyright "TeenyDesert9892" --codesign-identity "TeenyDesert9892" Main/main.py

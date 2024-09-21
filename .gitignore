@@ -1,6 +1,8 @@
-/shelf/
-/.idea/workspace.xml
-/u-venv/
-/w-venv/
+/desktop.ini
+/folderico-green.ico
 /Main/logs/
-/logs/
+/Main/jdks/
+/pack.bat
+/pack.sh
+/Server/
+/venv/
