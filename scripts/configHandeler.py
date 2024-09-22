@@ -6,14 +6,12 @@ import platform
 import shutil
 import psutil
 
-version = "0.7.0"
+version = "0.7.1"
 
-version_info = "V0.7.0 update:\n" \
+version_info = "V0.7.1 update:\n" \
                "\n" \
-               "In this version I have compleately remade the launcher so its looks better using the flet framework and also I improved " \
-               "and remaded a big part of the code what it wasn't something easy at all\n" \
-               "\n" \
-               "I hope you like how it is going" \
+               "In this version I finally aded the english option that I let incompleted and also I maded minor changes to the code so it there" \
+               "are less errors \n" \
                "\n" \
                "By: TeenyDesert9892"
 
@@ -54,12 +52,12 @@ class Config:
         self.RamAmount = 2048
         self.Accounts = {}
 
-        if not os.path.exists(f"{get_launcher_path()}/launcher_config.pkl"):
+        if not os.path.exists(f"{get_launcher_path()}/config.pkl"):
             self.save_config()
         self.load_config()
 
     def save_config(self):
-        pickleFile = open(get_launcher_path()+'/launcher_config.pkl', 'wb')
+        pickleFile = open(get_launcher_path()+'/config.pkl', 'wb')
         pickle.dump({"Launcher": {"Theme": self.Theme,
                                     "Lang": self.Lang,
                                     "DefaultAccount": self.DefaultAccount,
@@ -71,7 +69,7 @@ class Config:
                         "Accounts": self.Accounts}, pickleFile)
 
     def load_config(self):
-        pickleFile = open(get_launcher_path()+'/launcher_config.pkl', 'rb')
+        pickleFile = open(get_launcher_path()+'/config.pkl', 'rb')
         configFile = pickle.load(pickleFile)
 
         self.Theme = configFile["Launcher"]["Theme"]
@@ -119,14 +117,8 @@ class Lang:
         self.Create_Instance_Engin_Version_Title = ""
         self.Create_Instance_Install_Button = ""
 
-        self.Install_Vanilla_Version_Success = ""
-        self.Install_Vanilla_Version_Failure = ""
-        self.Install_Forge_Version_Success = ""
-        self.Install_Forge_Version_Failure = ""
-        self.Install_Fabric_Version_Success = ""
-        self.Install_Fabric_Version_Failure = ""
-        self.Install_Quilt_Version_Success = ""
-        self.Install_Quilt_Version_Failure = ""
+        self.Create_Version_Success = ""
+        self.Create_Version_Failure = ""
 
         self.Install_Version_Already_Exsists = ""
         self.Install_Version_Without_Name = ""
@@ -165,7 +157,7 @@ class Lang:
         self.set_lang()
         
     def set_lang(self):
-        with open(get_assets_path()+'/assets/lang/'+config.Lang+'.json', "r") as langFile:
+        with open(get_assets_path()+'/lang/'+config.Lang+'.json', "r") as langFile:
             lang = json.load(langFile)
             self.Accounts_Title = lang["Accounts_Title"]
             self.Add_Accounts_Title = lang["Add_Accounts_Title"]
@@ -198,14 +190,8 @@ class Lang:
             self.Create_Instance_Engin_Version_Title = lang["Create_Instance_Engin_Version_Title"]
             self.Create_Instance_Install_Button = lang["Create_Instance_Install_Button"]
 
-            self.Install_Vanilla_Version_Success = lang["Install_Vanilla_Version_Success"]
-            self.Install_Vanilla_Version_Failure = lang["Install_Vanilla_Version_Failure"]
-            self.Install_Forge_Version_Success = lang["Install_Forge_Version_Success"]
-            self.Install_Forge_Version_Failure = lang["Install_Forge_Version_Failure"]
-            self.Install_Fabric_Version_Success = lang["Install_Fabric_Version_Success"]
-            self.Install_Fabric_Version_Failure = lang["Install_Fabric_Version_Failure"]
-            self.Install_Quilt_Version_Success = lang["Install_Quilt_Version_Success"]
-            self.Install_Quilt_Version_Failure = lang["Install_Quilt_Version_Failure"]
+            self.Create_Version_Success = lang["Create_Version_Success"]
+            self.Create_Version_Failure = lang["Create_Version_Failure"]
 
             self.Install_Version_Already_Exsists = lang["Install_Version_Already_Exsists"]
             self.Install_Version_Without_Name = lang["Install_Version_Without_Name"]
@@ -280,7 +266,7 @@ def update_config_dir(dir):
             writePathDir.close()
 
             for file in os.scandir(os.path.normpath(minecraft_directory)):
-                if file.name != "minecraft_directory.txt" and file.name != "launcher_config.pkl":
+                if file.name != "minecraft_directory.txt" and file.name != "config.pkl":
                     shutil.move(os.path.normpath(minecraft_directory+"/"+file.name), os.path.normpath(dir))
 
             minecraft_directory = dir

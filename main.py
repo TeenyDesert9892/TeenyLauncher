@@ -3,10 +3,10 @@ from concurrent.futures import ThreadPoolExecutor
 
 import flet as ft
 
-from assets.scripts import configHandeler
-from assets.scripts import jdkHandeler
-from assets.scripts import accountsHandeler
-from assets.scripts import instancesHandeler
+from scripts import configHandeler
+from scripts import jdkHandeler
+from scripts import accountsHandeler
+from scripts import instancesHandeler
 
 config = configHandeler.config
 lang = configHandeler.lang
@@ -17,12 +17,13 @@ def main(page: ft.Page):
     # Page Pre-Configuration
     # -------------------------------
 
-    backgroundImages = {"Dark": '/assets/images/background-dark.png', "Light": '/assets/images/background-light.png'}
+    backgroundImages = {"Dark": '/images/bg-dark.png', "Light": '/images/bg-light.png'}
 
-    bgImg = ft.BoxDecoration(image=ft.DecorationImage(assets_path+backgroundImages[config.Theme], fit=ft.ImageFit.COVER))
+    bgImg = ft.BoxDecoration(image=ft.DecorationImage(assets_path+backgroundImages[config.Theme],
+                                                      fit=ft.ImageFit.COVER))
 
     page.title = "TeenyLauncher"
-    page.window.min_width = 700
+    page.window.min_width = 800
     page.window.min_height = 550
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
@@ -36,7 +37,10 @@ def main(page: ft.Page):
     # -------------------------------
 
     def changeMenu(menu):
-        menus = {"HOME": infoCardColumn, "ACCOUNTS": accountCardColumn, "INSTANCES": instanceCardColumn, "SETTINGS": configCardColumn}
+        menus = {"HOME": infoCardColumn,
+                 "ACCOUNTS": accountCardColumn,
+                 "INSTANCES": instanceCardColumn,
+                 "SETTINGS": configCardColumn}
         menuCard.clean()
         menuCard.content = menus[menu]
         menuCard.update()
@@ -45,12 +49,25 @@ def main(page: ft.Page):
     # Top Buttons
     # -------------------------------
 
-    topCardRow = ft.Row([ft.IconButton(icon=ft.icons.HOME, icon_color="#555555", icon_size=30, on_click=lambda e: changeMenu("HOME")),
-                         ft.IconButton(icon=ft.icons.ACCOUNT_BOX, icon_color="#555555", icon_size=30, on_click=lambda e: changeMenu("ACCOUNTS")),
-                         ft.IconButton(icon=ft.icons.FOLDER, icon_color="#555555", icon_size=30, on_click=lambda e: changeMenu("INSTANCES")),
-                         ft.IconButton(icon=ft.icons.SETTINGS, icon_color="#555555", icon_size=30, on_click=lambda e: changeMenu("SETTINGS"))],
+    topCardRow = ft.Row([ft.IconButton(icon=ft.icons.HOME,
+                                       icon_color="#555555",
+                                       icon_size=30,
+                                       on_click=lambda e: changeMenu("HOME")),
+                         ft.IconButton(icon=ft.icons.ACCOUNT_BOX,
+                                       icon_color="#555555",
+                                       icon_size=30,
+                                       on_click=lambda e: changeMenu("ACCOUNTS")),
+                         ft.IconButton(icon=ft.icons.FOLDER,
+                                       icon_color="#555555",
+                                       icon_size=30,
+                                       on_click=lambda e: changeMenu("INSTANCES")),
+                         ft.IconButton(icon=ft.icons.SETTINGS,
+                                       icon_color="#555555",
+                                       icon_size=30,
+                                       on_click=lambda e: changeMenu("SETTINGS"))],
                         alignment=ft.MainAxisAlignment.CENTER,
-                        spacing=page.width/4-100)
+                        height=page.height/12,
+                        spacing=page.width/5)
 
     # -------------------------------
     # Info Variables
@@ -68,7 +85,8 @@ def main(page: ft.Page):
     # -------------------------------
 
     def configPharagraph(menu):
-        menus = {lang.Launcher_Config_Title: normalConfigCardColumn, lang.Advanced_Config_Title: advancedConfigCardColumn}
+        menus = {lang.Launcher_Config_Title: normalConfigCardColumn,
+                 lang.Advanced_Config_Title: advancedConfigCardColumn}
         configCard.clean()
         configCard.content = menus[menu.data]
         configCard.update()
@@ -79,7 +97,8 @@ def main(page: ft.Page):
 
     def themeChange(dropdown):
         configHandeler.update_config_theme(dropdown.data)
-        bgImg.image = ft.DecorationImage(assets_path+backgroundImages[config.Theme], fit=ft.ImageFit.COVER)
+        bgImg.image = ft.DecorationImage(assets_path+backgroundImages[config.Theme],
+                                         fit=ft.ImageFit.COVER)
         page.theme_mode = dropdown.data.lower()
         page.update()
 
@@ -122,7 +141,7 @@ def main(page: ft.Page):
 
     languajeConfigDropdown = ft.Dropdown(lang.Default_Option,
                                           [ft.dropdown.Option(option.name.removesuffix(".json"))
-                                           for option in os.scandir(assets_path+'/assets/lang')
+                                           for option in os.scandir(assets_path+'/lang')
                                            if option.name != "Example.json"],
                                          width=page.width/1.6,
                                          on_change=langChange)
@@ -206,7 +225,8 @@ def main(page: ft.Page):
     # -------------------------------
 
     def instancesPharagraph(menu):
-        menus = {lang.Create_Instances_Title: addInstanceCardColumn, lang.Delete_Instances_Title: removeInstanceCardColumn}
+        menus = {lang.Create_Instances_Title: addInstanceCardColumn,
+                 lang.Delete_Instances_Title: removeInstanceCardColumn}
         instancesCard.clean()
         instancesCard.content = menus[menu.data]
         instancesCard.update()
@@ -266,7 +286,8 @@ def main(page: ft.Page):
                                   width=page.width/1.7,
                                   on_change=update_versions)
 
-    addInstanceVersion = ft.Dropdown(width=page.width/1.7, on_change=update_versions_engines)
+    addInstanceVersion = ft.Dropdown(width=page.width/1.7,
+                                     on_change=update_versions_engines)
 
     addInstaceEngine = ft.Dropdown(width=page.width/1.7)
 
@@ -329,7 +350,8 @@ def main(page: ft.Page):
     # -------------------------------
 
     def accountsParagraph(menu):
-        menus = {lang.Add_Accounts_Title: addAccountColumn, lang.Delete_Accounts_Title: removeAccountColumn}
+        menus = {lang.Add_Accounts_Title: addAccountColumn,
+                 lang.Delete_Accounts_Title: removeAccountColumn}
         accountsCard.clean()
         accountsCard.content = menus[menu.data]
         accountsCard.update()
@@ -367,7 +389,9 @@ def main(page: ft.Page):
 
     addAccountName = ft.TextField(width=page.width/1.7)
 
-    addAccountPassword = ft.TextField(password=True, can_reveal_password=True, width=page.width/1.7)
+    addAccountPassword = ft.TextField(password=True,
+                                      can_reveal_password=True,
+                                      width=page.width/1.7)
 
     addAccountButton = ft.CupertinoFilledButton(lang.Add_Account_Button,
                                                 icon=ft.icons.ACCOUNT_BOX,
@@ -424,7 +448,9 @@ def main(page: ft.Page):
     # Menu Card
     # -------------------------------
 
-    menuCard = ft.Card(infoCardColumn, width=page.width/1.5, height=page.height/1.4)
+    menuCard = ft.Card(infoCardColumn,
+                       width=page.width/1.5,
+                       height=page.height/1.4)
 
     # -------------------------------
     # LaunchGame Functions
@@ -460,7 +486,9 @@ def main(page: ft.Page):
                                      width=page.width/3.25,
                                      height=page.height/1.4)
 
-    launchGameCard = ft.Card(launchGameCardColumn, width=page.width/3.25, height=page.height/1.4)
+    launchGameCard = ft.Card(launchGameCardColumn,
+                             width=page.width/3.25,
+                             height=page.height/1.4)
 
     # -------------------------------
     # ProgressBar Functions
@@ -513,7 +541,9 @@ def main(page: ft.Page):
                                     width=page.width/10,
                                     text_align=ft.TextAlign.CENTER)
 
-    progressBarRow = ft.Row([progressBarMessage, progressBar, progressBarPercentage],
+    progressBarRow = ft.Row([progressBarMessage,
+                             progressBar,
+                             progressBarPercentage],
                             alignment=ft.MainAxisAlignment.CENTER,
                             height=page.height/10)
     
@@ -540,7 +570,8 @@ def main(page: ft.Page):
     # -------------------------------
 
     def update_contents(e=None):
-        topCardRow.spacing = page.width/4-100
+        topCardRow.height = page.height/12
+        topCardRow.spacing = page.width/5
 
         menuCard.width = page.width/1.5
         menuCard.height = page.height/1.4

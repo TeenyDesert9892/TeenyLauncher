@@ -1,5 +1,4 @@
 import minecraft_launcher_lib as mllb
-import random
 
 from __main__ import configHandeler
 
@@ -27,17 +26,28 @@ def add_account(type, name, pasword, setStatus, setProgress, setMax, msg):
         setProgress(0)
         setStatus(f"Adding {name} premiun account")
         
+        msg("This function is disabled untill I am able to make it work")
+        return
 
         try:
-            auth_response = mllb.microsoft_types.MinecraftAuthenticateResponse(username=name, roles=[], access_token="", token_type="", expires_in=1)
-            auth_token = mllb.microsoft_account.authenticate_with_minecraft(name, pasword)
-            profile = mllb.microsoft_account.get_profile(access_token=auth_token)
-            store_info = mllb.microsoft_account.get_store_information(access_token=auth_token)
+            client_id = "" # azure app
+            redirect_url = "" # azure app
 
-            print(auth_response)
-            print(auth_token)
-            print(profile)
-            print(store_info)
+            login_url, state, code_verifier = mllb.microsoft_account.get_secure_login_data(client_id, redirect_url)
+
+            print(f"Please open {login_url} in your browser and copy the url you are redirected into the prompt below.")
+            code_url = input()
+
+            try:
+                auth_code = mllb.microsoft_account.parse_auth_code_url(code_url, state)
+            except AssertionError:
+                print("States do not match!")
+                return
+            except KeyError:
+                print("Url not valid")
+                return
+
+            mllb.microsoft_account.complete_login(client_id, None, redirect_url, auth_code, code_verifier)
 
             setProgress(1)
 
@@ -52,32 +62,7 @@ def add_account(type, name, pasword, setStatus, setProgress, setMax, msg):
         setStatus(f"Creating {name} no premiun account")
 
         try:
-            uuid = ""
-
-            def create_chain(lenghth):
-                chain = ""
-                for i in range(0, lenghth):
-                    num = random.randint(0, 15)
-                    chain += str(dec_to_hex(num))
-                return chain
-
-            def dec_to_hex(num):
-                letters = ["a", "b", "c", "d", "e", "f"]
-                if num >= 0 and num <= 9:
-                    return str(num)
-                else:
-                    return letters[num-10]
-
-            uuid += create_chain(8)
-            uuid += "-"
-
-            for i in range(0, 3):
-                uuid += create_chain(4)
-                uuid += "-"
-
-            uuid += create_chain(12)
-
-            config.Accounts[name] = {'Uuid': uuid, 'Token': '0'}
+            config.Accounts[name] = {'Uuid': mllb.utils.uuid.uuid4(), 'Token': '0'}
 
             setProgress(1)
 

@@ -132,7 +132,7 @@ def check_instances():
     installed_version_list = []
 
     for installed_version in os.scandir(minecraft_directory):
-        if installed_version.name != "launcher_config.pkl" and installed_version.name != "minecraft_directory.txt" and installed_version.name != "jdks":
+        if installed_version.name != "config.pkl" and installed_version.name != "minecraft_directory.txt" and installed_version.name != "jdks":
             installed_version_list.append(installed_version.name)
 
     if len(installed_version_list) != 0:
@@ -255,6 +255,8 @@ def run_instance(version, username, msg):
     if version == lang.Without_Versions:
         msg(lang.Without_Versions_To_Play)
         return
+    
+    config.save_config()
 
     ram = '-Xmx'+str(config.RamAmount)+'M'
 

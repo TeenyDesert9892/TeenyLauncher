@@ -1,8 +1,9 @@
+/build/
+/dist/
 /desktop.ini
 /folderico-green.ico
-/Main/logs/
-/Main/jdks/
-/pack.bat/
+/logs/
+/pack.pw1
 /pack.sh
 /Server/
-/venv/
+/.venv/
