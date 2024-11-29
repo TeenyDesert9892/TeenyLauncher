@@ -1,25 +1,20 @@
 import os
-from concurrent.futures import ThreadPoolExecutor
-
 import flet as ft
 
-from scripts import configHandeler
-from scripts import jdkHandeler
-from scripts import accountsHandeler
-from scripts import instancesHandeler
+from __main__ import ConfigHandeler
+from __main__ import LangHandeler
+from __main__ import InstanceHandeler
+from __main__ import AccountHandeler
 
-config = configHandeler.config
-lang = configHandeler.lang
-assets_path = configHandeler.get_assets_path()
-
-def main(page: ft.Page):
+def mainGui(page: ft.Page):
     # -------------------------------
     # Page Pre-Configuration
     # -------------------------------
 
+
     backgroundImages = {"Dark": '/images/bg-dark.png', "Light": '/images/bg-light.png'}
 
-    bgImg = ft.BoxDecoration(image=ft.DecorationImage(assets_path+backgroundImages[config.Theme],
+    bgImg = ft.BoxDecoration(image=ft.DecorationImage(ConfigHandeler.get_assets_path()+backgroundImages[ConfigHandeler.Theme],
                                                       fit=ft.ImageFit.COVER))
 
     page.title = "TeenyLauncher"
@@ -28,13 +23,15 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.MainAxisAlignment.CENTER
     page.decoration = bgImg
-    if config.EnabledBgImg:
+    if ConfigHandeler.EnabledBgImg:
         page.bgcolor = ft.colors.TRANSPARENT
-    page.theme_mode = config.Theme.lower()
+    page.theme_mode = ConfigHandeler.Theme.lower()
+
 
     # -------------------------------
     # Top Change Function
     # -------------------------------
+
 
     def changeMenu(menu):
         menus = {"HOME": infoCardColumn,
@@ -45,136 +42,147 @@ def main(page: ft.Page):
         menuCard.content = menus[menu]
         menuCard.update()
 
+
     # -------------------------------
     # Top Buttons
     # -------------------------------
 
+
     topCardRow = ft.Row([ft.IconButton(icon=ft.icons.HOME,
-                                       icon_color="#555555",
                                        icon_size=30,
-                                       on_click=lambda e: changeMenu("HOME")),
+                                       on_click=lambda event: changeMenu("HOME")),
                          ft.IconButton(icon=ft.icons.ACCOUNT_BOX,
-                                       icon_color="#555555",
                                        icon_size=30,
-                                       on_click=lambda e: changeMenu("ACCOUNTS")),
+                                       on_click=lambda event: changeMenu("ACCOUNTS")),
                          ft.IconButton(icon=ft.icons.FOLDER,
-                                       icon_color="#555555",
                                        icon_size=30,
-                                       on_click=lambda e: changeMenu("INSTANCES")),
+                                       on_click=lambda event: changeMenu("INSTANCES")),
                          ft.IconButton(icon=ft.icons.SETTINGS,
-                                       icon_color="#555555",
                                        icon_size=30,
-                                       on_click=lambda e: changeMenu("SETTINGS"))],
+                                       on_click=lambda event: changeMenu("SETTINGS"))],
                         alignment=ft.MainAxisAlignment.CENTER,
                         height=page.height/12,
                         spacing=page.width/5)
+
 
     # -------------------------------
     # Info Variables
     # -------------------------------
 
+
     infoCardColumn = ft.Column([ft.Text('TeenyLauncher', size=48),
-                               ft.Text(configHandeler.version_info, size=16)],
+                               ft.Text(ConfigHandeler.version_info, size=16)],
                                alignment=ft.MainAxisAlignment.CENTER,
                                horizontal_alignment=ft.MainAxisAlignment.CENTER,
                                width=page.width/1.5,
                                height=page.height/1.4)
 
+
     # -------------------------------
     # Config Functions
     # -------------------------------
 
+
     def configPharagraph(menu):
-        menus = {lang.Launcher_Config_Title: normalConfigCardColumn,
-                 lang.Advanced_Config_Title: advancedConfigCardColumn}
+        menus = {LangHandeler.Launcher_Config_Title: normalConfigCardColumn,
+                 LangHandeler.Advanced_Config_Title: advancedConfigCardColumn}
         configCard.clean()
         configCard.content = menus[menu.data]
         configCard.update()
 
+
     def langChange(dropdown):
-        configHandeler.update_config_lang(dropdown.data)
+        ConfigHandeler.update_config_lang(dropdown.data)
         Message("To apply the languaje changes you need to restart the launcher")
 
+
     def themeChange(dropdown):
-        configHandeler.update_config_theme(dropdown.data)
-        bgImg.image = ft.DecorationImage(assets_path+backgroundImages[config.Theme],
+        ConfigHandeler.update_config_theme(dropdown.data)
+        bgImg.image = ft.DecorationImage(ConfigHandeler.get_assets_path()+backgroundImages[ConfigHandeler.Theme],
                                          fit=ft.ImageFit.COVER)
         page.theme_mode = dropdown.data.lower()
         page.update()
 
+
     def imageChange(checkBox):
         if checkBox.data == "true":
             page.bgcolor = ft.colors.TRANSPARENT
-            config.EnabledBgImg = True
+            ConfigHandeler.EnabledBgImg = True
         else:
             page.bgcolor = ft.colors.BACKGROUND
-            config.EnabledBgImg = False
+            ConfigHandeler.EnabledBgImg = False
         page.update()
+    
     
     def closeOnPlayChange(checkBox):
         if checkBox.data == "true":
-            config.CloseOnPlay = True
+            ConfigHandeler.CloseOnPlay = True
         else:
-            config.CloseOnPlay = False
+            ConfigHandeler.CloseOnPlay = False
         page.update()
 
-    def ramTextValueEdit(e=None):
+
+    def ramTextValueEdit(event=None):
         ramConfigShow.value = str(int(ramConfigSlider.value))+'MB'
-        configHandeler.update_config_ram(ramConfigSlider.value)
+        ConfigHandeler.update_config_ram(ramConfigSlider.value)
         ramConfigShow.update()
 
-    def addRam(e=None):
-        if ramConfigSlider.value < configHandeler.get_ram():
+
+    def addRam(event=None):
+        if ramConfigSlider.value < ConfigHandeler.get_ram():
             ramConfigSlider.value += 32
             ramConfigSlider.update()
             ramTextValueEdit(ramConfigSlider)
 
-    def removeRam(e=None):
+
+    def removeRam(event=None):
         if ramConfigSlider.value > 128:
             ramConfigSlider.value -= 32
             ramConfigSlider.update()
             ramTextValueEdit(ramConfigSlider)
 
+
     # -------------------------------
     # Config Variables
     # -------------------------------
 
-    languajeConfigDropdown = ft.Dropdown(lang.Default_Option,
+
+    languajeConfigDropdown = ft.Dropdown(LangHandeler.Default_Option,
                                           [ft.dropdown.Option(option.name.removesuffix(".json"))
-                                           for option in os.scandir(assets_path+'/lang')
+                                           for option in os.scandir(ConfigHandeler.get_assets_path()+'/lang')
                                            if option.name != "Example.json"],
                                          width=page.width/1.6,
                                          on_change=langChange)
 
-    themeConfigDropdown = ft.Dropdown(lang.Default_Option,
+    themeConfigDropdown = ft.Dropdown(LangHandeler.Default_Option,
                                       [ft.dropdown.Option("Light"),
                                        ft.dropdown.Option("Dark")],
                                       width=page.width/1.6,
                                       on_change=themeChange)
 
-    normalConfigCardColumn = ft.Column([ft.Text(lang.Launcher_Config_Title, size=36),
-                                        ft.Text(lang.Launcher_Config_Lang_Title, size=16),
+    normalConfigCardColumn = ft.Column([ft.Text(LangHandeler.Launcher_Config_Title, size=36),
+                                        ft.Text(LangHandeler.Launcher_Config_Lang_Title, size=16),
                                         languajeConfigDropdown,
-                                        ft.Text(lang.Launcher_Config_Theme_Title, size=16),
+                                        ft.Text(LangHandeler.Launcher_Config_Theme_Title, size=16),
                                         themeConfigDropdown,
-                                        ft.Switch(lang.Launcher_Config_Img, value=config.EnabledBgImg, on_change=imageChange),
-                                        ft.Switch(lang.Launcher_Config_On_Close, value=config.CloseOnPlay, on_change=closeOnPlayChange)],
+                                        ft.Switch(LangHandeler.Launcher_Config_Img, value=ConfigHandeler.EnabledBgImg, on_change=imageChange),
+                                        ft.Switch(LangHandeler.Launcher_Config_On_Close, value=ConfigHandeler.CloseOnPlay, on_change=closeOnPlayChange)],
                                        alignment=ft.MainAxisAlignment.CENTER,
                                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                        width=page.width/1.6,
                                        height=page.height/2.2,
                                        scroll=ft.ScrollMode.AUTO)
 
-    ramConfigSlider = ft.Slider(value=config.RamAmount,
+    ramConfigSlider = ft.Slider(value=ConfigHandeler.RamAmount,
                                 min=128,
-                                max=configHandeler.get_ram(),
-                                divisions=int(configHandeler.get_ram()/32)-4,
+                                max=ConfigHandeler.get_ram(),
+                                divisions=int(ConfigHandeler.get_ram()/32)-4,
                                 width=page.width/2.35,
                                 on_change=ramTextValueEdit,
                                 on_change_start=ramTextValueEdit,
                                 on_change_end=ramTextValueEdit)
 
-    ramConfigShow = ft.Text(str(config.RamAmount)+'MB', size=12)
+    ramConfigShow = ft.Text(str(ConfigHandeler.RamAmount)+'MB', size=12)
 
     ramConfigRow = ft.Row([ramConfigSlider,
                            ft.Row([ft.IconButton(ft.icons.REMOVE, on_click=removeRam),
@@ -183,18 +191,25 @@ def main(page: ft.Page):
                           alignment=ft.MainAxisAlignment.CENTER,
                           spacing=page.width/50)
 
-    minecraftDirectoryConfigTextField = ft.TextField(configHandeler.minecraft_directory, width=page.width/1.6)
+    minecraftDirectoryConfigTextField = ft.TextField(ConfigHandeler.Minecraft_Dir,
+                                                     width=page.width/2.4)
+    
+    minecraftFirectoryConfigButton = ft.CupertinoFilledButton(LangHandeler.Advanced_Config_Minecraft_Directory,
+                                                              width=page.width/5.5,
+                                                              on_click=lambda event: ConfigHandeler.update_config_dir(minecraftDirectoryConfigTextField.value))
 
-    openFolderConfigCuppertinoFilledButton = ft.CupertinoFilledButton(lang.Advanced_Config_Open_Versions_Folder,
+    openFolderConfigCuppertinoFilledButton = ft.CupertinoFilledButton(LangHandeler.Advanced_Config_Open_Versions_Folder,
                                                                       ft.icons.FOLDER,
                                                                       width=page.width/1.6,
-                                                                      on_click=instancesHandeler.open_instances_folder)
+                                                                      on_click=InstanceHandeler.open_instances_folder)
 
-    advancedConfigCardColumn = ft.Column([ft.Text(lang.Advanced_Config_Title, size=36),
-                                          ft.Text(lang.Advanced_Config_Ram_Title, size=16),
+    advancedConfigCardColumn = ft.Column([ft.Text(LangHandeler.Advanced_Config_Title, size=36),
+                                          ft.Text(LangHandeler.Advanced_Config_Ram_Title, size=16),
                                           ramConfigRow,
-                                          ft.Text(lang.Advanced_Config_Folder_Title, size=16),
-                                          minecraftDirectoryConfigTextField,
+                                          ft.Text(LangHandeler.Advanced_Config_Folder_Title, size=16),
+                                          ft.Row([minecraftDirectoryConfigTextField,
+                                                  minecraftFirectoryConfigButton],
+                                                 alignment=ft.MainAxisAlignment.CENTER),
                                           openFolderConfigCuppertinoFilledButton],
                                          alignment=ft.MainAxisAlignment.CENTER,
                                          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -206,13 +221,13 @@ def main(page: ft.Page):
                          width=page.width/1.6,
                          height=page.height/2.2)
 
-    configDropdown = ft.Dropdown(lang.Default_Option,
-                                 [ft.dropdown.Option(lang.Launcher_Config_Title),
-                                  ft.dropdown.Option(lang.Advanced_Config_Title)],
+    configDropdown = ft.Dropdown(LangHandeler.Default_Option,
+                                 [ft.dropdown.Option(LangHandeler.Launcher_Config_Title),
+                                  ft.dropdown.Option(LangHandeler.Advanced_Config_Title)],
                                  on_change=configPharagraph,
                                  width=page.width/1.6)
 
-    configCardColumn = ft.Column([ft.Text(lang.Config_Title, size=36),
+    configCardColumn = ft.Column([ft.Text(LangHandeler.Config_Title, size=36),
                                   configDropdown,
                                   configCard],
                                  width=page.width/1.5,
@@ -220,62 +235,118 @@ def main(page: ft.Page):
                                  alignment=ft.MainAxisAlignment.CENTER,
                                  horizontal_alignment=ft.CrossAxisAlignment.CENTER)
 
+
     # -------------------------------
     # Instances Functions
     # -------------------------------
 
+
     def instancesPharagraph(menu):
-        menus = {lang.Create_Instances_Title: addInstanceCardColumn,
-                 lang.Delete_Instances_Title: removeInstanceCardColumn}
+        menus = {LangHandeler.Create_Instances_Title: addInstanceCardColumn,
+                 LangHandeler.Delete_Instances_Title: removeInstanceCardColumn,
+                 LangHandeler.Modify_Instances_Title: modifyInstancesCardColumn}
         instancesCard.clean()
         instancesCard.content = menus[menu.data]
         instancesCard.update()
 
-    def update_versions(e=None):
-        version, version_list = instancesHandeler.check_versions(addInstanceType.value)
+
+    def update_versions(event=None):
+        version, version_list = InstanceHandeler.check_versions(addInstanceType.value)
         for i, ver in enumerate(version_list):
             version_list[i] = ft.dropdown.Option(ver)
         addInstanceVersion.value, addInstanceVersion.options = version, version_list
-        addInstanceVersion.update()
+        
+        if event:
+            addInstanceVersion.update()
         update_versions_engines()
 
-    def update_versions_engines(e=None):
-        engine, engine_list = instancesHandeler.check_engine_ver(addInstanceVersion.value, addInstanceType.value)
+
+    def update_versions_engines(event=None):
+        engine, engine_list = InstanceHandeler.check_engine_ver(addInstanceVersion.value, addInstanceType.value)
         for i, eng in enumerate(engine_list):
             engine_list[i] = ft.dropdown.Option(eng)
         addInstaceEngine.value, addInstaceEngine.options = engine, engine_list
-        addInstaceEngine.update() 
-
-    def start_instance_install(e=None):
-        instancesHandeler.install_instance(addInstanceName.value,
-                                           addInstanceType.value,
-                                           addInstanceVersion.value,
-                                           addInstaceEngine.value,
-                                           setStatus,
-                                           setProgress,
-                                           setMax,
-                                           Message)
-        progressReset()
-        updateInstances(True)
-        updateRemoveInstances(True)
+        
+        if event:
+            addInstaceEngine.update()
     
-    def start_instance_uninstall(e=None):
-        instancesHandeler.uninstall_instance(removeInstancesDropdown.value,
-                                             setStatus,
-                                             setProgress,
-                                             setMax,
-                                             Message)
-        progressReset()
-        updateInstances(True)
-        updateRemoveInstances(True)
+    
+    def modify_versions(event=None):
+        version, version_list = InstanceHandeler.check_versions(modifyInstancesType.value)
+        for i, ver in enumerate(version_list):
+            version_list[i] = ft.dropdown.Option(ver)
+        modifyInstancesVersion.value, modifyInstancesVersion.options = version, version_list
+        
+        if event:
+            modifyInstancesVersion.update()
+        modify_versions_engines()
 
+
+    def modify_versions_engines(event=None):
+        engine, engine_list = InstanceHandeler.check_engine_ver(modifyInstancesVersion.value, modifyInstancesType.value)
+        for i, eng in enumerate(engine_list):
+            engine_list[i] = ft.dropdown.Option(eng)
+        modifyInstancesEngine.value, modifyInstancesEngine.options = engine, engine_list
+        
+        if event:
+            modifyInstancesEngine.update()
+    
+    
+    def update_instances_displays(ins, modIns, remIns):
+        updateInstances(ins)
+        updateInstancesModify(modIns)
+        updateRemoveInstances(remIns)
+    
+    
+    def modify_version_start(event=None):
+        Message(InstanceHandeler.modify_instance(modifyInstancesType.value,
+                                                  modifyInstancesVersion.value,
+                                                  modifyInstancesEngine.value,
+                                                  callback))
+        progressReset()
+        update_instances_displays(False, True, False)
+
+
+    def start_instance_install(event=None):
+        Message(InstanceHandeler.install_instance(addInstanceName.value,
+                                                   addInstanceType.value,
+                                                   addInstanceVersion.value,
+                                                   addInstaceEngine.value,
+                                                   callback))
+        progressReset()
+        update_instances_displays(True, False, False)
+    
+    
+    def start_instance_uninstall(event=None):
+        Message(InstanceHandeler.uninstall_instance(removeInstancesDropdown.value,
+                                                     setStatus,
+                                                     setProgress,
+                                                     setMax))
+        progressReset()
+        update_instances_displays(True, True, False)
+    
+    
+    def modify_instance_name_updater(event=None):
+        if modifyInstancesInstance.value != LangHandeler.Without_Versions:
+            modifyInstancesName.value = ConfigHandeler.Instances[modifyInstancesInstance.value]["Name"]
+            if event:
+                modifyInstancesName.update()
+    
+    
+    def modify_instance_name(event=None):
+        ConfigHandeler.update_config_instance_name(modifyInstancesInstance.value,
+                                                   modifyInstancesName.value)
+        update_instances_displays()
+    
+    
     # -------------------------------
     # Instances Variables
     # -------------------------------
 
+
     addInstanceName = ft.TextField(width=page.width/1.7)
 
-    addInstanceType = ft.Dropdown(lang.Default_Option,
+    addInstanceType = ft.Dropdown(LangHandeler.Default_Option,
                                   [ft.dropdown.Option("Vanilla"),
                                    ft.dropdown.Option("Snapshot"),
                                    ft.dropdown.Option("Forge"),
@@ -291,18 +362,18 @@ def main(page: ft.Page):
 
     addInstaceEngine = ft.Dropdown(width=page.width/1.7)
 
-    addInstancesButton = ft.CupertinoFilledButton(lang.Create_Instance_Install_Button,
+    addInstancesButton = ft.CupertinoFilledButton(LangHandeler.Create_Instance_Install_Button,
                                                   icon=ft.icons.ADD_BOX,
                                                   width=page.width/1.7,
                                                   on_click=start_instance_install)
 
-    addInstanceCardColumn = ft.Column([ft.Text(lang.Create_Instance_Name_Title, size=16),
+    addInstanceCardColumn = ft.Column([ft.Text(LangHandeler.Create_Instance_Name_Title, size=16),
                                        addInstanceName,
-                                       ft.Text(lang.Create_Instance_Type_Title, size=16),
+                                       ft.Text(LangHandeler.Create_Instance_Type_Title, size=16),
                                        addInstanceType,
-                                       ft.Text(lang.Create_Instance_Version_Title, size=16),
+                                       ft.Text(LangHandeler.Create_Instance_Version_Title, size=16),
                                        addInstanceVersion,
-                                       ft.Text(lang.Create_Instance_Engin_Version_Title, size=16),
+                                       ft.Text(LangHandeler.Create_Instance_Engin_Version_Title, size=16),
                                        addInstaceEngine,
                                        addInstancesButton],
                                       scroll=ft.ScrollMode.AUTO,
@@ -311,10 +382,10 @@ def main(page: ft.Page):
                                       width=page.width/1.6,
                                       height=page.height/2.2)
 
-    removeInstancesDropdown = ft.Dropdown(lang.Default_Option,
+    removeInstancesDropdown = ft.Dropdown(LangHandeler.Default_Option,
                                           width=page.width/1.7,)
 
-    removeInstancesButton = ft.CupertinoFilledButton(lang.Delete_Instances_Button,
+    removeInstancesButton = ft.CupertinoFilledButton(LangHandeler.Delete_Instances_Button,
                                                      icon=ft.icons.CANCEL,
                                                      width=page.width/1.7,
                                                      on_click=start_instance_uninstall)
@@ -326,18 +397,68 @@ def main(page: ft.Page):
                                          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                          width=page.width/1.6,
                                          height=page.height/2.2)
+    
+    modifyInstancesInstance = ft.Dropdown(width=page.width/1.7,
+                                          on_change=modify_instance_name_updater)
+    
+    modifyInstancesName = ft.TextField(text_size=16,
+                                       width=page.width/2.4)
+    
+    modifyInstancesChangeName = ft.CupertinoFilledButton(LangHandeler.Modify_Instances_Name_Button,
+                                                         ft.icons.EDIT,
+                                                         width=page.width/5.5,
+                                                         on_click=modify_instance_name)
+    
+    modifyInstancesType = ft.Dropdown([ft.dropdown.Option("Vanilla"),
+                                       ft.dropdown.Option("Snapshot"),
+                                       ft.dropdown.Option("Forge"),
+                                       ft.dropdown.Option("Fabric"),
+                                       ft.dropdown.Option("Fabric Snapshot"),
+                                       ft.dropdown.Option("Quilt"),
+                                       ft.dropdown.Option("Quilt Snapshot")],
+                                      width=page.width/1.7,
+                                      on_change=modify_versions)
+    
+    modifyInstancesVersion = ft.Dropdown(width=page.width/1.7,
+                                         on_change=modify_versions_engines)
+    
+    modifyInstancesEngine = ft.Dropdown(width=page.width/1.7)
+    
+    modifyInstanceStartButton = ft.CupertinoFilledButton(LangHandeler.Modify_Instance_Change_Button,
+                                                         ft.icons.CHANGE_CIRCLE,
+                                                         width=page.width/1.7,
+                                                         on_click=modify_version_start)
+    
+    modifyInstancesCardColumn = ft.Column([modifyInstancesInstance,
+                                           ft.Text(LangHandeler.Modify_Instance_Name_Title, size=16),
+                                           ft.Row([modifyInstancesName,
+                                                   modifyInstancesChangeName],
+                                                  alignment=ft.MainAxisAlignment.CENTER),
+                                           ft.Text(LangHandeler.Modify_Instance_Type_Title, size=16),
+                                           modifyInstancesType,
+                                           ft.Text(LangHandeler.Modify_Instance_Version_Title, size=16),
+                                           modifyInstancesVersion,
+                                           ft.Text(LangHandeler.Modify_Instance_Engin_Version_Title, size=16),
+                                           modifyInstancesEngine,
+                                           modifyInstanceStartButton],
+                                          scroll=ft.ScrollMode.AUTO,
+                                          alignment=ft.MainAxisAlignment.CENTER,
+                                          horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                                          width=page.width/1.6,
+                                          height=page.height/2.2)
 
     instancesCard = ft.Card(addInstanceCardColumn,
                             width=page.width/1.6,
                             height=page.height/2.2)
 
-    instancesSelectDropdown = ft.Dropdown(lang.Default_Option,
-                                    [ft.dropdown.Option(lang.Create_Instances_Title),
-                                     ft.dropdown.Option(lang.Delete_Instances_Title)],
+    instancesSelectDropdown = ft.Dropdown(LangHandeler.Default_Option,
+                                    [ft.dropdown.Option(LangHandeler.Create_Instances_Title),
+                                     ft.dropdown.Option(LangHandeler.Delete_Instances_Title),
+                                     ft.dropdown.Option(LangHandeler.Modify_Instances_Title)],
                                     width=page.width/1.6,
                                     on_change=instancesPharagraph)
 
-    instanceCardColumn = ft.Column([ft.Text(lang.Instances_Title, size=36),
+    instanceCardColumn = ft.Column([ft.Text(LangHandeler.Instances_Title, size=36),
                                     instancesSelectDropdown,
                                     instancesCard],
                                    alignment=ft.MainAxisAlignment.CENTER,
@@ -345,44 +466,53 @@ def main(page: ft.Page):
                                    width=page.width/1.5,
                                    height=page.height/1.4)
 
+
     # -------------------------------
     # Account Functions
     # -------------------------------
 
+
     def accountsParagraph(menu):
-        menus = {lang.Add_Accounts_Title: addAccountColumn,
-                 lang.Delete_Accounts_Title: removeAccountColumn}
+        menus = {LangHandeler.Add_Accounts_Title: addAccountColumn,
+                 LangHandeler.Delete_Accounts_Title: removeAccountColumn}
         accountsCard.clean()
         accountsCard.content = menus[menu.data]
         accountsCard.update()
-    
-    def start_account_creation(e=None):
-        accountsHandeler.add_account(addAccountType.value,
-                                    addAccountName.value,
-                                    addAccountPassword.value,
-                                    setStatus,
-                                    setProgress,
-                                    setMax,
-                                    Message)
-        progressReset()
-        updateAccounts(True)
-        updateRemoveAccounts(True)
-    
-    def start_account_delete(e=None):
-        accountsHandeler.del_account(removeAccountDropdown.value,
+        
+        
+    def update_accounts_displays():
+        updateAccounts()
+        updateRemoveAccounts()
+            
+            
+    def start_account_creation(event=None):
+        AccountHandeler.add_account(addAccountType.value,
+                                     addAccountName.value,
+                                     addAccountPassword.value,
                                      setStatus,
                                      setProgress,
                                      setMax,
                                      Message)
         progressReset()
-        updateAccounts(True)
-        updateRemoveAccounts(True)
+        update_accounts_displays()
+    
+    
+    def start_account_delete(event=None):
+        AccountHandeler.del_account(removeAccountDropdown.value,
+                                    setStatus,
+                                    setProgress,
+                                    setMax,
+                                    Message)
+        progressReset()
+        update_accounts_displays()
+
 
     # -------------------------------
     # Account Variables
     # -------------------------------
 
-    addAccountType = ft.Dropdown(lang.Default_Option,
+
+    addAccountType = ft.Dropdown(LangHandeler.Default_Option,
                                  [ft.dropdown.Option("Premiun"),
                                   ft.dropdown.Option("No Premiun")],
                                  width=page.width/1.7)
@@ -393,15 +523,15 @@ def main(page: ft.Page):
                                       can_reveal_password=True,
                                       width=page.width/1.7)
 
-    addAccountButton = ft.CupertinoFilledButton(lang.Add_Account_Button,
+    addAccountButton = ft.CupertinoFilledButton(LangHandeler.Add_Account_Button,
                                                 icon=ft.icons.ACCOUNT_BOX,
                                                 width=page.width/1.7,
                                                 on_click=start_account_creation)
 
     addAccountColumn = ft.Column([addAccountType,
-                                  ft.Text(lang.Add_Account_Name, size=16),
+                                  ft.Text(LangHandeler.Add_Account_Name, size=16),
                                   addAccountName,
-                                  ft.Text(lang.Add_Account_Password, size=16),
+                                  ft.Text(LangHandeler.Add_Account_Password, size=16),
                                   addAccountPassword,
                                   addAccountButton],
                                  alignment=ft.MainAxisAlignment.CENTER,
@@ -410,12 +540,12 @@ def main(page: ft.Page):
                                  width=page.width/1.6,
                                  height=page.height/2.2)
 
-    removeAccountDropdown = ft.Dropdown(lang.Default_Option,
+    removeAccountDropdown = ft.Dropdown(LangHandeler.Default_Option,
                                         [ft.dropdown.Option(account)
-                                         for account in config.Accounts],
+                                         for account in ConfigHandeler.Accounts],
                                         width=page.width/1.7)
 
-    removeAccountButton = ft.CupertinoFilledButton(lang.Delete_Account_Button,
+    removeAccountButton = ft.CupertinoFilledButton(LangHandeler.Delete_Account_Button,
                                                    width=page.width/1.7,
                                                    icon=ft.icons.CANCEL,
                                                    on_click=start_account_delete)
@@ -428,57 +558,67 @@ def main(page: ft.Page):
                                     width=page.width/1.6,
                                     height=page.height/2.2)
 
+    accountDropdown = ft.Dropdown(LangHandeler.Add_Accounts_Title,
+                                                 [ft.dropdown.Option(LangHandeler.Add_Accounts_Title),
+                                                  ft.dropdown.Option(LangHandeler.Delete_Accounts_Title)],
+                                                 on_change=accountsParagraph,
+                                                 width=page.width/1.6)
+    
     accountsCard = ft.Card(addAccountColumn,
                            width=page.width/1.6,
                            height=page.height/2.2)
 
-    accountCardColumn = ft.Column([ft.Text(lang.Accounts_Title, size=36),
-                                     ft.Dropdown(lang.Add_Accounts_Title,
-                                                 [ft.dropdown.Option(lang.Add_Accounts_Title),
-                                                  ft.dropdown.Option(lang.Delete_Accounts_Title)],
-                                                 on_change=accountsParagraph,
-                                                 width=page.width/1.6),
-                                     accountsCard],
+    accountCardColumn = ft.Column([ft.Text(LangHandeler.Accounts_Title, size=36),
+                                   accountDropdown,
+                                   accountsCard],
                                     alignment=ft.MainAxisAlignment.CENTER,
                                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                     width=page.width/1.5,
                                     height=page.height/1.4)
 
+
     # -------------------------------
     # Menu Card
     # -------------------------------
+
 
     menuCard = ft.Card(infoCardColumn,
                        width=page.width/1.5,
                        height=page.height/1.4)
 
+
     # -------------------------------
     # LaunchGame Functions
     # -------------------------------
 
-    def run_game(e=None):
-        if config.CloseOnPlay:
+
+    def run_game(event=None):
+        if ConfigHandeler.CloseOnPlay:
             page.window.close()
-        instancesHandeler.run_instance(instancesDropdown.value,
+        InstanceHandeler.run_instance(instancesDropdown.value,
                                        accountsDropdown.value,
                                        Message)
+
 
     # -------------------------------
     # LaunchGame Variables
     # -------------------------------
 
-    accountsDropdown = ft.Dropdown(width=page.width/3.4)
 
-    instancesDropdown = ft.Dropdown(width=page.width/3.4)
+    accountsDropdown = ft.Dropdown(width=page.width/3.4,
+                                   on_change=ConfigHandeler.update_config_default_account)
 
-    launchGameButton = ft.CupertinoFilledButton(lang.Play_Menu_Start_Game,
+    instancesDropdown = ft.Dropdown(width=page.width/3.4,
+                                    on_change=ConfigHandeler.update_config_default_version)
+
+    launchGameButton = ft.CupertinoFilledButton(LangHandeler.Play_Menu_Start_Game,
                                                 icon=ft.icons.PLAY_ARROW_ROUNDED,
                                                 width=page.width/3.4,
                                                 on_click=run_game)
 
-    launchGameCardColumn = ft.Column([ft.Text(lang.Play_Menu_Config_Account_Title, size=16),
+    launchGameCardColumn = ft.Column([ft.Text(LangHandeler.Play_Menu_Config_Account_Title, size=16),
                                      accountsDropdown,
-                                     ft.Text(lang.Play_Menu_Select_Instance_Title, size=16),
+                                     ft.Text(LangHandeler.Play_Menu_Select_Instance_Title, size=16),
                                      instancesDropdown,
                                      launchGameButton],
                                      alignment=ft.MainAxisAlignment.CENTER,
@@ -490,9 +630,11 @@ def main(page: ft.Page):
                              width=page.width/3.25,
                              height=page.height/1.4)
 
+
     # -------------------------------
     # ProgressBar Functions
     # -------------------------------
+
 
     def setStatus(status=str):
         try:
@@ -500,6 +642,7 @@ def main(page: ft.Page):
             progressBarRow.update()
         except:
             pass
+
 
     def setProgress(progress=int):
         try:
@@ -510,6 +653,7 @@ def main(page: ft.Page):
         except:
             pass
 
+
     def setMax(max=int):
         try:
             global maxProgress
@@ -517,6 +661,10 @@ def main(page: ft.Page):
             progressBarRow.update()
         except:
             pass
+    
+    
+    callback = {"setStatus": setStatus, "setProgress": setProgress, "setMax": setMax}
+    
     
     def progressReset():
         global current_max_progress
@@ -526,15 +674,17 @@ def main(page: ft.Page):
         current_max_progress = 0   
         progressBarRow.update()
 
+
     # -------------------------------
     # ProgressBar Variables
     # -------------------------------
+
 
     progressBarMessage = ft.Text("No tasks running",
                                  width=page.width/9,
                                  text_align=ft.TextAlign.CENTER)
 
-    progressBar = ft.ProgressBar(value=0.5,
+    progressBar = ft.ProgressBar(value=1,
                                  width=page.width/2)
 
     progressBarPercentage = ft.Text("0/0",
@@ -547,17 +697,20 @@ def main(page: ft.Page):
                             alignment=ft.MainAxisAlignment.CENTER,
                             height=page.height/10)
     
+    
     # -------------------------------
     # Page Message
     # -------------------------------
 
+
     def Message(msg):
-        alertMsg = ft.AlertDialog(content=ft.Text(msg, size=16))
-        page.open(alertMsg)
+        page.open(ft.AlertDialog(content=ft.Text(msg, size=16), open=True))
+
 
     # -------------------------------
     # StartUp Page
     # -------------------------------
+
 
     page.add(ft.Card(topCardRow),
              ft.Row([menuCard,
@@ -565,11 +718,13 @@ def main(page: ft.Page):
                     alignment=ft.MainAxisAlignment.CENTER),
              ft.Card(progressBarRow))
 
+
     # -------------------------------
     # Page Updates
     # -------------------------------
 
-    def update_contents(e=None):
+
+    def update_contents(event=None):
         topCardRow.height = page.height/12
         topCardRow.spacing = page.width/5
 
@@ -579,6 +734,7 @@ def main(page: ft.Page):
         infoCardColumn.width = page.width/1.5
         infoCardColumn.height = page.height/1.4
 
+        configDropdown.width = page.width/1.6
         configCardColumn.width = page.width/1.5
         configCardColumn.height = page.height/1.4
         configCard.width = page.width/1.6
@@ -588,15 +744,17 @@ def main(page: ft.Page):
         normalConfigCardColumn.width = page.width/1.6
         normalConfigCardColumn.height = page.height/2.2
         languajeConfigDropdown.width = page.width/1.6
-        themeConfigDropdown.width = page.width/3.2
+        themeConfigDropdown.width = page.width/1.6
 
         advancedConfigCardColumn.width = page.width/1.6
         advancedConfigCardColumn.height = page.height/2.2
         ramConfigSlider.width = page.width/2.35
         ramConfigRow.spacing = page.width/50
-        minecraftDirectoryConfigTextField.width = page.width/1.6
+        minecraftDirectoryConfigTextField.width = page.width/2.4
+        minecraftFirectoryConfigButton.width = page.width/5.5
         openFolderConfigCuppertinoFilledButton.width = page.width/1.6
 
+        accountDropdown.width = page.width/1.6
         accountCardColumn.width = page.width/1.5
         accountCardColumn.height = page.height/1.4
         accountsCard.width = page.width/1.6
@@ -612,6 +770,7 @@ def main(page: ft.Page):
         removeAccountColumn.width = page.width/1.6
         removeAccountColumn.height = page.height/2.2
 
+        instancesSelectDropdown.width = page.width/1.6
         instanceCardColumn.width = page.width/1.5
         instanceCardColumn.height = page.height/1.4
         instancesDropdown.width = page.width/1.6
@@ -621,6 +780,7 @@ def main(page: ft.Page):
         addInstanceCardColumn.width = page.width/1.6
         addInstanceCardColumn.height = page.height/2.2
         addInstanceName.width = page.width/1.7
+        addInstanceType.width = page.width/1.7
         addInstanceVersion.width = page.width/1.7
         addInstaceEngine.width = page.width/1.7
         addInstancesButton.width = page.width/1.7
@@ -629,6 +789,16 @@ def main(page: ft.Page):
         removeInstanceCardColumn.height = page.height/2.2
         removeInstancesDropdown.width = page.width/1.7
         removeInstancesButton.width = page.width/1.7
+        
+        modifyInstancesCardColumn.width = page.width/1.6
+        modifyInstancesCardColumn.width = page.width/2.2
+        modifyInstancesInstance.width = page.width/1.7
+        modifyInstancesName.width = page.width/2.4
+        modifyInstancesChangeName.width = page.width/5.5
+        modifyInstancesType.width = page.width/1.7
+        modifyInstancesVersion.width = page.width/1.7
+        modifyInstancesEngine.width = page.width/1.7
+        modifyInstanceStartButton.width = page.width/1.7
 
         launchGameCard.width = page.width/3.25
         launchGameCard.height = page.height/1.4
@@ -643,10 +813,12 @@ def main(page: ft.Page):
         progressBar.width = page.width/2
         page.update()
 
+
     page.on_resized = update_contents
 
+
     def updateAccounts(update):
-        value, options = accountsHandeler.check_accounts()
+        value, options = AccountHandeler.check_accounts()
         for i, option in enumerate(options):
             options[i] = ft.dropdown.Option(option)
         accountsDropdown.value, accountsDropdown.options = value, options
@@ -654,8 +826,9 @@ def main(page: ft.Page):
         if update:
             accountsDropdown.update()
     
+    
     def updateRemoveAccounts(update):
-        value, options = accountsHandeler.check_accounts()
+        value, options = AccountHandeler.check_accounts()
         for i, option in enumerate(options):
             options[i] = ft.dropdown.Option(option)
         removeAccountDropdown.value, removeAccountDropdown.options = value, options
@@ -663,8 +836,9 @@ def main(page: ft.Page):
         if update:
             removeAccountDropdown.update()
 
+
     def updateInstances(update):
-        value, options = instancesHandeler.check_instances()
+        value, options = InstanceHandeler.check_instances()
         for i, option in enumerate(options):
             options[i] = ft.dropdown.Option(option)
         
@@ -672,8 +846,19 @@ def main(page: ft.Page):
         if update:
             instancesDropdown.update()
     
+    
+    def updateInstancesModify(update):
+        value, options = InstanceHandeler.check_instances()
+        for i, option in enumerate(options):
+            options[i] = ft.dropdown.Option(option)
+
+        modifyInstancesInstance.value, modifyInstancesInstance.options = value, options
+        if update:
+            modifyInstancesInstance.update()
+    
+    
     def updateRemoveInstances(update):
-        value, options = instancesHandeler.check_instances()
+        value, options = InstanceHandeler.check_instances()
         for i, option in enumerate(options):
             options[i] = ft.dropdown.Option(option)
 
@@ -681,18 +866,12 @@ def main(page: ft.Page):
         if update:
             removeInstancesDropdown.update()
 
-    accountsDropdown.on_change = configHandeler.update_config_default_account
-    instancesDropdown.on_change = configHandeler.update_config_default_version
 
     updateAccounts(False)
     updateRemoveAccounts(False)
     updateInstances(False)
+    updateInstancesModify(False)
     updateRemoveInstances(False)
+    modify_instance_name_updater()
 
     page.update()
-
-
-if __name__ == "__main__":
-    tasks = ThreadPoolExecutor(max_workers=1)
-    ft.app(main)
-    config.save_config()

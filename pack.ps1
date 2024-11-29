@@ -1,0 +1,1 @@
+flet pack -vv -i images/Icon.png -n "TeenyLauncher" --product-name "TeenyLauncher" --product-version "0.8.0" --copyright "TeenyDesert9892" --codesign-identity "TeenyDesert9892" main.py
