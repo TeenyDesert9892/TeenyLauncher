@@ -10,13 +10,6 @@ import psutil
 class configHandeler:
     def __init__(self):
         self.version = "0.8.0"
-
-        self.version_info = "V"+self.version+" update:\n" \
-                            "\n" \
-                            "In this version I finally aded the english option that I let incompleted and also I maded minor changes to the code so it there" \
-                            "are less errors \n" \
-                            "\n" \
-                            "By: TeenyDesert9892"
         
         if not os.path.exists(self.get_launcher_path()):
             os.mkdir(self.get_launcher_path())
@@ -31,11 +24,17 @@ class configHandeler:
         self.RamAmount = 2048
         self.Minecraft_Dir = os.path.normpath(self.get_launcher_path())
         self.Accounts = {}
-        self.Instances = {}
 
         if not os.path.exists(f"{self.get_launcher_path()}/config.pkl"):
             self.save_config()
         self.load_config()
+
+
+    def send_message(self, msg):
+        from __main__ import MainGui
+        
+        MainGui.Message(msg)
+
 
     def save_config(self):
         pickleFile = open(self.get_launcher_path()+'/config.pkl', 'wb')
@@ -48,8 +47,8 @@ class configHandeler:
                                     "EnabledBgImg": self.EnabledBgImg,
                                     "RamAmount": int(self.RamAmount),
                                     "Minecraft_Dir": self.Minecraft_Dir},
-                        "Accounts": self.Accounts,
-                        "Instances": self.Instances}, pickleFile)
+                        "Accounts": self.Accounts}, pickleFile)
+    
 
     def load_config(self):
         pickleFile = open(self.get_launcher_path()+'/config.pkl', 'rb')
@@ -83,9 +82,6 @@ class configHandeler:
         except: pass
         
         try: self.Accounts = configFile["Accounts"]
-        except: pass
-        
-        try: self.Instances = configFile["Instances"]
         except: pass
     
 
@@ -137,16 +133,6 @@ class configHandeler:
         self.DefaultInstance = defaultInstance.data
 
 
-    def save_intance_data(self, name, type, ver, jar):
-        with open(self.Minecraft_Dir+'/'+name+'/instance_data.pkl', 'wb') as file:
-            pickle.dump({'Name': name,
-                        'Type': type,
-                        'Ver': ver,
-                        'Jar': jar},
-                        file)
-            file.close()
-
-
     def update_config_add_instances(self, name=str, type=str, ver=str, jar=str, imported=False) -> None:
         if not imported:
             self.save_intance_data(name, type, ver, jar)
@@ -154,33 +140,11 @@ class configHandeler:
         self.Instances[name] = {"Name": name,"Type": type, "Version": ver, "Jar": jar}
 
 
-    def update_config_remove_instances(self, name):
-        newInstances = {}
-        for instance in self.Instances:
-            if instance != name:
-                newInstances[instance] = self.Instances[instance]
-        self.Instances = newInstances
-
-
-    def update_config_instance_name(self, oldName, name):
-        newInstances = {}
-        for instance in self.Instances:
-            if instance != oldName:
-                newInstances[instance] = self.Instances[instance]
-            else:
-                newInstances[name] = self.Instances[oldName]
-                newInstances[name]['Name'] = name
-        os.rename(self.Minecraft_Dir+'/'+oldName, self.Minecraft_Dir+'/'+name)
-        self.Instances = newInstances
-
-
     def update_config_dir(self, dir):
         if dir != self.Minecraft_Dir and dir != "":
             if os.path.exists(os.path.normpath(dir)):
                 for file in os.scandir(os.path.normpath(self.Minecraft_Dir)):
-                    for instance in self.Instances:
-                        if instance == file.name:
-                            shutil.move(os.path.normpath(self.Minecraft_Dir+"/"+file.name), os.path.normpath(dir))
+                    shutil.move(os.path.normpath(self.Minecraft_Dir+"/"+file.name), os.path.normpath(dir))
 
                 self.Minecraft_Dir = os.path.normpath(dir)
             else:

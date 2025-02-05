@@ -86,7 +86,7 @@ class langHandeler:
         
 
     def set_lang(self):
-        with open(ConfigHandeler.get_assets_path()+'/lang/'+ConfigHandeler.Lang+'.json', "r") as langFile:
+        with open(ConfigHandeler.get_assets_path()+'/assets/lang/'+ConfigHandeler.Lang+'.json', "r") as langFile:
             lang = json.load(langFile)
             self.Accounts_Title = lang["Accounts_Title"]
             self.Add_Accounts_Title = lang["Add_Accounts_Title"]
@@ -119,8 +119,8 @@ class langHandeler:
             self.Create_Instance_Engin_Version_Title = lang["Create_Instance_Engin_Version_Title"]
             self.Create_Instance_Install_Button = lang["Create_Instance_Install_Button"]
 
-            self.Create_Version_Success = lang["Create_Version_Success"]
-            self.Create_Version_Failure = lang["Create_Version_Failure"]
+            self.Create_Instance_Success = lang["Create_Instance_Success"]
+            self.Create_Instance_Failure = lang["Create_Instance_Failure"]
 
             self.Install_Version_Already_Exsists = lang["Install_Version_Already_Exsists"]
             self.Install_Version_Without_Name = lang["Install_Version_Without_Name"]

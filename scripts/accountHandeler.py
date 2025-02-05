@@ -8,27 +8,26 @@ class accountHandeler:
         pass
     
     
-    def add_account(self, type, name, pasword, setStatus, setProgress, setMax, msg):
-
+    def add_account(self, type, name, pasword, setStatus, setProgress, setMax):
         for account in ConfigHandeler.Accounts:
             if account == name:
-                msg(LangHandeler.Add_Account_Name_Already_Exsists)
+                ConfigHandeler.send_message(LangHandeler.Add_Account_Name_Already_Exsists)
                 return
 
         if name == "":
-            msg(LangHandeler.Add_Account_Name_Remaining)
+            ConfigHandeler.send_message(LangHandeler.Add_Account_Name_Remaining)
             return
 
         if type == "Premium":
             if pasword == "":
-                msg(LangHandeler.Add_Account_Password_Remaining)
+                ConfigHandeler.send_message(LangHandeler.Add_Account_Password_Remaining)
                 return
 
             setMax(1)
             setProgress(0)
             setStatus(f"Adding {name} premiun account")
             
-            msg("This function is disabled untill I am able to make it work")
+            ConfigHandeler.send_message("This function is disabled untill I am able to make it work")
             return
 
             try:
@@ -53,10 +52,10 @@ class accountHandeler:
 
                 setProgress(1)
 
-                msg(LangHandeler.Add_Account_Premium_Success)
+                ConfigHandeler.send_message(LangHandeler.Add_Account_Premium_Success)
 
             except:
-                msg(LangHandeler.Add_Account_Premium_Failure)
+                ConfigHandeler.send_message(LangHandeler.Add_Account_Premium_Failure)
 
         elif type == "No Premiun":
             setMax(1)
@@ -68,14 +67,14 @@ class accountHandeler:
 
                 setProgress(1)
 
-                msg(LangHandeler.Add_Account_No_Premium_Success)
+                ConfigHandeler.send_message(LangHandeler.Add_Account_No_Premium_Success)
             except:
-                msg(LangHandeler.Add_Account_No_Premium_Failure)
+                ConfigHandeler.send_message(LangHandeler.Add_Account_No_Premium_Failure)
         else:
-            msg(LangHandeler.Add_Account_No_Type_Selected)
+            ConfigHandeler.send_message(LangHandeler.Add_Account_No_Type_Selected)
 
 
-    def del_account(self, removedAccount, setStatus, setProgress, setMax, msg):
+    def del_account(self, removedAccount, setStatus, setProgress, setMax):
         setMax(1)
         setProgress(0)
         setStatus(f"Deleting {removedAccount} account")
@@ -89,9 +88,9 @@ class accountHandeler:
 
             setProgress(1)
 
-            msg(LangHandeler.Delete_Account_Success)
+            ConfigHandeler.send_message(LangHandeler.Delete_Account_Success)
         except:
-            msg(LangHandeler.Delete_Account_Failure)
+            ConfigHandeler.send_message(LangHandeler.Delete_Account_Failure)
 
 
     def check_accounts(self):

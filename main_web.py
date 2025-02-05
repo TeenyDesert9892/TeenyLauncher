@@ -10,13 +10,16 @@ if __name__ == '__main__':
     from scripts.jdkHandeler import jdkHandeler
     JdkHandeler = jdkHandeler()
     
+    from scripts.processHandeler import processHandeler
+    ProcessHandeler = processHandeler()
+    
     from scripts.instanceHandeler import instanceHandeler
     InstanceHandeler = instanceHandeler()
     
     from scripts.accountHandeler import accountHandeler
     AccountHandeler = accountHandeler()
     
-    from scripts.mainGui import mainGui
+    from scripts import mainGui as MainGui
     
-    ft.app(mainGui, assets_dir=".", view=None, port=9892, host="0.0.0.0")
+    ft.app(MainGui.gui, assets_dir=".", view=None, port=9892, host="0.0.0.0")
     ConfigHandeler.save_config()

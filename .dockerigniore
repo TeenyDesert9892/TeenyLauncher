@@ -1,3 +1,4 @@
 DockerFile
 .venv
 .vscode
+TeenyLauncher.spec
