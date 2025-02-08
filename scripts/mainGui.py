@@ -100,16 +100,19 @@ def gui(page: ft.Page):
     infoVersionText = ft.Text(open('assets/version-changelogs/V'+ConfigHandeler.version+'.txt', 'r').read())
 
     
-    infoColumn = ft.Column([infoDropdown, infoVersionText],
-                                       horizontal_alignment=ft.MainAxisAlignment.CENTER,
-                                       width=page.width/1.7,
-                                       height=page.height/2)
+    infoColumn = ft.Column([infoVersionText],
+                           horizontal_alignment=ft.MainAxisAlignment.CENTER,
+                           width=page.width/1.7,
+                           height=page.height/2.25,
+                           scroll=ft.ScrollMode.ALWAYS)
     
 
-    infoCard = ft.Card(infoColumn)
+    infoCard = ft.Card(infoColumn,
+                       width=page.width/1.7,
+                       height=page.height/2.25)
 
 
-    infoCardColumn = ft.Column([infoTextTitle, infoCard],
+    infoCardColumn = ft.Column([infoTextTitle, infoDropdown, infoCard],
                                alignment=ft.MainAxisAlignment.CENTER,
                                horizontal_alignment=ft.MainAxisAlignment.CENTER,
                                width=page.width/1.5,
@@ -814,11 +817,11 @@ def gui(page: ft.Page):
 
         menuCard.width = page.width/1.5
         menuCard.height = page.height/1.4
-
+        
         infoColumn.width = page.width/1.7
-        infoColumn.height = page.height/2
+        infoColumn.height = page.height/2.5
         infoCard.width = page.width/1.7
-        infoCard.height = page.height/2
+        infoCard.height = page.height/2.5
         infoDropdown.width = page.width/1.6
         infoCardColumn.width = page.width/1.5
         infoCardColumn.height = page.height/1.4
