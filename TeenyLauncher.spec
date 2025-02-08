@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['main_window.py'],
     pathex=[],
     binaries=[],
     datas=[],
@@ -35,6 +35,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity='TeenyDesert9892',
     entitlements_file=None,
-    version='C:\\Users\\algab\\AppData\\Local\\Temp\\4b0afb00-580c-4c03-a487-41bc5b8803fa',
-    icon=['images\\Icon.png'],
+    version='C:\\Users\\algab\\AppData\\Local\\Temp\\bd3dc2ec-43b7-403b-854e-8908d4b40b85',
+    icon=['assets\\images\\Icon.png'],
 )

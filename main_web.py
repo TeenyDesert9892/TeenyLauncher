@@ -22,6 +22,6 @@ if __name__ == '__main__':
     
     from scripts import mainGui as MainGui
     
-    webbrowser.open("127.0.0.1:9892")
+    webbrowser.open("http://localhost:9892")
     ft.app(MainGui.gui, assets_dir=".", view=None, port=9892, host="0.0.0.0")
     ConfigHandeler.save_config()
