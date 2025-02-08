@@ -186,7 +186,7 @@ def gui(page: ft.Page):
 
 
     languajeConfigDropdown = ft.Dropdown(LangHandeler.Default_Option,
-                                          [ft.dropdown.Option(option.name.removesuffix(".json"))
+                                          [ft.dropdown.Option(option.name.replace(".json", ""))
                                            for option in os.scandir(ConfigHandeler.get_assets_path()+'/assets/lang')
                                            if option.name != "Example.json"],
                                          width=page.width/1.6,
