@@ -10,3 +10,7 @@
 /.venv/
 /.vscode/
 /.TeenyLauncher.spec
+/pack_web.ps1
+/pack_web.sh
+/pack_window.ps1
+/pack_window.sh
