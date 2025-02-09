@@ -13,8 +13,8 @@ def gui(page: ft.Page):
     # -------------------------------
 
 
-    backgroundImages = {"Dark": '/assets/images/bg-dark.png',
-                        "Light": '/assets/images/bg-light.png'}
+    backgroundImages = {"Dark": '/images/bg-dark.png',
+                        "Light": '/images/bg-light.png'}
 
 
     bgImg = ft.BoxDecoration(image=ft.DecorationImage(ConfigHandeler.get_assets_path()+backgroundImages[ConfigHandeler.Theme],
@@ -76,7 +76,7 @@ def gui(page: ft.Page):
 
 
     def change_info(event):
-        for file in os.scandir('assets/version-changelogs'):
+        for file in os.scandir(ConfigHandeler.get_assets_path()+'/version-changelogs'):
             if file.name.replace('.txt', '') ==  event.data:
                 infoVersionText.value = open(file.path, 'r', encoding='utf-8').read()
         infoVersionText.update()
@@ -92,12 +92,12 @@ def gui(page: ft.Page):
 
     infoDropdown = ft.Dropdown(LangHandeler.Default_Option,
                                [ft.dropdown.Option(file.name.replace('.txt', ''))
-                                for file in os.scandir('assets/version-changelogs')],
+                                for file in os.scandir(ConfigHandeler.get_assets_path()+'/version-changelogs')],
                                width=page.width/1.6,
                                on_change=change_info)
     
     
-    infoVersionText = ft.Text(open('assets/version-changelogs/V'+ConfigHandeler.version+'.txt', 'r').read())
+    infoVersionText = ft.Text(open(ConfigHandeler.get_assets_path()+'/version-changelogs/V'+ConfigHandeler.version+'.txt', 'r').read())
 
     
     infoColumn = ft.Column([infoVersionText],
@@ -190,7 +190,7 @@ def gui(page: ft.Page):
 
     languajeConfigDropdown = ft.Dropdown(LangHandeler.Default_Option,
                                           [ft.dropdown.Option(option.name.replace(".json", ""))
-                                           for option in os.scandir(ConfigHandeler.get_assets_path()+'/assets/lang')
+                                           for option in os.scandir(ConfigHandeler.get_assets_path()+'/lang')
                                            if option.name != "Example.json"],
                                          width=page.width/1.6,
                                          on_change=langChange)

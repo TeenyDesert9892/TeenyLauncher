@@ -86,7 +86,7 @@ class langHandeler:
         
 
     def set_lang(self):
-        with open(ConfigHandeler.get_assets_path()+'/assets/lang/'+ConfigHandeler.Lang+'.json', "r") as langFile:
+        with open(ConfigHandeler.get_assets_path()+'/lang/'+ConfigHandeler.Lang+'.json', "r") as langFile:
             lang = json.load(langFile)
             self.Accounts_Title = lang["Accounts_Title"]
             self.Add_Accounts_Title = lang["Add_Accounts_Title"]
