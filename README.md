@@ -25,4 +25,4 @@ When you have downloaded succesfully you will need to uncompres the zip and plac
 
 ## Support
 
-If you have any problems with the launcher contact with me via discord: @TeenyDesert9892
+If you have any problems with the launcher contact with me via gmail: [teenydesert9892@gmail.com]
