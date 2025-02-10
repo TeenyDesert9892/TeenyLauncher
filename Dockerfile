@@ -10,4 +10,4 @@ RUN python -m pip install -r requeriments.txt
 
 EXPOSE 9892-9892
 
-CMD ["python",  "main_web.py"]
+CMD ["flet", "run", "-w", "-p 9892",  "main.py"]

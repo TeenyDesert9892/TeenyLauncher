@@ -1,17 +1,16 @@
 import os
 import flet as ft
 
-from __main__ import ProcessHandeler
-from __main__ import ConfigHandeler
-from __main__ import LangHandeler
-from __main__ import InstanceHandeler
-from __main__ import AccountHandeler
 
 def gui(page: ft.Page):
     # -------------------------------
     # Page Pre-Configuration
     # -------------------------------
-
+    
+    # --------------------------------------------
+    # HAY QUE SOLUCIONAR EL PROBLEMA DE LA CONEXION DE SCRIPTS CON ESTE
+    # RECUERDA PROBAR LAS VARIABLES DE ENTORNO
+    # --------------------------------------------
 
     backgroundImages = {"Dark": '/images/bg-dark.png',
                         "Light": '/images/bg-light.png'}
@@ -29,7 +28,7 @@ def gui(page: ft.Page):
     page.decoration = bgImg
     
     if ConfigHandeler.EnabledBgImg:
-        page.bgcolor = ft.colors.TRANSPARENT
+        page.bgcolor = ft.Colors.TRANSPARENT
     page.theme_mode = ConfigHandeler.Theme.lower()
 
 
@@ -53,16 +52,16 @@ def gui(page: ft.Page):
     # -------------------------------
 
 
-    topCardRow = ft.Row([ft.IconButton(icon=ft.icons.HOME,
+    topCardRow = ft.Row([ft.IconButton(icon=ft.Icons.HOME,
                                        icon_size=30,
                                        on_click=lambda event: changeMenu("HOME")),
-                         ft.IconButton(icon=ft.icons.ACCOUNT_BOX,
+                         ft.IconButton(icon=ft.Icons.ACCOUNT_BOX,
                                        icon_size=30,
                                        on_click=lambda event: changeMenu("ACCOUNTS")),
-                         ft.IconButton(icon=ft.icons.FOLDER,
+                         ft.IconButton(icon=ft.Icons.FOLDER,
                                        icon_size=30,
                                        on_click=lambda event: changeMenu("INSTANCES")),
-                         ft.IconButton(icon=ft.icons.SETTINGS,
+                         ft.IconButton(icon=ft.Icons.SETTINGS,
                                        icon_size=30,
                                        on_click=lambda event: changeMenu("SETTINGS"))],
                         alignment=ft.MainAxisAlignment.CENTER,
@@ -147,10 +146,10 @@ def gui(page: ft.Page):
 
     def imageChange(checkBox):
         if checkBox.data == "true":
-            page.bgcolor = ft.colors.TRANSPARENT
+            page.bgcolor = ft.Colors.TRANSPARENT
             ConfigHandeler.EnabledBgImg = True
         else:
-            page.bgcolor = ft.colors.BACKGROUND
+            page.bgcolor = ft.Colors.BACKGROUND
             ConfigHandeler.EnabledBgImg = False
         page.update()
     
@@ -231,9 +230,9 @@ def gui(page: ft.Page):
 
 
     ramConfigRow = ft.Row([ramConfigSlider,
-                           ft.Row([ft.IconButton(ft.icons.REMOVE, on_click=removeRam),
+                           ft.Row([ft.IconButton(ft.Icons.REMOVE, on_click=removeRam),
                                    ramConfigShow,
-                                   ft.IconButton(ft.icons.ADD, on_click=addRam)])],
+                                   ft.IconButton(ft.Icons.ADD, on_click=addRam)])],
                           alignment=ft.MainAxisAlignment.CENTER,
                           spacing=page.width/50)
 
@@ -248,7 +247,7 @@ def gui(page: ft.Page):
 
 
     openFolderConfigCuppertinoFilledButton = ft.CupertinoFilledButton(LangHandeler.Advanced_Config_Open_Versions_Folder,
-                                                                      ft.icons.FOLDER,
+                                                                      ft.Icons.FOLDER,
                                                                       width=page.width/1.6,
                                                                       on_click=InstanceHandeler.open_instances_folder)
 
@@ -422,7 +421,7 @@ def gui(page: ft.Page):
 
 
     addInstancesButton = ft.CupertinoFilledButton(LangHandeler.Create_Instance_Install_Button,
-                                                  icon=ft.icons.ADD_BOX,
+                                                  icon=ft.Icons.ADD_BOX,
                                                   width=page.width/1.7,
                                                   on_click=start_instance_install)
 
@@ -448,7 +447,7 @@ def gui(page: ft.Page):
 
 
     removeInstancesButton = ft.CupertinoFilledButton(LangHandeler.Delete_Instances_Button,
-                                                     icon=ft.icons.CANCEL,
+                                                     icon=ft.Icons.CANCEL,
                                                      width=page.width/1.7,
                                                      on_click=start_instance_uninstall)
 
@@ -471,7 +470,7 @@ def gui(page: ft.Page):
     
     
     modifyInstancesChangeName = ft.CupertinoFilledButton(LangHandeler.Modify_Instances_Name_Button,
-                                                         ft.icons.EDIT,
+                                                         ft.Icons.EDIT,
                                                          width=page.width/5.5,
                                                          on_click=modify_instance_name)
     
@@ -496,7 +495,7 @@ def gui(page: ft.Page):
     
     
     modifyInstanceStartButton = ft.CupertinoFilledButton(LangHandeler.Modify_Instance_Change_Button,
-                                                         ft.icons.CHANGE_CIRCLE,
+                                                         ft.Icons.CHANGE_CIRCLE,
                                                          width=page.width/1.7,
                                                          on_click=modify_version_start)
     
@@ -561,18 +560,20 @@ def gui(page: ft.Page):
             
             
     def start_account_creation(event=None):
-        AccountHandeler.add_account(addAccountType.value,
-                                     addAccountName.value,
-                                     addAccountPassword.value,
-                                     setStatus,
-                                     setProgress,
-                                     setMax)
+        ProcessHandeler.add_process(AccountHandeler.add_account, 
+                         addAccountType.value,
+                         addAccountName.value,
+                         addAccountPassword.value,
+                         setStatus,
+                         setProgress,
+                         setMax)
         progressReset()
         update_account_displays(True, False)
     
     
     def start_account_delete(event=None):
-        AccountHandeler.del_account(removeAccountDropdown.value,
+        ProcessHandeler.add_process(AccountHandeler.del_account,
+                                    removeAccountDropdown.value,
                                     setStatus,
                                     setProgress,
                                     setMax)
@@ -599,7 +600,7 @@ def gui(page: ft.Page):
 
 
     addAccountButton = ft.CupertinoFilledButton(LangHandeler.Add_Account_Button,
-                                                icon=ft.icons.ACCOUNT_BOX,
+                                                icon=ft.Icons.ACCOUNT_BOX,
                                                 width=page.width/1.7,
                                                 on_click=start_account_creation)
 
@@ -625,7 +626,7 @@ def gui(page: ft.Page):
 
     removeAccountButton = ft.CupertinoFilledButton(LangHandeler.Delete_Account_Button,
                                                    width=page.width/1.7,
-                                                   icon=ft.icons.CANCEL,
+                                                   icon=ft.Icons.CANCEL,
                                                    on_click=start_account_delete)
 
 
@@ -695,7 +696,7 @@ def gui(page: ft.Page):
 
 
     launchGameButton = ft.CupertinoFilledButton(LangHandeler.Play_Menu_Start_Game,
-                                                icon=ft.icons.PLAY_ARROW_ROUNDED,
+                                                icon=ft.Icons.PLAY_ARROW_ROUNDED,
                                                 width=page.width/3.4,
                                                 on_click=run_game)
 
@@ -968,3 +969,29 @@ def gui(page: ft.Page):
 
 
     page.update()
+
+
+if __name__ == '__main__':
+    import webbrowser
+    import flet as ft
+    
+    from scripts.configHandeler import configHandeler
+    ConfigHandeler = configHandeler()
+    
+    from scripts.langHandeler import langHandeler
+    LangHandeler = langHandeler(ConfigHandeler)
+    
+    from scripts.jdkHandeler import jdkHandeler
+    JdkHandeler = jdkHandeler(ConfigHandeler)
+    
+    from scripts.accountHandeler import accountHandeler
+    AccountHandeler = accountHandeler(ConfigHandeler, LangHandeler)
+    
+    from scripts.instanceHandeler import instanceHandeler
+    InstanceHandeler = instanceHandeler(ConfigHandeler, LangHandeler, JdkHandeler)
+    
+    from scripts.processHandeler import processHandeler
+    ProcessHandeler = processHandeler()
+    
+    ft.app(gui)
+    ConfigHandeler.save_config()

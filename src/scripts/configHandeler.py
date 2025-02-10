@@ -86,6 +86,8 @@ class configHandeler:
     
 
     def get_assets_path(self, path=os.getcwd()):
+        if os.path.exists(path+'/src'):
+            return path+'/src'
         return path
 
 
@@ -131,13 +133,6 @@ class configHandeler:
 
     def update_config_default_version(self, defaultInstance):
         self.DefaultInstance = defaultInstance.data
-
-
-    def update_config_add_instances(self, name=str, type=str, ver=str, jar=str, imported=False) -> None:
-        if not imported:
-            self.save_intance_data(name, type, ver, jar)
-
-        self.Instances[name] = {"Name": name,"Type": type, "Version": ver, "Jar": jar}
 
 
     def update_config_dir(self, dir):

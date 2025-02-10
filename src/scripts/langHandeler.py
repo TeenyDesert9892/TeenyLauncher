@@ -1,10 +1,10 @@
 import json
 
-from __main__ import ConfigHandeler
-
 
 class langHandeler:
-    def __init__(self):
+    def __init__(self, configHandeler):
+        self.ConfigHandeler = configHandeler
+        
         self.Accounts_Title = ""
         self.Add_Accounts_Title = ""
         self.Add_Account_Name = ""
@@ -86,7 +86,7 @@ class langHandeler:
         
 
     def set_lang(self):
-        with open(ConfigHandeler.get_assets_path()+'/lang/'+ConfigHandeler.Lang+'.json', "r") as langFile:
+        with open(self.ConfigHandeler.get_assets_path()+'/lang/'+self.ConfigHandeler.Lang+'.json', "r") as langFile:
             lang = json.load(langFile)
             self.Accounts_Title = lang["Accounts_Title"]
             self.Add_Accounts_Title = lang["Add_Accounts_Title"]

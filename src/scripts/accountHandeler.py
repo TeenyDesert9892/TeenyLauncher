@@ -1,33 +1,32 @@
 import minecraft_launcher_lib as mllb
 
-from __main__ import ConfigHandeler
-from __main__ import LangHandeler
 
 class accountHandeler:
-    def __init__(self):
-        pass
+    def __init__(self, configHandeler, langHandeler):
+        self.ConfigHandeler = configHandeler
+        self.LangHandeler = langHandeler
     
     
     def add_account(self, type, name, pasword, setStatus, setProgress, setMax):
-        for account in ConfigHandeler.Accounts:
+        for account in self.ConfigHandeler.Accounts:
             if account == name:
-                ConfigHandeler.send_message(LangHandeler.Add_Account_Name_Already_Exsists)
+                self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_Name_Already_Exsists)
                 return
 
         if name == "":
-            ConfigHandeler.send_message(LangHandeler.Add_Account_Name_Remaining)
+            self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_Name_Remaining)
             return
 
         if type == "Premium":
             if pasword == "":
-                ConfigHandeler.send_message(LangHandeler.Add_Account_Password_Remaining)
+                self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_Password_Remaining)
                 return
 
             setMax(1)
             setProgress(0)
             setStatus(f"Adding {name} premiun account")
             
-            ConfigHandeler.send_message("This function is disabled untill I am able to make it work")
+            self.ConfigHandeler.send_message("This function is disabled untill I am able to make it work")
             return
 
             try:
@@ -63,15 +62,15 @@ class accountHandeler:
             setStatus(f"Creating {name} no premiun account")
 
             try:
-                ConfigHandeler.Accounts[name] = {'Uuid': str(mllb.utils.uuid.uuid4()), 'Token': '0'}
+                self.ConfigHandeler.Accounts[name] = {'Uuid': str(mllb.utils.uuid.uuid4()), 'Token': '0'}
 
                 setProgress(1)
 
-                ConfigHandeler.send_message(LangHandeler.Add_Account_No_Premium_Success)
+                self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_No_Premium_Success)
             except:
-                ConfigHandeler.send_message(LangHandeler.Add_Account_No_Premium_Failure)
+                self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_No_Premium_Failure)
         else:
-            ConfigHandeler.send_message(LangHandeler.Add_Account_No_Type_Selected)
+            self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_No_Type_Selected)
 
 
     def del_account(self, removedAccount, setStatus, setProgress, setMax):
@@ -81,40 +80,40 @@ class accountHandeler:
 
         try:
             newAccounts = {}
-            for account in ConfigHandeler.Accounts:
+            for account in self.ConfigHandeler.Accounts:
                 if account != removedAccount:
-                    newAccounts[account] = ConfigHandeler.Accounts[account]
-            ConfigHandeler.Accounts = newAccounts
+                    newAccounts[account] = self.ConfigHandeler.Accounts[account]
+            self.ConfigHandeler.Accounts = newAccounts
 
             setProgress(1)
 
-            ConfigHandeler.send_message(LangHandeler.Delete_Account_Success)
+            self.ConfigHandeler.send_message(self.LangHandeler.Delete_Account_Success)
         except:
-            ConfigHandeler.send_message(LangHandeler.Delete_Account_Failure)
+            self.ConfigHandeler.send_message(self.LangHandeler.Delete_Account_Failure)
 
 
     def check_accounts(self):
         accounts = ""
         list_added_accounts = []
 
-        for account_added in ConfigHandeler.Accounts:
+        for account_added in self.ConfigHandeler.Accounts:
             list_added_accounts.append(account_added)
 
         if len(list_added_accounts) != 0:
-            if ConfigHandeler.DefaultAccount == "" or ConfigHandeler.DefaultAccount == LangHandeler.Without_Accounts:
-                ConfigHandeler.DefaultAccount = list_added_accounts[0]
+            if self.ConfigHandeler.DefaultAccount == "" or self.ConfigHandeler.DefaultAccount == self.LangHandeler.Without_Accounts:
+                self.ConfigHandeler.DefaultAccount = list_added_accounts[0]
             is_added = False
 
             for account_added in list_added_accounts:
-                if ConfigHandeler.DefaultAccount == account_added:
+                if self.ConfigHandeler.DefaultAccount == account_added:
                     is_added = True
 
             if not is_added:
-                ConfigHandeler.DefaultAccount = list_added_accounts[0]
-            accounts = ConfigHandeler.DefaultAccount
+                self.ConfigHandeler.DefaultAccount = list_added_accounts[0]
+            accounts = self.ConfigHandeler.DefaultAccount
 
         elif len(list_added_accounts) == 0:
-            accounts = LangHandeler.Without_Accounts
-            list_added_accounts.append(LangHandeler.Without_Accounts)
+            accounts = self.LangHandeler.Without_Accounts
+            list_added_accounts.append(self.LangHandeler.Without_Accounts)
 
         return accounts, list_added_accounts

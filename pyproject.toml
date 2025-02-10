@@ -97,5 +97,5 @@ packages = true
 cleanup = false
 
 [tool.flet.app]
-module = "main_window"
+module = "main"
 path = "src"
