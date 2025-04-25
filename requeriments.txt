@@ -18,7 +18,7 @@ flet-core==0.24.1
 flet-desktop==0.26.0
 flet-runtime==0.24.1
 flet-web==0.26.0
-h11==0.14.0
+h11==0.16.0
 httpcore==1.0.7
 httptools==0.6.4
 httpx==0.28.1
