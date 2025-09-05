@@ -16,3 +16,4 @@
 /pack_window.sh
 /storage/
 /.mypy_cache/
+/src/scripts/__pycache__/

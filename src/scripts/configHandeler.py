@@ -30,10 +30,9 @@ class configHandeler:
         self.load_config()
 
 
-    def send_message(self, msg):
-        from __main__ import MainGui
-        
-        MainGui.Message(msg)
+    def send_message(self, msg: str):
+        from __main__ import Message
+        Message(msg)
 
 
     def save_config(self):

@@ -1,4 +1,5 @@
 import minecraft_launcher_lib as mllb
+import uuid
 
 
 class accountHandeler:
@@ -7,7 +8,7 @@ class accountHandeler:
         self.LangHandeler = langHandeler
     
     
-    def add_account(self, type, name, pasword, setStatus, setProgress, setMax):
+    def add_account(self, type, name, pasword, callback):
         for account in self.ConfigHandeler.Accounts:
             if account == name:
                 self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_Name_Already_Exsists)
@@ -22,9 +23,9 @@ class accountHandeler:
                 self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_Password_Remaining)
                 return
 
-            setMax(1)
-            setProgress(0)
-            setStatus(f"Adding {name} premiun account")
+            callback.setMax(1)
+            callback.setProgress(0)
+            callback.setStatus(f"Adding {name} premiun account")
             
             self.ConfigHandeler.send_message("This function is disabled untill I am able to make it work")
             return
@@ -57,14 +58,14 @@ class accountHandeler:
                 ConfigHandeler.send_message(LangHandeler.Add_Account_Premium_Failure)
 
         elif type == "No Premiun":
-            setMax(1)
-            setProgress(0)
-            setStatus(f"Creating {name} no premiun account")
+            callback.setMax(1)
+            callback.setProgress(0)
+            callback.setStatus(f"Creating {name} no premiun account")
 
             try:
-                self.ConfigHandeler.Accounts[name] = {'Uuid': str(mllb.utils.uuid.uuid4()), 'Token': '0'}
+                self.ConfigHandeler.Accounts[name] = {'Uuid': str(uuid.uuid5(uuid.NAMESPACE_DNS, name)), 'Token': '0'}
 
-                setProgress(1)
+                callback.setProgress(1)
 
                 self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_No_Premium_Success)
             except:
@@ -73,10 +74,10 @@ class accountHandeler:
             self.ConfigHandeler.send_message(self.LangHandeler.Add_Account_No_Type_Selected)
 
 
-    def del_account(self, removedAccount, setStatus, setProgress, setMax):
-        setMax(1)
-        setProgress(0)
-        setStatus(f"Deleting {removedAccount} account")
+    def del_account(self, removedAccount, callback):
+        callback.setMax(1)
+        callback.setProgress(0)
+        callback.setStatus(f"Deleting {removedAccount} account")
 
         try:
             newAccounts = {}
@@ -85,7 +86,7 @@ class accountHandeler:
                     newAccounts[account] = self.ConfigHandeler.Accounts[account]
             self.ConfigHandeler.Accounts = newAccounts
 
-            setProgress(1)
+            callback.setProgress(1)
 
             self.ConfigHandeler.send_message(self.LangHandeler.Delete_Account_Success)
         except:

@@ -1,7 +1,6 @@
 import os
 import pickle
 import shutil
-import platform
 import subprocess
 import minecraft_launcher_lib as mllb
 
@@ -19,64 +18,79 @@ class instanceHandeler:
     
     
     def do_install(self, name, type, ver, mod, callback):
+        callback.setMax(1)
+        callback.setProgress(0)
+        callback.setStatus("Installing java...")
+        java = self.JdkHandeler.get_jdk_client(float(ver.replace(".", "", 1)))
+        callback.setProgress(1)
+        
         if type == "Vanilla" or type == "Snapshot":
             try:
                 mllb.install.install_minecraft_version(versionid=ver,
-                                                    minecraft_directory=self.ConfigHandeler.Minecraft_Dir+'/'+name,
-                                                    callback=callback)
+                                                       minecraft_directory=self.ConfigHandeler.Minecraft_Dir+'/'+name,
+                                                       callback={'setStatus': callback.setStatus,
+                                                                 'setProgress': callback.setProgress,
+                                                                 'setMax': callback.setMax})
+                
                 self.saveInstance(name, type, ver, ver)
                 self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Success)
 
-            except:
+            except Exception as e:
                 shutil.rmtree(self.ConfigHandeler.Minecraft_Dir+'/'+name)
-                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure)
+                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure+"\n\n Error: "+str(e))
                 
 
         elif type == "Forge":
             try:
                 mllb.forge.install_forge_version(versionid=mod,
-                                                path=self.ConfigHandeler.Minecraft_Dir+'/'+name,
-                                                callback=callback)
+                                                 path=self.ConfigHandeler.Minecraft_Dir+'/'+name,
+                                                 java=java,
+                                                 callback={'setStatus': callback.setStatus,
+                                                           'setProgress': callback.setProgress,
+                                                           'setMax': callback.setMax})
                 
-                self.saveInstance(name, type, ver, mod.replace("-", "-forge-"))
+                self.saveInstance(name, type, ver, mod.replace("-", "-forge-", 1))
 
                 self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Success)
 
-            except:
+            except Exception as e:
                 shutil.rmtree(self.ConfigHandeler.Minecraft_Dir+'/'+name)
-                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure)
+                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure+"\n\n Error: "+str(e))
 
         elif type == "Fabric" or type == "Fabric Snapshot":
             try:
                 mllb.fabric.install_fabric(minecraft_version=ver,
-                                        minecraft_directory=self.ConfigHandeler.Minecraft_Dir+'/'+name,
-                                        loader_version=mod,
-                                        callback=callback)
+                                           minecraft_directory=self.ConfigHandeler.Minecraft_Dir+'/'+name,
+                                           loader_version=mod,
+                                           java=java,
+                                           callback={'setStatus': callback.setStatus,
+                                                     'setProgress': callback.setProgress,
+                                                     'setMax': callback.setMax})
                 
                 self.saveInstance(name, type, ver, f'fabric-loader-{mod}-{ver}')
 
                 self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Success)
 
-            except:
+            except Exception as e:
                 shutil.rmtree(self.ConfigHandeler.Minecraft_Dir+'/'+name)
-                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure)
+                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure+"\n\n Error: "+str(e))
 
         elif type == "Quilt" or type == "Quilt Snapshot":
             try:
                 mllb.quilt.install_quilt(minecraft_version=ver,
                                         minecraft_directory=self.ConfigHandeler.Minecraft_Dir+'/'+name,
                                         loader_version=mod,
-                                        callback=callback)
-                
-                self.saveInstance(name, type, ver, f'quilt-loader-{mod}-{ver}')
+                                        java=java,
+                                        callback={'setStatus': callback.setStatus,
+                                                  'setProgress': callback.setProgress,
+                                                  'setMax': callback.setMax})
 
+                self.saveInstance(name, type, ver, f'quilt-loader-{mod}-{ver}')
                 self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Success)
 
-            except:
+            except Exception as e:
                 shutil.rmtree(self.ConfigHandeler.Minecraft_Dir+'/'+name)
-                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure)
-        
-        shutil.rmtree(self.ConfigHandeler.Minecraft_Dir+'/'+name+'/runtime')
+                self.ConfigHandeler.send_message(self.LangHandeler.Create_Instance_Failure+"\n\n Error: "+str(e))
 
 
     def install_instance(self, name, type, ver, mod, callback):
@@ -128,7 +142,7 @@ class instanceHandeler:
             callback.setProgress(1)
 
             self.ConfigHandeler.send_message(self.LangHandeler.Delete_Instance_Success)
-        except:
+        except Exception as e:
             self.ConfigHandeler.send_message(self.LangHandeler.Delete_Instance_Failure)
 
 
@@ -266,24 +280,24 @@ class instanceHandeler:
         
         self.ConfigHandeler.save_config()
 
-        ram = '-Xmx'+str(self.ConfigHandeler.RamAmount)+'M'
-
-        options = {'username': username,
-                'uuid': self.ConfigHandeler.Accounts[username]["Uuid"],
-                'token': self.ConfigHandeler.Accounts[username]["Token"],
-                'jvArguments': '['+ram+', '+ram+']',
-                'launcherVersion': self.ConfigHandeler.Version}
+        options = mllb.types.MinecraftOptions()
+        
+        options['username'] = username
+        options['uuid'] = self.ConfigHandeler.Accounts[username]["Uuid"]
+        options['token'] = self.ConfigHandeler.Accounts[username]["Token"]
+        options['jvmArguments'] = ['-Xmx'+str(self.ConfigHandeler.RamAmount)+'M']
+        options['launcherVersion'] = self.ConfigHandeler.Version
         
         instanceData = self.get_instance_data(versionName)
 
-        minecraft_command = mllb.command.get_minecraft_command(instanceData['Jar'],self.ConfigHandeler.Minecraft_Dir+'/'+versionName, options)
+        minecraft_command = mllb.command.get_minecraft_command(instanceData['Jar'], self.ConfigHandeler.Minecraft_Dir+'/'+versionName, options)
         try:
             if os.name == "nt":
                 minecraft_command[0] = os.path.normpath(self.JdkHandeler.get_jdk_client(float(instanceData['Ver'].replace(".", "", 1)))+"/bin/java.exe")
             else:
-                minecraft_command[0] = os.path.normpath(JdkHandeler.get_jdk_client(float(instanceData['Ver'].replace(".", "", 1))) + "/bin/java")
-        except:
-            self.ConfigHandeler.send_message(self.LangHandeler.Incompatible_JDK)
+                minecraft_command[0] = os.path.normpath(self.JdkHandeler.get_jdk_client(float(instanceData['Ver'].replace(".", "", 1))) + "/bin/java")
+        except Exception as e:
+            self.ConfigHandeler.send_message(self.LangHandeler.Incompatible_JDK+"\n\n Error: "+str(e))
             return
         subprocess.run(minecraft_command)
 
