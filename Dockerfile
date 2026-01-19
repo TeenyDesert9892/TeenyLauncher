@@ -1,4 +1,4 @@
-FROM python:3.12.7-bookworm
+FROM python:latest
 
 RUN mkdir -p /home/.teenylauncher
 

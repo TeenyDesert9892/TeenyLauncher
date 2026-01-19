@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "teenylauncher"
-version = "0.8.0"
+version = "0.9.0"
 description = "A Minecraft launcher"
 readme = "README.md"
-python = "3.12"
-flet = "0.26.0"
+python = "3.14"
+flet = "0.80.1"
 authors = [
     { name = "TeenyDesert9892", email = "teenydesert9892@gmail.com" }
 ]
@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [tool.flet]
-org = "com.teenydesert9892"
+org = "com.github.teenydesert9892"
 product = "teenylauncher"
 copyright = "Copyright (C) 2025 by Flet"
 

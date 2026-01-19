@@ -1,0 +1,11 @@
+1 - Rehacer configuracion: configFolder = {Launcher.pkl, Accounts.pkl, Instances.pkl} (creat datbase)
+
+2 - Implementacion de la api de Mondrith y Cursed Forge para sistema de mods desde el launcher (add mods)
+
+3 - Independizarse de la libreria minecraft_launcher_lib (self resource manager)
+
+4 - Añadir skins customizables (ely.by)
+
+5 - Pensar en como hacer un sistema de cuentas y web online (register web?)
+
+6 - Arreglar cuentas Premiun (...)
