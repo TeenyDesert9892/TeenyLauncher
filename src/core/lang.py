@@ -3,10 +3,12 @@ import os
 
 from core import config
 
-lang_file = config.get_assets_path()+'/lang/'+config.Lang+'.json'
+from utils import utils
+
+lang_file = utils.get_assets_path()+'/lang/'+config.settings.Lang+'.json'
 
 if not os.path.exists(lang_file):
-    lang_file = config.get_assets_path()+'/lang/en.json'
+    lang_file = utils.get_assets_path()+'/lang/en.json'
 
 with open(lang_file, "r") as file:
     lang = json.load(file)

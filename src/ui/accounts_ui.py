@@ -111,7 +111,7 @@ addAccountColumn = ft.Column([addAccountType,
 
 removeAccountDropdown = ft.Dropdown(lang.Default_Option,
                                     options=[ft.dropdown.Option(account)
-                                                for account in config.Accounts])
+                                                for account in config.settings.Accounts])
 
 
 removeAccountButton = ft.CupertinoFilledButton(lang.Delete_Account_Button,

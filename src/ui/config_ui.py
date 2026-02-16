@@ -1,3 +1,4 @@
+from minecraft_launcher_lib import utils
 import flet as ft
 
 import os
@@ -6,6 +7,8 @@ from core import config
 from core import lang
 
 from services import instances
+
+from utils import utils
 
 from ui import main_ui
 
@@ -50,28 +53,28 @@ def langChange(dropdown):
 
 def themeChange(dropdown):
     config.update_config_theme(dropdown.data)
-    bgImg.image = ft.DecorationImage(config.get_assets_path()+backgroundImages[dropdown.data],
+    main_ui.bgImg.image = ft.DecorationImage(utils.get_assets_path()+main_ui.backgroundImages[dropdown.data],
                                         fit=ft.BoxFit.COVER)
-    page.theme_mode = ft.ThemeMode.DARK  if dropdown.data.lower() == "dark" else ft.ThemeMode.LIGHT
-    page.update()
+    main_ui.page.theme_mode = ft.ThemeMode.DARK  if dropdown.data.lower() == "dark" else ft.ThemeMode.LIGHT
+    main_ui.page.update()
 
 
 def imageChange(checkBox):
     if checkBox.data == "true":
-        page.bgcolor = ft.Colors.TRANSPARENT
-        config.EnabledBgImg = True
+        main_ui.page.bgcolor = ft.Colors.TRANSPARENT
+        config.settings.EnabledBgImg = True
     else:
-        page.bgcolor = ft.Colors.GREY
-        config.EnabledBgImg = False
-    page.update()
+        main_ui.page.bgcolor = ft.Colors.GREY
+        config.settings.EnabledBgImg = False
+    main_ui.page.update()
 
 
 def closeOnPlayChange(checkBox):
     if checkBox.data == "true":
-        config.CloseOnPlay = True
+        config.settings.CloseOnPlay = True
     else:
-        config.CloseOnPlay = False
-    page.update()
+        config.settings.CloseOnPlay = False
+    main_ui.page.update()
 
 
 def ramTextValueEdit(event=None):
@@ -81,7 +84,7 @@ def ramTextValueEdit(event=None):
 
 
 def addRam(event=None):
-    if ramConfigSlider.value < config.get_ram():
+    if ramConfigSlider.value < utils.get_ram():
         ramConfigSlider.value += 32
         ramConfigSlider.update()
         ramTextValueEdit(ramConfigSlider)
@@ -101,7 +104,7 @@ def removeRam(event=None):
 
 languajeConfigDropdown = ft.Dropdown(lang.Default_Option,
                                         options=[ft.dropdown.Option(option.name.replace(".json", ""))
-                                                for option in os.scandir(config.get_assets_path()+'/lang')
+                                                for option in os.scandir(utils.get_assets_path()+'/lang')
                                                 if option.name != "Example.json"],
                                         on_text_change=langChange)
 
@@ -117,23 +120,23 @@ normalConfigCardColumn = ft.Column([ft.Text(lang.Launcher_Config_Title, size=36)
                                     languajeConfigDropdown,
                                     ft.Text(lang.Launcher_Config_Theme_Title, size=16),
                                     themeConfigDropdown,
-                                    ft.Switch(lang.Launcher_Config_Img, value=config.EnabledBgImg, on_change=imageChange),
-                                    ft.Switch(lang.Launcher_Config_On_Close, value=config.CloseOnPlay, on_change=closeOnPlayChange)],
+                                    ft.Switch(lang.Launcher_Config_Img, value=config.settings.EnabledBgImg, on_change=imageChange),
+                                    ft.Switch(lang.Launcher_Config_On_Close, value=config.settings.CloseOnPlay, on_change=closeOnPlayChange)],
                                     alignment=ft.MainAxisAlignment.CENTER,
                                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                                     scroll=ft.ScrollMode.AUTO)
 
 
-ramConfigSlider = ft.Slider(value=config.RamAmount,
+ramConfigSlider = ft.Slider(value=config.settings.RamAmount,
                             min=128,
-                            max=config.get_ram(),
-                            divisions=int(config.get_ram()/32)-4,
+                            max=utils.get_ram(),
+                            divisions=int(utils.get_ram()/32)-4,
                             on_change=ramTextValueEdit,
                             on_change_start=ramTextValueEdit,
                             on_change_end=ramTextValueEdit)
 
 
-ramConfigShow = ft.Text(str(config.RamAmount)+'MB', size=12)
+ramConfigShow = ft.Text(str(config.settings.RamAmount)+'MB', size=12)
 
 
 ramConfigRow = ft.Row([ramConfigSlider,
@@ -143,7 +146,7 @@ ramConfigRow = ft.Row([ramConfigSlider,
                         alignment=ft.MainAxisAlignment.CENTER)
 
 
-minecraftDirectoryConfigTextField = ft.TextField(config.Minecraft_Dir)
+minecraftDirectoryConfigTextField = ft.TextField(config.settings.Minecraft_Dir)
 
 
 minecraftFirectoryConfigButton = ft.CupertinoFilledButton(lang.Advanced_Config_Minecraft_Directory,

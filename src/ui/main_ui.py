@@ -1,9 +1,12 @@
+from minecraft_launcher_lib import utils
 import flet as ft
 
 from core import lang
 from core import config
 
 from services import instances
+
+from utils import utils
 
 from ui import info_ui
 from ui import accounts_ui
@@ -21,7 +24,7 @@ backgroundImages = {"Dark": '/assets/images/bg-dark.png',
                     "Light": '/assets/images/bg-light.png'}
 
 
-bgImg = ft.BoxDecoration(image=ft.DecorationImage(config.get_assets_path()+backgroundImages[config.Theme],
+bgImg = ft.BoxDecoration(image=ft.DecorationImage(utils.get_assets_path()+backgroundImages[config.settings.Theme],
                                                     fit=ft.BoxFit.COVER))
 
  # -------------------------------
@@ -73,7 +76,7 @@ menuCard = ft.Card(info_ui.infoCardColumn)
 
 
 def run_game(event=None):
-    if config.CloseOnPlay:
+    if config.settings.CloseOnPlay:
         page.window.close()
     instances.run_instance(instancesDropdown.value,
                                     accountsDropdown.value)
@@ -234,9 +237,9 @@ def main(main_page: ft.Page):
     global page
     page = main_page
     
-    if config.EnabledBgImg:
+    if config.settings.EnabledBgImg:
         main_page.bgcolor = ft.Colors.TRANSPARENT
-    main_page.theme_mode = ft.ThemeMode.DARK  if config.Theme.lower() == "dark" else ft.ThemeMode.LIGHT
+    main_page.theme_mode = ft.ThemeMode.DARK  if config.settings.Theme.lower() == "dark" else ft.ThemeMode.LIGHT
 
 
     main_page.add(ft.Card(topCardRow),
@@ -249,6 +252,7 @@ def main(main_page: ft.Page):
 
     main_page.on_resize = update_contents
 
+    main_page.on_close = lambda e: config.settings.save_config()
 
     accounts_ui.updateAccounts(False)
     accounts_ui.updateRemoveAccounts(False)

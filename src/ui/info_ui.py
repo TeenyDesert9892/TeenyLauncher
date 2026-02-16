@@ -5,6 +5,8 @@ import os
 from core import config
 from core import lang
 
+from utils import utils
+
 # -------------------------------
 # Info Version changelog function
 # -------------------------------
@@ -20,7 +22,7 @@ def resize(event):
 
 
 def change_info(event):
-    for file in os.scandir(config.get_assets_path()+'/changelog'):
+    for file in os.scandir(utils.get_assets_path()+'/changelog'):
         if file.name.replace('.txt', '') ==  event.data:
             infoVersionText.value = open(file.path, 'r', encoding='utf-8').read()
     infoVersionText.update()
@@ -36,11 +38,11 @@ infoTextTitle = ft.Text('TeenyLauncher '+config.Version, size=48)
 
 infoDropdown = ft.Dropdown(lang.Default_Option,
                             options=[ft.dropdown.Option(file.name.replace('.txt', ''))
-                                    for file in os.scandir(config.get_assets_path()+'/changelog')],
+                                    for file in os.scandir(utils.get_assets_path()+'/changelog')],
                             on_text_change=change_info)
 
 
-infoVersionText = ft.Text(open(config.get_assets_path()+'/changelog/V'+config.Version+'.txt', 'r').read())
+infoVersionText = ft.Text(open(utils.get_assets_path()+'/changelog/V'+config.Version+'.txt', 'r').read())
 
 
 infoColumn = ft.Column([infoVersionText],
