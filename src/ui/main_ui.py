@@ -20,12 +20,18 @@ from ui import config_ui
 
 page = None
 
-backgroundImages = {"Dark": '/assets/images/bg-dark.png',
-                    "Light": '/assets/images/bg-light.png'}
+backgroundImages = {
+    "Dark": '/assets/images/bg-dark.png',
+    "Light": '/assets/images/bg-light.png'
+}
 
 
-bgImg = ft.BoxDecoration(image=ft.DecorationImage(utils.get_assets_path()+backgroundImages[config.settings.Theme],
-                                                    fit=ft.BoxFit.COVER))
+bgImg = ft.BoxDecoration(
+    image=ft.DecorationImage(
+        utils.get_assets_path()+backgroundImages[config.settings.Theme],
+        fit=ft.BoxFit.COVER
+    )
+)
 
  # -------------------------------
 # Top Change Function
@@ -33,10 +39,12 @@ bgImg = ft.BoxDecoration(image=ft.DecorationImage(utils.get_assets_path()+backgr
 
 
 def changeMenu(menu):
-    menus = {"HOME": info_ui.infoCardColumn,
-                "ACCOUNTS": accounts_ui.accountCardColumn,
-                "INSTANCES": instances_ui.instanceCardColumn,
-                "SETTINGS": config_ui.configCardColumn}
+    menus = {
+        "HOME": info_ui.infoCardColumn,
+        "ACCOUNTS": accounts_ui.accountCardColumn,
+        "INSTANCES": instances_ui.instanceCardColumn,
+        "SETTINGS": config_ui.configCardColumn
+    }
     menuCard.content = menus[menu]
     menuCard.update()
     
@@ -47,19 +55,31 @@ def changeMenu(menu):
 # -------------------------------
 
 
-topCardRow = ft.Row([ft.IconButton(icon=ft.Icons.HOME,
-                                    icon_size=30,
-                                    on_click=lambda event: changeMenu("HOME")),
-                        ft.IconButton(icon=ft.Icons.ACCOUNT_BOX,
-                                    icon_size=30,
-                                    on_click=lambda event: changeMenu("ACCOUNTS")),
-                        ft.IconButton(icon=ft.Icons.FOLDER,
-                                    icon_size=30,
-                                    on_click=lambda event: changeMenu("INSTANCES")),
-                        ft.IconButton(icon=ft.Icons.SETTINGS,
-                                    icon_size=30,
-                                    on_click=lambda event: changeMenu("SETTINGS"))],
-                    alignment=ft.MainAxisAlignment.CENTER)
+topCardRow = ft.Row(
+    [
+        ft.IconButton(
+            icon=ft.Icons.HOME,
+            icon_size=30,
+            on_click=lambda event: changeMenu("HOME")
+        ),
+        ft.IconButton(
+            icon=ft.Icons.ACCOUNT_BOX,
+            icon_size=30,
+            on_click=lambda event: changeMenu("ACCOUNTS")
+        ),
+        ft.IconButton(
+            icon=ft.Icons.FOLDER,
+            icon_size=30,
+            on_click=lambda event: changeMenu("INSTANCES")
+        ),
+        ft.IconButton(
+            icon=ft.Icons.SETTINGS,
+            icon_size=30,
+            on_click=lambda event: changeMenu("SETTINGS")
+        )
+    ],
+    alignment=ft.MainAxisAlignment.CENTER
+)
 
 
 # -------------------------------
@@ -78,8 +98,10 @@ menuCard = ft.Card(info_ui.infoCardColumn)
 def run_game(event=None):
     if config.settings.CloseOnPlay:
         page.window.close()
-    instances.run_instance(instancesDropdown.value,
-                                    accountsDropdown.value)
+    instances.run_instance(
+        instancesDropdown.value,
+        accountsDropdown.value
+)
 
 
 # -------------------------------
@@ -93,18 +115,24 @@ accountsDropdown = ft.Dropdown(on_text_change=config.update_config_default_accou
 instancesDropdown = ft.Dropdown(on_text_change=config.update_config_default_version)
 
 
-launchGameButton = ft.CupertinoFilledButton(lang.Play_Menu_Start_Game,
-                                            icon=ft.Icons.PLAY_ARROW_ROUNDED,
-                                            on_click=run_game)
+launchGameButton = ft.CupertinoFilledButton(
+    lang.Play_Menu_Start_Game,
+    icon=ft.Icons.PLAY_ARROW_ROUNDED,
+    on_click=run_game
+)
 
 
-launchGameCardColumn = ft.Column([ft.Text(lang.Play_Menu_Config_Account_Title, size=16),
-                                    accountsDropdown,
-                                    ft.Text(lang.Play_Menu_Select_Instance_Title, size=16),
-                                    instancesDropdown,
-                                    launchGameButton],
-                                    alignment=ft.MainAxisAlignment.CENTER,
-                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+launchGameCardColumn = ft.Column(
+    [
+        ft.Text(lang.Play_Menu_Config_Account_Title, size=16),
+        accountsDropdown,
+        ft.Text(lang.Play_Menu_Select_Instance_Title, size=16),
+        instancesDropdown,
+        launchGameButton
+    ],
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+)
 
 
 launchGameCard = ft.Card(launchGameCardColumn)
@@ -162,8 +190,7 @@ callback = Callback()
 # -------------------------------
 
 
-progressBarMessage = ft.Text("No tasks running",
-                                text_align=ft.TextAlign.CENTER)
+progressBarMessage = ft.Text("No tasks running", text_align=ft.TextAlign.CENTER)
 
 
 progressBar = ft.ProgressBar(value=1)
@@ -172,10 +199,13 @@ progressBar = ft.ProgressBar(value=1)
 progressBarPercentage = ft.Text("0/0",
                                 text_align=ft.TextAlign.CENTER)
 
-progressBarRow = ft.Row([progressBarMessage,
-                            progressBar,
-                            progressBarPercentage],
-                        alignment=ft.MainAxisAlignment.CENTER)
+progressBarRow = ft.Row(
+    [
+        progressBarMessage,
+        progressBar,
+        progressBarPercentage
+    ],
+    alignment=ft.MainAxisAlignment.CENTER)
 
 
 # -------------------------------
@@ -242,12 +272,16 @@ def main(main_page: ft.Page):
     main_page.theme_mode = ft.ThemeMode.DARK  if config.settings.Theme.lower() == "dark" else ft.ThemeMode.LIGHT
 
 
-    main_page.add(ft.Card(topCardRow),
-             ft.Row([menuCard,
-                     launchGameCard],
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER),
-             ft.Card(progressBarRow))
+    main_page.add(
+        ft.Card(topCardRow),
+        ft.Row([
+            menuCard,
+            launchGameCard
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        vertical_alignment=ft.CrossAxisAlignment.CENTER),
+        ft.Card(progressBarRow)
+    )
 
 
     main_page.on_resize = update_contents

@@ -32,8 +32,10 @@ def resize(event):
 
 
 def accountsParagraph(menu):
-    menus = {lang.Add_Accounts_Title: addAccountColumn,
-                lang.Delete_Accounts_Title: removeAccountColumn}
+    menus = {
+        lang.Add_Accounts_Title: addAccountColumn,
+        lang.Delete_Accounts_Title: removeAccountColumn
+    }
     accountsCard.content = menus[menu.data]
     accountsCard.update()
         
@@ -44,16 +46,20 @@ def update_account_displays(acc, accDel):
         
         
 def start_account_creation(event=None):
-    process.add_process(accounts.add_account, 
-                        addAccountType.value,
-                        addAccountName.value,
-                        addAccountPassword.value)
+    process.add_process(
+        accounts.add_account, 
+        addAccountType.value,
+        addAccountName.value,
+        addAccountPassword.value
+    )
     update_account_displays(True, False)
 
 
 def start_account_delete(event=None):
-    process.add_process(accounts.del_account,
-                                removeAccountDropdown.value)
+    process.add_process(
+        accounts.del_account,
+        removeAccountDropdown.value
+    )
     update_account_displays(True, True)
 
 
@@ -82,61 +88,88 @@ def updateRemoveAccounts(update):
 # -------------------------------
 
 
-addAccountType = ft.Dropdown(lang.Default_Option,
-                                options=[ft.dropdown.Option("Premiun"),
-                                        ft.dropdown.Option("No Premiun")])
+addAccountType = ft.Dropdown(
+    lang.Default_Option,
+    options=[
+        ft.dropdown.Option("Premiun"),
+        ft.dropdown.Option("No Premiun")
+    ]
+)
 
 addAccountName = ft.TextField()
 
 
-addAccountPassword = ft.TextField(password=True,
-                                    can_reveal_password=True)
+addAccountPassword = ft.TextField(password=True, can_reveal_password=True)
 
 
-addAccountButton = ft.CupertinoFilledButton(lang.Add_Account_Button,
-                                            icon=ft.Icons.ACCOUNT_BOX,
-                                            on_click=start_account_creation)
+addAccountButton = ft.CupertinoFilledButton(
+    lang.Add_Account_Button,
+    icon=ft.Icons.ACCOUNT_BOX,
+    on_click=start_account_creation
+)
 
 
-addAccountColumn = ft.Column([addAccountType,
-                                ft.Text(lang.Add_Account_Name, size=16),
-                                addAccountName,
-                                ft.Text(lang.Add_Account_Password, size=16),
-                                addAccountPassword,
-                                addAccountButton],
-                                alignment=ft.MainAxisAlignment.CENTER,
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                scroll=ft.ScrollMode.AUTO)
+addAccountColumn = ft.Column(
+    [
+        addAccountType,
+        ft.Text(lang.Add_Account_Name, size=16),
+        addAccountName,
+        ft.Text(lang.Add_Account_Password, size=16),
+        addAccountPassword,
+        addAccountButton
+    ],
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    scroll=ft.ScrollMode.AUTO
+)
 
 
-removeAccountDropdown = ft.Dropdown(lang.Default_Option,
-                                    options=[ft.dropdown.Option(account)
-                                                for account in config.settings.Accounts])
+removeAccountDropdown = ft.Dropdown(
+    lang.Default_Option,
+    options=[
+        ft.dropdown.Option(account)
+        for account in config.settings.Accounts
+    ]
+)
 
 
-removeAccountButton = ft.CupertinoFilledButton(lang.Delete_Account_Button,
-                                                icon=ft.Icons.CANCEL,
-                                                on_click=start_account_delete)
+removeAccountButton = ft.CupertinoFilledButton(
+    lang.Delete_Account_Button,
+    icon=ft.Icons.CANCEL,
+    on_click=start_account_delete
+)
 
 
-removeAccountColumn = ft.Column([removeAccountDropdown,
-                                    removeAccountButton],
-                                scroll=ft.ScrollMode.AUTO,
-                                alignment=ft.MainAxisAlignment.CENTER,
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+removeAccountColumn = ft.Column(
+    [
+        removeAccountDropdown,
+        removeAccountButton
+    ],
+    scroll=ft.ScrollMode.AUTO,
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+)
 
 
-accountDropdown = ft.Dropdown(lang.Add_Accounts_Title,
-                                options=[ft.dropdown.Option(lang.Add_Accounts_Title),
-                                        ft.dropdown.Option(lang.Delete_Accounts_Title)],
-                                on_text_change=accountsParagraph)
+accountDropdown = ft.Dropdown(
+    lang.Add_Accounts_Title,
+    options=[
+        ft.dropdown.Option(lang.Add_Accounts_Title),
+        ft.dropdown.Option(lang.Delete_Accounts_Title)
+    ],
+    on_text_change=accountsParagraph
+)
 
 
 accountsCard = ft.Card(addAccountColumn)
 
 
-accountCardColumn = ft.Column([ft.Text(lang.Accounts_Title, size=36),
-                                accountDropdown,
-                                accountsCard],
-                                alignment=ft.MainAxisAlignment.CENTER,
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+accountCardColumn = ft.Column(
+    [
+        ft.Text(lang.Accounts_Title, size=36),
+        accountDropdown,
+        accountsCard
+    ],
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+)

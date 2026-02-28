@@ -39,9 +39,11 @@ def add_account(type, name, pasword):
 
             try:
                 auth_code = mcll.microsoft_account.parse_auth_code_url(code_url, state)
+                
             except AssertionError:
                 print("States do not match!")
                 return
+            
             except KeyError:
                 print("Url not valid")
                 return
@@ -66,8 +68,10 @@ def add_account(type, name, pasword):
             main_ui.callback.setProgress(1)
 
             main_ui.Message(lang.Add_Account_No_Premium_Success)
+            
         except:
             main_ui.Message(lang.Add_Account_No_Premium_Failure)
+            
     else:
         main_ui.Message(lang.Add_Account_No_Type_Selected)
     
@@ -84,11 +88,13 @@ def del_account(removedAccount,):
         for account in config.settings.Accounts:
             if account != removedAccount:
                 newAccounts[account] = config.settings.Accounts[account]
+                
         config.settings.Accounts = newAccounts
 
         main_ui.callback.setProgress(1)
 
         main_ui.Message(lang.Delete_Account_Success)
+        
     except:
         main_ui.Message(lang.Delete_Account_Failure)
 
@@ -103,14 +109,17 @@ def check_accounts():
     if len(list_added_accounts) != 0:
         if config.settings.DefaultAccount == "" or config.settings.DefaultAccount == lang.Without_Accounts:
             config.settings.DefaultAccount = list_added_accounts[0]
+            
         is_added = False
 
         for account_added in list_added_accounts:
             if config.settings.DefaultAccount == account_added:
                 is_added = True
+                
 
         if not is_added:
             config.settings.DefaultAccount = list_added_accounts[0]
+            
         accounts = config.settings.DefaultAccount
 
     elif len(list_added_accounts) == 0:

@@ -27,11 +27,15 @@ def do_install(name, type, ver, mod):
     
     if type == "Vanilla" or type == "Snapshot":
         try:
-            mcll.install.install_minecraft_version(versionid=ver,
-                                                    minecraft_directory=config.settings.Minecraft_Dir+'/'+name,
-                                                    callback={'setStatus': main_ui.callback.setStatus,
-                                                                'setProgress': main_ui.callback.setProgress,
-                                                                'setMax': main_ui.callback.setMax})
+            mcll.install.install_minecraft_version(
+                versionid=ver,
+                minecraft_directory=config.settings.Minecraft_Dir+'/'+name,
+                callback=mcll.types.CallbackDict(
+                    setStatus = main_ui.callback.setStatus,
+                    setProgress = main_ui.callback.setProgress,
+                    setMax = main_ui.callback.setMax
+                )
+            )
             
             saveInstance(name, type, ver, ver)
             main_ui.Message(lang.Create_Instance_Success)
@@ -43,13 +47,17 @@ def do_install(name, type, ver, mod):
     elif type == "Forge" or type == "NeoForge":
         try:
             installation = mcll.mod_loader.get_mod_loader(type.lower())
-            installation.install(minecraft_version=ver,
-                                    loader_version=mod,
-                                    minecraft_directory=config.settings.Minecraft_Dir+'/'+name,
-                                    java=java,
-                                    callback={'setStatus': main_ui.callback.setStatus,
-                                            'setProgress': main_ui.callback.setProgress,
-                                            'setMax': main_ui.callback.setMax})
+            installation.install(
+                minecraft_version=ver,
+                loader_version=mod,
+                minecraft_directory=config.settings.Minecraft_Dir+'/'+name,
+                java=java,
+                callback=mcll.types.CallbackDict(
+                    setStatus = main_ui.callback.setStatus,
+                    setProgress = main_ui.callback.setProgress,
+                    setMax = main_ui.callback.setMax
+                )
+            )
                             
 
             saveInstance(name, type, ver, mod.replace("-", f"-{type.lower()}-", 1))
@@ -62,13 +70,17 @@ def do_install(name, type, ver, mod):
     elif type == "Fabric" or type == "Quilt":
         try:
             installation = mcll.mod_loader.get_mod_loader(type.lower())
-            installation.install(minecraft_version=ver,
-                                    loader_version=mod,
-                                    minecraft_directory=config.settings.Minecraft_Dir+'/'+name,
-                                    java=java,
-                                    callback=mcll.types.CallbackDict(setStatus = main_ui.callback.setStatus,
-                                                                     setProgress = main_ui.callback.setProgress,
-                                                                     setMax = main_ui.callback.setMax))
+            installation.install(
+                minecraft_version=ver,
+                loader_version=mod,
+                minecraft_directory=config.settings.Minecraft_Dir+'/'+name,
+                java=java,
+                callback=mcll.types.CallbackDict(
+                    setStatus = main_ui.callback.setStatus,
+                    setProgress = main_ui.callback.setProgress,
+                    setMax = main_ui.callback.setMax
+                )
+            )
             
             saveInstance(name, type, ver, f"{type.lower()}-loader-{mod}-{ver}")
             main_ui.Message(lang.Create_Instance_Success)
@@ -105,6 +117,7 @@ def get_instance_data(name):
     with open(config.settings.Minecraft_Dir+'/'+name+'/instance_data.json', 'r') as file:
         fileData = json.load(file)
         file.close()
+        
     return fileData
 
 
@@ -229,19 +242,24 @@ def run_instance(versionName, username):
     instanceData = get_instance_data(versionName)
 
     minecraft_command = mcll.command.get_minecraft_command(instanceData['Jar'], config.settings.Minecraft_Dir+'/'+versionName, options)
+    
     try:
         if os.name == "nt":
             minecraft_command[0] = os.path.normpath(jdk.get_jdk_client(float(instanceData['Ver'].replace(".", "", 1)))+"/bin/java.exe")
+            
         else:
             minecraft_command[0] = os.path.normpath(jdk.get_jdk_client(float(instanceData['Ver'].replace(".", "", 1))) + "/bin/java")
+            
     except Exception as e:
         main_ui.Message(lang.Incompatible_JDK+"\n\n Error: "+str(e))
         return
+    
     subprocess.run(minecraft_command)
 
 
 def open_instances_folder(e=None):
     if os.name == "nt":
         os.startfile(config.settings.Minecraft_Dir)
+        
     elif os.name == "posix":
         os.system('xdg-open '+config.settings.Minecraft_Dir)

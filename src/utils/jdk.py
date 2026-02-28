@@ -7,10 +7,13 @@ from core import config
 def get_jdk_version(game_version: float):
     if game_version >= 120.5:
         return "21"
+    
     elif game_version >= 118:
         return "17"
+    
     elif game_version >= 117:
         return "16"
+    
     else:
         return "8"
 
@@ -25,17 +28,22 @@ def get_jdk_client(game_version: float):
         try:
             os.path.normpath(glob.glob(config.settings.Minecraft_Dir+'/jdks/jdk'+jdk_version+'*')[0])
         except:
-            jdk.install(version=jdk_version,
-                        jre=True,
-                        path=os.path.normpath(config.settings.Minecraft_Dir+'/jdks'),
-                        vendor="Adoptium")
+            jdk.install(
+                version=jdk_version,
+                jre=True,
+                path=os.path.normpath(config.settings.Minecraft_Dir+'/jdks'),
+                vendor="Adoptium"
+            )
         return os.path.normpath(glob.glob(config.settings.Minecraft_Dir+'/jdks/jdk'+jdk_version+'*')[0])
+    
     else:
         try:
             os.path.normpath(glob.glob(config.settings.Minecraft_Dir+'/jdks/jdk-'+jdk_version+'*')[0])
         except:
-            jdk.install(version=jdk_version,
-                        jre=True,
-                        path=os.path.normpath(config.settings.Minecraft_Dir+'/jdks'),
-                        vendor="Adoptium")
+            jdk.install(
+                version=jdk_version,
+                jre=True,
+                path=os.path.normpath(config.settings.Minecraft_Dir+'/jdks'),
+                vendor="Adoptium"
+            )
         return os.path.normpath(glob.glob(config.settings.Minecraft_Dir+'/jdks/jdk-'+jdk_version+'*')[0])

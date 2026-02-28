@@ -40,8 +40,10 @@ def resize(event):
 
 
 def configPharagraph(menu):
-    menus = {lang.Launcher_Config_Title: normalConfigCardColumn,
-                lang.Advanced_Config_Title: advancedConfigCardColumn}
+    menus = {
+        lang.Launcher_Config_Title: normalConfigCardColumn,
+        lang.Advanced_Config_Title: advancedConfigCardColumn
+    }
     configCard.content = menus[menu.data]
     configCard.update()
 
@@ -53,8 +55,10 @@ def langChange(dropdown):
 
 def themeChange(dropdown):
     config.update_config_theme(dropdown.data)
-    main_ui.bgImg.image = ft.DecorationImage(utils.get_assets_path()+main_ui.backgroundImages[dropdown.data],
-                                        fit=ft.BoxFit.COVER)
+    main_ui.bgImg.image = ft.DecorationImage(
+        utils.get_assets_path()+main_ui.backgroundImages[dropdown.data],
+        fit=ft.BoxFit.COVER
+    )
     main_ui.page.theme_mode = ft.ThemeMode.DARK  if dropdown.data.lower() == "dark" else ft.ThemeMode.LIGHT
     main_ui.page.update()
 
@@ -63,17 +67,21 @@ def imageChange(checkBox):
     if checkBox.data == "true":
         main_ui.page.bgcolor = ft.Colors.TRANSPARENT
         config.settings.EnabledBgImg = True
+        
     else:
         main_ui.page.bgcolor = ft.Colors.GREY
         config.settings.EnabledBgImg = False
+        
     main_ui.page.update()
 
 
 def closeOnPlayChange(checkBox):
     if checkBox.data == "true":
         config.settings.CloseOnPlay = True
+        
     else:
         config.settings.CloseOnPlay = False
+        
     main_ui.page.update()
 
 
@@ -102,86 +110,133 @@ def removeRam(event=None):
 # -------------------------------
 
 
-languajeConfigDropdown = ft.Dropdown(lang.Default_Option,
-                                        options=[ft.dropdown.Option(option.name.replace(".json", ""))
-                                                for option in os.scandir(utils.get_assets_path()+'/lang')
-                                                if option.name != "Example.json"],
-                                        on_text_change=langChange)
+languajeConfigDropdown = ft.Dropdown(
+    lang.Default_Option,
+    options=[
+        ft.dropdown.Option(option.name.replace(".json", ""))
+        for option in os.scandir(utils.get_assets_path()+'/lang')
+        if option.name != "Example.json"
+    ],
+    on_text_change=langChange
+)
 
 
-themeConfigDropdown = ft.Dropdown(lang.Default_Option,
-                                    options=[ft.dropdown.Option("Light"),
-                                            ft.dropdown.Option("Dark")],
-                                    on_text_change=themeChange)
+themeConfigDropdown = ft.Dropdown(
+    lang.Default_Option,
+    options=[
+        ft.dropdown.Option("Light"),
+        ft.dropdown.Option("Dark")
+    ],
+    on_text_change=themeChange
+)
 
 
-normalConfigCardColumn = ft.Column([ft.Text(lang.Launcher_Config_Title, size=36),
-                                    ft.Text(lang.Launcher_Config_Lang_Title, size=16),
-                                    languajeConfigDropdown,
-                                    ft.Text(lang.Launcher_Config_Theme_Title, size=16),
-                                    themeConfigDropdown,
-                                    ft.Switch(lang.Launcher_Config_Img, value=config.settings.EnabledBgImg, on_change=imageChange),
-                                    ft.Switch(lang.Launcher_Config_On_Close, value=config.settings.CloseOnPlay, on_change=closeOnPlayChange)],
-                                    alignment=ft.MainAxisAlignment.CENTER,
-                                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                    scroll=ft.ScrollMode.AUTO)
+normalConfigCardColumn = ft.Column(
+    [
+        ft.Text(lang.Launcher_Config_Title, size=36),
+        ft.Text(lang.Launcher_Config_Lang_Title, size=16),
+        languajeConfigDropdown,
+        ft.Text(lang.Launcher_Config_Theme_Title, size=16),
+        themeConfigDropdown,
+        ft.Switch(
+            lang.Launcher_Config_Img,
+            value=config.settings.EnabledBgImg,
+            on_change=imageChange
+        ),
+        ft.Switch(
+            lang.Launcher_Config_On_Close,
+            value=config.settings.CloseOnPlay,
+            on_change=closeOnPlayChange
+        )
+    ],
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    scroll=ft.ScrollMode.AUTO
+)
 
 
-ramConfigSlider = ft.Slider(value=config.settings.RamAmount,
-                            min=128,
-                            max=utils.get_ram(),
-                            divisions=int(utils.get_ram()/32)-4,
-                            on_change=ramTextValueEdit,
-                            on_change_start=ramTextValueEdit,
-                            on_change_end=ramTextValueEdit)
+ramConfigSlider = ft.Slider(
+    value=config.settings.RamAmount,
+    min=128,
+    max=utils.get_ram(),
+    divisions=int(utils.get_ram()/32)-4,
+    on_change=ramTextValueEdit,
+    on_change_start=ramTextValueEdit,
+    on_change_end=ramTextValueEdit
+)
 
 
 ramConfigShow = ft.Text(str(config.settings.RamAmount)+'MB', size=12)
 
 
-ramConfigRow = ft.Row([ramConfigSlider,
-                        ft.Row([ft.IconButton(ft.Icons.REMOVE, on_click=removeRam),
-                                ramConfigShow,
-                                ft.IconButton(ft.Icons.ADD, on_click=addRam)])],
-                        alignment=ft.MainAxisAlignment.CENTER)
+ramConfigRow = ft.Row(
+    [
+        ramConfigSlider,
+        ft.Row(
+            [
+                ft.IconButton(ft.Icons.REMOVE, on_click=removeRam),
+                ramConfigShow,
+                ft.IconButton(ft.Icons.ADD, on_click=addRam)
+            ]
+        )
+    ],
+    alignment=ft.MainAxisAlignment.CENTER)
 
 
 minecraftDirectoryConfigTextField = ft.TextField(config.settings.Minecraft_Dir)
 
 
-minecraftFirectoryConfigButton = ft.CupertinoFilledButton(lang.Advanced_Config_Minecraft_Directory,
-                                                            on_click=lambda event: config.update_config_dir(minecraftDirectoryConfigTextField.value))
+minecraftFirectoryConfigButton = ft.CupertinoFilledButton(
+    lang.Advanced_Config_Minecraft_Directory,
+    on_click=lambda event: config.update_config_dir(minecraftDirectoryConfigTextField.value)
+)
 
 
-openFolderConfigCuppertinoFilledButton = ft.CupertinoFilledButton(lang.Advanced_Config_Open_Versions_Folder,
-                                                                    ft.Icons.FOLDER,
-                                                                    on_click=instances.open_instances_folder)
+openFolderConfigCuppertinoFilledButton = ft.CupertinoFilledButton(
+    lang.Advanced_Config_Open_Versions_Folder,
+    icon=ft.Icons.FOLDER,
+    on_click=instances.open_instances_folder
+)
 
 
-advancedConfigCardColumn = ft.Column([ft.Text(lang.Advanced_Config_Title, size=36),
-                                        ft.Text(lang.Advanced_Config_Ram_Title, size=16),
-                                        ramConfigRow,
-                                        ft.Text(lang.Advanced_Config_Folder_Title, size=16),
-                                        ft.Row([minecraftDirectoryConfigTextField,
-                                                minecraftFirectoryConfigButton],
-                                                alignment=ft.MainAxisAlignment.CENTER),
-                                        openFolderConfigCuppertinoFilledButton],
-                                        alignment=ft.MainAxisAlignment.CENTER,
-                                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                        scroll=ft.ScrollMode.AUTO)
+advancedConfigCardColumn = ft.Column(
+    [
+        ft.Text(lang.Advanced_Config_Title, size=36),
+        ft.Text(lang.Advanced_Config_Ram_Title, size=16),
+        ramConfigRow,
+        ft.Text(lang.Advanced_Config_Folder_Title, size=16),
+        ft.Row([
+                minecraftDirectoryConfigTextField,
+                minecraftFirectoryConfigButton
+        ],
+        alignment=ft.MainAxisAlignment.CENTER),
+        openFolderConfigCuppertinoFilledButton],
+        alignment=ft.MainAxisAlignment.CENTER,
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        scroll=ft.ScrollMode.AUTO)
 
 
-configCard = ft.Card(normalConfigCardColumn)
+configCard = ft.Card(
+    normalConfigCardColumn
+)
 
 
-configDropdown = ft.Dropdown(lang.Default_Option,
-                                options=[ft.dropdown.Option(lang.Launcher_Config_Title),
-                                        ft.dropdown.Option(lang.Advanced_Config_Title)],
-                                on_text_change=configPharagraph)
+configDropdown = ft.Dropdown(
+    lang.Default_Option,
+    options=[
+        ft.dropdown.Option(lang.Launcher_Config_Title),
+        ft.dropdown.Option(lang.Advanced_Config_Title)
+    ],
+    on_text_change=configPharagraph
+)
 
 
-configCardColumn = ft.Column([ft.Text(lang.Config_Title, size=36),
-                                configDropdown,
-                                configCard],
-                                alignment=ft.MainAxisAlignment.CENTER,
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+configCardColumn = ft.Column(
+    [
+        ft.Text(lang.Config_Title, size=36),
+        configDropdown,
+        configCard
+    ],
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+)

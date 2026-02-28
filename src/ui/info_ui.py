@@ -36,23 +36,37 @@ def change_info(event):
 infoTextTitle = ft.Text('TeenyLauncher '+config.Version, size=48)
 
 
-infoDropdown = ft.Dropdown(lang.Default_Option,
-                            options=[ft.dropdown.Option(file.name.replace('.txt', ''))
-                                    for file in os.scandir(utils.get_assets_path()+'/changelog')],
-                            on_text_change=change_info)
+infoDropdown = ft.Dropdown(
+    lang.Default_Option,
+    options=[
+        ft.dropdown.Option(file.name.replace('.txt', ''))
+        for file in os.scandir(utils.get_assets_path()+'/changelog')
+    ],
+    on_text_change=change_info
+)
 
 
 infoVersionText = ft.Text(open(utils.get_assets_path()+'/changelog/V'+config.Version+'.txt', 'r').read())
 
 
-infoColumn = ft.Column([infoVersionText],
-                        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                        scroll=ft.ScrollMode.ALWAYS)
+infoColumn = ft.Column(
+    [
+        infoVersionText
+    ],
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+    scroll=ft.ScrollMode.ALWAYS
+)
 
 
 infoCard = ft.Card(infoColumn)
 
 
-infoCardColumn = ft.Column([infoTextTitle, infoDropdown, infoCard],
-                            alignment=ft.MainAxisAlignment.CENTER,
-                            horizontal_alignment=ft.CrossAxisAlignment.CENTER)
+infoCardColumn = ft.Column(
+    [
+        infoTextTitle,
+        infoDropdown,
+        infoCard
+    ],
+    alignment=ft.MainAxisAlignment.CENTER,
+    horizontal_alignment=ft.CrossAxisAlignment.CENTER
+)
